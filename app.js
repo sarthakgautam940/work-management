@@ -1579,22 +1579,29 @@ function getNextSatModule() {
   return modules.find((module) => !isChecked(module.id)) || SAT_TRACKS.math[0];
 }
 
+function isApDailyRequired() {
+  return daysUntil(APP_CONFIG.apSprintEnd) >= 0;
+}
+
+function getTsaCompletion() {
+  const tsa = getTsaSection();
+  return {
+    done: tsa.tasks.filter((task) => isChecked(task.id)).length,
+    total: tsa.tasks.length
+  };
+}
+
+function getTsaDailyTasks(limit = 3) {
+  return getAllSchoolTasks()
+    .filter((task) => task.classId === "tsa" && !isChecked(task.id))
+    .sort(compareTasks)
+    .slice(0, limit);
+}
+
 function getTodayOptionalLanes() {
-  const nextApDay = getNextApDay();
   const nextBook = getNextIboBook();
   const nextSatModule = getNextSatModule();
   const lanes = [];
-
-  if (nextApDay) {
-    lanes.push({
-      area: "AP Exams",
-      theme: "blue",
-      title: `${nextApDay.label} AP roadmap block`,
-      detail: `${formatShortDate(nextApDay.date)} - ${nextApDay.blocks.map((block) => block.title).join(" / ")}`,
-      button: "Open AP plan",
-      action: `setTab('ap')`
-    });
-  }
 
   if (nextBook) {
     lanes.push({
@@ -1620,7 +1627,7 @@ function getTodayOptionalLanes() {
     });
   }
 
-  return lanes;
+  return lanes.slice(0, 2);
 }
 
 function getTodayHoursEstimate(tasks) {
@@ -1686,6 +1693,10 @@ function renderTodayPage() {
   const focusTask = coreTasks[0] || null;
   const followUps = coreTasks.slice(1, 6);
   const continuation = getTodayOptionalLanes();
+  const nextApDay = getNextApDay();
+  const apRequired = isApDailyRequired();
+  const tsaStats = getTsaCompletion();
+  const tsaDaily = getTsaDailyTasks(2);
   const deadlines = getUpcomingTimeline();
   const schoolStats = getSchoolCompletion();
   const apStats = getApCompletion();
@@ -1698,11 +1709,12 @@ function renderTodayPage() {
       <div class="eyebrow">Today</div>
       <h2>Make the next move obvious and keep the rest of the system calm.</h2>
       <p>${coreTasks.length
-        ? "Your must-do lane is built from real deadlines first across classes and TSA. Once that is clear, AP, IBO, and SAT stay available as continuation work instead of noise."
-        : "You have cleared the current must-do school lane. The continuation lane below keeps long-range prep moving without guessing."}</p>
+        ? "Your must-do lane is built from real deadlines first across classes and TSA, plus daily AP execution."
+        : "You have cleared the current must-do school lane. Keep AP and TSA daily touch blocks active."}</p>
       <div class="stats-grid">
         ${renderStatCard("School tasks", `${schoolStats.done}/${schoolStats.total}`, coreTasks.length ? `${coreTasks.length} high-pressure items still active` : "Current must-do lane is clear")}
-        ${renderStatCard("AP roadmap", `${apStats.done}/${apStats.total}`, "Your original AP sequence is still preserved")}
+        ${renderStatCard("AP roadmap", `${apStats.done}/${apStats.total}`, apRequired ? "Daily AP block is required until the AP sprint ends" : "AP sprint window is complete")}
+        ${renderStatCard("TSA execution", `${tsaStats.done}/${tsaStats.total}`, `Daily progress required through ${formatShortDate("2026-04-30")}`)}
         ${renderStatCard("IBO sprint", iboStart > 0 ? `${iboStart} days` : "Live", iboStart > 0 ? `Starts ${formatShortDate(APP_CONFIG.iboSprintStart)}` : `${iboStats.chapterDone + iboStats.bookDone + iboStats.caseDone} tracked wins so far`)}
         ${renderStatCard("SAT target", `${satDiff} days`, `Official target date: ${formatShortDate(APP_CONFIG.satTestDate)}`)}
       </div>
@@ -1740,25 +1752,35 @@ function renderTodayPage() {
       <section class="card">
         <div class="card-head">
           <div>
-            <div class="section-label">After That</div>
-            <h3 class="card-title">${coreTasks.length ? "The rest of today's must-do queue" : "Longer tail schoolwork"}</h3>
+            <div class="section-label">Daily Non-Negotiables</div>
+            <h3 class="card-title">AP + TSA touchpoints that must happen every day</h3>
           </div>
-          <span class="chip due">${esc(getTodayHoursEstimate(coreTasks))}</span>
+          <span class="chip due">${esc(apRequired ? "Required today" : "AP sprint completed")}</span>
         </div>
-        ${coreTasks.length
-          ? `
-            <p class="card-copy">Checking one item off here will immediately move the next one into the main focus slot.</p>
-            <div class="task-list">
-              ${followUps.length ? followUps.map((task) => renderTaskRow(task, { showClass: true })).join("") : `<div class="empty-state">The focus card already shows the only must-do item still left for today.</div>`}
-            </div>
-          `
-          : `
-            <div class="task-list">
-              ${getTodayFollowUpTasks().length
-                ? getTodayFollowUpTasks().map((task) => renderTaskRow(task, { showClass: true })).join("")
-                : `<div class="empty-state">Nothing else in the school lane currently needs your attention.</div>`}
-            </div>
-          `}
+        <div class="progress-wrap">
+          ${renderProgressRow("AP days complete", apStats.done, apStats.total, "var(--blue)")}
+          ${renderProgressRow("TSA tasks complete", tsaStats.done, tsaStats.total, "var(--amber)")}
+        </div>
+        <div class="task-list">
+          ${apRequired && nextApDay
+            ? `<div class="task-row">
+                <div class="task-main">
+                  <div class="task-title-row">
+                    <span class="task-title">${esc(nextApDay.label)} AP execution block</span>
+                    <span class="chip tone-blue">AP Exams</span>
+                  </div>
+                  <div class="task-detail">${esc(formatShortDate(nextApDay.date))} - ${esc(nextApDay.blocks.map((block) => block.title).join(" / "))}</div>
+                  <div class="focus-actions">
+                    <button class="button button-primary" onclick="toggleTask('ap-day-${nextApDay.day}')">${isChecked(`ap-day-${nextApDay.day}`) ? "Marked complete" : "Mark AP day complete"}</button>
+                    <button class="button button-secondary" onclick="setTab('ap')">Open AP roadmap</button>
+                  </div>
+                </div>
+              </div>`
+            : `<div class="empty-state">AP daily execution block is complete for the current sprint window.</div>`}
+          ${tsaDaily.length
+            ? tsaDaily.map((task) => renderTaskRow(task, { showClass: true })).join("")
+            : `<div class="empty-state">TSA tasks are currently all checked. Keep quality reviews active until submission.</div>`}
+        </div>
       </section>
     </div>
 
@@ -1766,26 +1788,36 @@ function renderTodayPage() {
       <section class="card">
         <div class="card-head">
           <div>
-            <div class="section-label">Continue If You Have Time</div>
-            <h3 class="card-title">Long-range study stays available but not pushy</h3>
+            <div class="section-label">Next Few Tasks In Order</div>
+            <h3 class="card-title">Immediate queue after the current focus card</h3>
           </div>
+          <span class="chip due">${esc(getTodayHoursEstimate(coreTasks))}</span>
         </div>
-        <p class="card-copy">This is where AP exam prep, IBO momentum, and SAT habit-building live after school deadlines are handled.</p>
+        <p class="card-copy">These are the highest-priority school/TSA tasks still open, in execution order.</p>
         <div class="task-list">
-          ${continuation.map((lane) => `
-            <div class="task-row">
-              <div class="task-main">
-                <div class="task-title-row">
-                  <span class="task-title">${esc(lane.title)}</span>
-                  <span class="chip tone-${lane.theme}">${esc(lane.area)}</span>
+          ${followUps.length
+            ? followUps.map((task) => renderTaskRow(task, { showClass: true })).join("")
+            : getTodayFollowUpTasks().length
+              ? getTodayFollowUpTasks().map((task) => renderTaskRow(task, { showClass: true })).join("")
+              : `<div class="empty-state">No additional high-pressure tasks queued right now.</div>`}
+        </div>
+        <div class="task-list" style="margin-top:0.75rem;">
+          ${continuation.length
+            ? continuation.map((lane) => `
+                <div class="task-row">
+                  <div class="task-main">
+                    <div class="task-title-row">
+                      <span class="task-title">${esc(lane.title)}</span>
+                      <span class="chip tone-${lane.theme}">${esc(lane.area)}</span>
+                    </div>
+                    <div class="task-detail">${esc(lane.detail)}</div>
+                    <div class="focus-actions">
+                      <button class="button button-secondary" onclick="${lane.action}">${esc(lane.button)}</button>
+                    </div>
+                  </div>
                 </div>
-                <div class="task-detail">${esc(lane.detail)}</div>
-                <div class="focus-actions">
-                  <button class="button button-secondary" onclick="${lane.action}">${esc(lane.button)}</button>
-                </div>
-              </div>
-            </div>
-          `).join("")}
+              `).join("")
+            : `<div class="empty-state">Optional long-range lanes are currently paused.</div>`}
         </div>
       </section>
 
