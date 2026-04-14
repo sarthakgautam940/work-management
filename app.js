@@ -1114,6 +1114,10 @@ function getTsaSection() {
 
 function getAllSchoolTasks() {
   const sections = [...getClassrooms(), getTsaSection()];
+  return flattenSectionTasks(sections);
+}
+
+function flattenSectionTasks(sections) {
   return sections.flatMap((subject) =>
     subject.tasks.map((task) => ({
       ...task,
@@ -1220,7 +1224,8 @@ function getSubject(classId) {
 
 function getDefaultChecks() {
   const defaults = {};
-  getAllSchoolTasks().forEach((task) => {
+  const baseSections = [...deepClone(BASE_CLASSROOMS), deepClone(TSA_SECTION)];
+  flattenSectionTasks(baseSections).forEach((task) => {
     if (task.defaultDone) defaults[task.id] = true;
   });
   return defaults;
@@ -1259,11 +1264,13 @@ function loadState() {
   } catch (error) {
     raw = {};
   }
+  const classrooms = raw.classrooms ? raw.classrooms.map(normalizeSubject) : deepClone(BASE_CLASSROOMS);
+  const tsa = raw.tsa ? normalizeSubject(raw.tsa) : deepClone(TSA_SECTION);
   const defaults = getDefaultChecks();
   const merged = {
     activeTab: raw.activeTab || "today",
-    classrooms: raw.classrooms ? raw.classrooms.map(normalizeSubject) : deepClone(BASE_CLASSROOMS),
-    tsa: raw.tsa ? normalizeSubject(raw.tsa) : deepClone(TSA_SECTION),
+    classrooms,
+    tsa,
     checks: { ...defaults, ...(raw.checks || {}) },
     ui: {
       openPanels: raw.ui && raw.ui.openPanels ? raw.ui.openPanels : {},
