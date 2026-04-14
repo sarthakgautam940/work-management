@@ -25,7 +25,7 @@ const APP_CONFIG = {
   satTestDate: "2026-10-03"
 };
 
-const CLASSROOMS = [
+const BASE_CLASSROOMS = [
   {
     id: "precalc",
     name: "AP Precalculus",
@@ -94,6 +94,11 @@ const CLASSROOMS = [
         title: "Classifying matter chem quiz",
         date: "2026-04-14",
         detail: "Due tomorrow, Tuesday, April 14, 2026."
+      },
+      {
+        title: "Matter and Gas Laws test",
+        date: "2026-04-24",
+        detail: "Scheduled for Friday, April 24, 2026."
       },
       {
         title: "Final research paper",
@@ -185,6 +190,14 @@ const CLASSROOMS = [
         due: "2026-05-15",
         priority: "high",
         estimate: 90
+      },
+      {
+        id: "chem-matter-gas-laws-test-prep",
+        title: "Matter and Gas Laws chemistry test prep",
+        details: "Review classifying matter and gas law calculations for the Friday, April 24, 2026 test.",
+        due: "2026-04-24",
+        priority: "high",
+        estimate: 60
       }
     ]
   },
@@ -317,6 +330,48 @@ const CLASSROOMS = [
     ]
   }
 ];
+
+const TSA_SECTION = {
+  id: "tsa",
+  name: "TSA",
+  theme: "amber",
+  summary: "Four TSA challenges are now tracked with hard deadlines so you can execute without hunting for what is next.",
+  note: "All TSA work starts today (Tuesday, April 14, 2026) and targets completion by Wednesday, April 30, 2026.",
+  assessments: [
+    { title: "Physical paper forms submitted", date: "2026-04-15", detail: "Due Wednesday, April 15, 2026. Get signatures today." },
+    { title: "$40 adjustment fee paid", date: "2026-04-15", detail: "Due Wednesday, April 15, 2026 by midnight." },
+    { title: "Digital forms submitted", date: "2026-04-20", detail: "Due Monday, April 20, 2026." },
+    { title: "All TSA challenge deliverables complete", date: "2026-04-30", detail: "Hard completion target for all four challenges." },
+    { title: "On-demand video event prep complete", date: "2026-04-30", detail: "Prepare for on-site production window (36 hours)." }
+  ],
+  tasks: [
+    { id: "tsa-dvp-plan-video", title: "Digital Video Production: plan full video", details: "Finalize concept, storyboard, timing, and required scenes.", due: "2026-04-18", priority: "high", estimate: 90 },
+    { id: "tsa-dvp-cgi", title: "Digital Video Production: create CGI components", details: "Produce needed CGI assets and integration plan.", due: "2026-04-22", priority: "high", estimate: 120 },
+    { id: "tsa-dvp-film", title: "Digital Video Production: film clips", details: "Capture all planned footage with backup takes.", due: "2026-04-24", priority: "high", estimate: 120 },
+    { id: "tsa-dvp-edit", title: "Digital Video Production: edit final video", details: "Complete rough cut, revisions, and final export.", due: "2026-04-28", priority: "critical", estimate: 150 },
+    { id: "tsa-dvp-portfolio", title: "Digital Video Production: portfolio", details: "Build and polish the portfolio package tied to the challenge.", due: "2026-04-29", priority: "high", estimate: 90 },
+    { id: "tsa-dvp-interview", title: "Digital Video Production: interview prep", details: "Rehearse talking points, process decisions, and outcomes.", due: "2026-04-30", priority: "high", estimate: 60 },
+
+    { id: "tsa-smm-plan-scenes", title: "STEM Mass Media: plan shots and scenes", details: "Lock shot list, sequence, and required story beats.", due: "2026-04-18", priority: "high", estimate: 80 },
+    { id: "tsa-smm-props", title: "STEM Mass Media: prop collection", details: "Source and verify all required props before filming.", due: "2026-04-20", priority: "high", estimate: 60 },
+    { id: "tsa-smm-film", title: "STEM Mass Media: filming", details: "Capture all needed footage with continuity checks.", due: "2026-04-24", priority: "high", estimate: 120 },
+    { id: "tsa-smm-edit", title: "STEM Mass Media: edit final cut", details: "Produce polished final edit and verify requirements.", due: "2026-04-28", priority: "critical", estimate: 150 },
+    { id: "tsa-smm-portfolio", title: "STEM Mass Media: portfolio", details: "Finalize portfolio artifacts and explanatory notes.", due: "2026-04-29", priority: "high", estimate: 90 },
+    { id: "tsa-smm-semifinal", title: "STEM Mass Media: semifinal problem prep", details: "Practice responses and workflow for semifinal prompts.", due: "2026-04-30", priority: "high", estimate: 70 },
+
+    { id: "tsa-sss-solar-car", title: "Senior Solar Sprint: verify solar car completion", details: "Double-check build quality, function, and compliance.", due: "2026-04-22", priority: "high", estimate: 90 },
+    { id: "tsa-sss-podium", title: "Senior Solar Sprint: design shoebox podium", details: "Create a strong visual podium presentation for the car.", due: "2026-04-25", priority: "medium", estimate: 120 },
+    { id: "tsa-sss-portfolio", title: "Senior Solar Sprint: flawless portfolio", details: "Refine structure, visuals, and quality of the final portfolio.", due: "2026-04-29", priority: "critical", estimate: 90 },
+    { id: "tsa-sss-interview", title: "Senior Solar Sprint: interview prep", details: "Practice concise explanations and technical rationale.", due: "2026-04-30", priority: "high", estimate: 60 },
+
+    { id: "tsa-odv-practice", title: "On-demand video: timed production practice", details: "Train for the on-site format and 36-hour turnaround.", due: "2026-04-30", priority: "high", estimate: 120 },
+
+    { id: "tsa-paper-forms-sign", title: "Get physical paper forms signed today", details: "Required today so forms can be submitted tomorrow.", due: "2026-04-14", priority: "critical", estimate: 30 },
+    { id: "tsa-paper-forms-submit", title: "Submit physical paper forms", details: "Due Wednesday, April 15, 2026.", due: "2026-04-15", priority: "critical", estimate: 20 },
+    { id: "tsa-adjustment-fee", title: "Pay $40 adjustment fee", details: "Due Wednesday, April 15, 2026 by midnight.", due: "2026-04-15", priority: "critical", estimate: 15 },
+    { id: "tsa-digital-forms", title: "Submit digital forms", details: "Due Monday, April 20, 2026.", due: "2026-04-20", priority: "high", estimate: 30 }
+  ]
+};
 
 const AP_DAYS = [
   {
@@ -1037,14 +1092,41 @@ const VOCAB = [
   { word: "Tenacious", definition: "Holding firmly; persistent", example: "Her tenacious effort paid off." }
 ];
 
-const ALL_SCHOOL_TASKS = CLASSROOMS.flatMap((subject) =>
-  subject.tasks.map((task) => ({
-    ...task,
-    classId: subject.id,
-    className: subject.name,
-    theme: subject.theme
-  }))
-);
+function deepClone(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function normalizeSubject(subject) {
+  return {
+    ...subject,
+    assessments: Array.isArray(subject.assessments) ? subject.assessments : [],
+    tasks: Array.isArray(subject.tasks) ? subject.tasks : []
+  };
+}
+
+function getClassrooms() {
+  return state.classrooms.map(normalizeSubject);
+}
+
+function getTsaSection() {
+  return normalizeSubject(state.tsa);
+}
+
+function getAllSchoolTasks() {
+  const sections = [...getClassrooms(), getTsaSection()];
+  return flattenSectionTasks(sections);
+}
+
+function flattenSectionTasks(sections) {
+  return sections.flatMap((subject) =>
+    subject.tasks.map((task) => ({
+      ...task,
+      classId: subject.id,
+      className: subject.name,
+      theme: subject.theme
+    }))
+  );
+}
 
 const runtime = {
   pdfDocs: {},
@@ -1137,12 +1219,13 @@ function assessmentCountdown(dateString) {
 }
 
 function getSubject(classId) {
-  return CLASSROOMS.find((subject) => subject.id === classId);
+  return [...getClassrooms(), getTsaSection()].find((subject) => subject.id === classId);
 }
 
 function getDefaultChecks() {
   const defaults = {};
-  ALL_SCHOOL_TASKS.forEach((task) => {
+  const baseSections = [...deepClone(BASE_CLASSROOMS), deepClone(TSA_SECTION)];
+  flattenSectionTasks(baseSections).forEach((task) => {
     if (task.defaultDone) defaults[task.id] = true;
   });
   return defaults;
@@ -1181,9 +1264,13 @@ function loadState() {
   } catch (error) {
     raw = {};
   }
+  const classrooms = raw.classrooms ? raw.classrooms.map(normalizeSubject) : deepClone(BASE_CLASSROOMS);
+  const tsa = raw.tsa ? normalizeSubject(raw.tsa) : deepClone(TSA_SECTION);
   const defaults = getDefaultChecks();
   const merged = {
     activeTab: raw.activeTab || "today",
+    classrooms,
+    tsa,
     checks: { ...defaults, ...(raw.checks || {}) },
     ui: {
       openPanels: raw.ui && raw.ui.openPanels ? raw.ui.openPanels : {},
@@ -1207,6 +1294,8 @@ function loadState() {
 function saveState() {
   const payload = {
     activeTab: state.activeTab,
+    classrooms: state.classrooms,
+    tsa: state.tsa,
     checks: state.checks,
     ui: state.ui,
     sat: {
@@ -1231,6 +1320,110 @@ function toggleTask(id) {
   render();
 }
 
+function getSectionById(sectionId) {
+  if (sectionId === "tsa") return state.tsa;
+  return state.classrooms.find((subject) => subject.id === sectionId) || null;
+}
+
+function uniqueTaskId(section, seed) {
+  const base = `${section.id}-${seed.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "task"}`;
+  let id = base;
+  let index = 2;
+  const used = new Set(section.tasks.map((task) => task.id));
+  while (used.has(id)) {
+    id = `${base}-${index}`;
+    index += 1;
+  }
+  return id;
+}
+
+function addTask(sectionId) {
+  const section = getSectionById(sectionId);
+  if (!section) return;
+  const title = prompt("Assignment title:");
+  if (!title) return;
+  const details = prompt("Description/details:", "") || "";
+  const due = prompt("Due date (YYYY-MM-DD, optional):", "") || "";
+  const priority = (prompt("Priority (critical/high/medium/low):", "medium") || "medium").toLowerCase();
+  const estimate = Number(prompt("Estimate in minutes (optional):", "45")) || 0;
+  section.tasks.push({
+    id: uniqueTaskId(section, title),
+    title: title.trim(),
+    details: details.trim(),
+    due: due.trim() || undefined,
+    priority: PRIORITY_META[priority] ? priority : "medium",
+    estimate
+  });
+  saveState();
+  render();
+}
+
+function editTask(sectionId, taskId) {
+  const section = getSectionById(sectionId);
+  if (!section) return;
+  const task = section.tasks.find((item) => item.id === taskId);
+  if (!task) return;
+  const title = prompt("Edit title:", task.title);
+  if (!title) return;
+  task.title = title.trim();
+  task.details = (prompt("Edit description/details:", task.details || "") || "").trim();
+  task.due = (prompt("Edit due date (YYYY-MM-DD, optional):", task.due || "") || "").trim() || undefined;
+  const priority = (prompt("Edit priority (critical/high/medium/low):", task.priority || "medium") || "medium").toLowerCase();
+  task.priority = PRIORITY_META[priority] ? priority : "medium";
+  task.estimate = Number(prompt("Edit estimate in minutes (optional):", String(task.estimate || 0))) || 0;
+  saveState();
+  render();
+}
+
+function deleteTask(sectionId, taskId) {
+  const section = getSectionById(sectionId);
+  if (!section) return;
+  const task = section.tasks.find((item) => item.id === taskId);
+  if (!task) return;
+  if (!confirm(`Delete "${task.title}"?`)) return;
+  section.tasks = section.tasks.filter((item) => item.id !== taskId);
+  delete state.checks[taskId];
+  saveState();
+  render();
+}
+
+function addAssessment(sectionId) {
+  const section = getSectionById(sectionId);
+  if (!section) return;
+  const title = prompt("Assessment title:");
+  if (!title) return;
+  const date = prompt("Date (YYYY-MM-DD):", todayKey()) || "";
+  const detail = prompt("Assessment details:", "") || "";
+  section.assessments.push({ title: title.trim(), date: date.trim(), detail: detail.trim() });
+  saveState();
+  render();
+}
+
+function editAssessment(sectionId, encodedTitle) {
+  const section = getSectionById(sectionId);
+  if (!section) return;
+  const title = decodeURIComponent(encodedTitle);
+  const assessment = section.assessments.find((item) => item.title === title);
+  if (!assessment) return;
+  const nextTitle = prompt("Edit assessment title:", assessment.title);
+  if (!nextTitle) return;
+  assessment.title = nextTitle.trim();
+  assessment.date = (prompt("Edit date (YYYY-MM-DD):", assessment.date || "") || "").trim();
+  assessment.detail = (prompt("Edit details:", assessment.detail || "") || "").trim();
+  saveState();
+  render();
+}
+
+function deleteAssessment(sectionId, encodedTitle) {
+  const section = getSectionById(sectionId);
+  if (!section) return;
+  const title = decodeURIComponent(encodedTitle);
+  if (!confirm(`Delete assessment "${title}"?`)) return;
+  section.assessments = section.assessments.filter((item) => item.title !== title);
+  saveState();
+  render();
+}
+
 function setTab(tabId) {
   state.activeTab = tabId;
   if (tabId !== "classes") state.ui.highlightClassId = "";
@@ -1239,7 +1432,7 @@ function setTab(tabId) {
 }
 
 function setClassFocus(classId) {
-  state.activeTab = "classes";
+  state.activeTab = classId === "tsa" ? "tsa" : "classes";
   state.ui.highlightClassId = classId;
   saveState();
   render();
@@ -1284,9 +1477,10 @@ function compareTasks(left, right) {
 }
 
 function getSchoolCompletion() {
+  const allTasks = getAllSchoolTasks();
   return {
-    done: ALL_SCHOOL_TASKS.filter((task) => isChecked(task.id)).length,
-    total: ALL_SCHOOL_TASKS.length
+    done: allTasks.filter((task) => isChecked(task.id)).length,
+    total: allTasks.length
   };
 }
 
@@ -1314,7 +1508,7 @@ function getSatCompletion() {
 }
 
 function getNextSchoolDeadline() {
-  return ALL_SCHOOL_TASKS
+  return getAllSchoolTasks()
     .filter((task) => !isChecked(task.id) && task.due)
     .sort((left, right) => daysUntil(left.due) - daysUntil(right.due))[0] || null;
 }
@@ -1332,19 +1526,20 @@ function isTodayCoreTask(task) {
 }
 
 function getTodayCoreTasks() {
-  return ALL_SCHOOL_TASKS.filter(isTodayCoreTask).sort(compareTasks);
+  return getAllSchoolTasks().filter(isTodayCoreTask).sort(compareTasks);
 }
 
 function getTodayFollowUpTasks() {
   const coreIds = new Set(getTodayCoreTasks().map((task) => task.id));
-  return ALL_SCHOOL_TASKS
+  return getAllSchoolTasks()
     .filter((task) => !isChecked(task.id) && !coreIds.has(task.id))
     .sort(compareTasks)
     .slice(0, 5);
 }
 
 function getUpcomingTimeline() {
-  const taskEntries = ALL_SCHOOL_TASKS
+  const allSections = [...getClassrooms(), getTsaSection()];
+  const taskEntries = getAllSchoolTasks()
     .filter((task) => !isChecked(task.id) && task.due)
     .map((task) => ({
       date: task.due,
@@ -1353,7 +1548,7 @@ function getUpcomingTimeline() {
       theme: task.theme
     }));
 
-  const assessmentEntries = CLASSROOMS.flatMap((subject) =>
+  const assessmentEntries = allSections.flatMap((subject) =>
     subject.assessments.map((assessment) => ({
       date: assessment.date,
       title: assessment.title,
@@ -1384,22 +1579,29 @@ function getNextSatModule() {
   return modules.find((module) => !isChecked(module.id)) || SAT_TRACKS.math[0];
 }
 
+function isApDailyRequired() {
+  return daysUntil(APP_CONFIG.apSprintEnd) >= 0;
+}
+
+function getTsaCompletion() {
+  const tsa = getTsaSection();
+  return {
+    done: tsa.tasks.filter((task) => isChecked(task.id)).length,
+    total: tsa.tasks.length
+  };
+}
+
+function getTsaDailyTasks(limit = 3) {
+  return getAllSchoolTasks()
+    .filter((task) => task.classId === "tsa" && !isChecked(task.id))
+    .sort(compareTasks)
+    .slice(0, limit);
+}
+
 function getTodayOptionalLanes() {
-  const nextApDay = getNextApDay();
   const nextBook = getNextIboBook();
   const nextSatModule = getNextSatModule();
   const lanes = [];
-
-  if (nextApDay) {
-    lanes.push({
-      area: "AP Exams",
-      theme: "blue",
-      title: `${nextApDay.label} AP roadmap block`,
-      detail: `${formatShortDate(nextApDay.date)} - ${nextApDay.blocks.map((block) => block.title).join(" / ")}`,
-      button: "Open AP plan",
-      action: `setTab('ap')`
-    });
-  }
 
   if (nextBook) {
     lanes.push({
@@ -1425,7 +1627,7 @@ function getTodayOptionalLanes() {
     });
   }
 
-  return lanes;
+  return lanes.slice(0, 2);
 }
 
 function getTodayHoursEstimate(tasks) {
@@ -1463,11 +1665,12 @@ function renderTabs() {
   const tabs = [
     ["today", "Today"],
     ["classes", "Classes"],
+    ["tsa", "TSA"],
     ["ap", "AP Exams"],
     ["ibo", "IBO"],
     ["sat", "SAT"],
     ["timer", "Timer"],
-    ["uplevel", "Up Level"]
+    ["uplevel", "UpLevel"]
   ];
   document.getElementById("tabNav").innerHTML = tabs
     .map(([id, label]) => `<button class="tab-button${state.activeTab === id ? " active" : ""}" onclick="setTab('${id}')">${esc(label)}</button>`)
@@ -1477,6 +1680,7 @@ function renderTabs() {
 function renderActivePage() {
   if (state.activeTab === "today") return renderTodayPage();
   if (state.activeTab === "classes") return renderClassesPage();
+  if (state.activeTab === "tsa") return renderTsaPage();
   if (state.activeTab === "ap") return renderApPage();
   if (state.activeTab === "ibo") return renderIboPage();
   if (state.activeTab === "sat") return renderSatPage();
@@ -1489,6 +1693,10 @@ function renderTodayPage() {
   const focusTask = coreTasks[0] || null;
   const followUps = coreTasks.slice(1, 6);
   const continuation = getTodayOptionalLanes();
+  const nextApDay = getNextApDay();
+  const apRequired = isApDailyRequired();
+  const tsaStats = getTsaCompletion();
+  const tsaDaily = getTsaDailyTasks(2);
   const deadlines = getUpcomingTimeline();
   const schoolStats = getSchoolCompletion();
   const apStats = getApCompletion();
@@ -1501,11 +1709,12 @@ function renderTodayPage() {
       <div class="eyebrow">Today</div>
       <h2>Make the next move obvious and keep the rest of the system calm.</h2>
       <p>${coreTasks.length
-        ? "Your must-do lane is built from real class deadlines first. Once that is clear, AP, IBO, and SAT stay available as continuation work instead of noise."
-        : "You have cleared the current must-do school lane. The continuation lane below keeps long-range prep moving without guessing."}</p>
+        ? "Your must-do lane is built from real deadlines first across classes and TSA, plus daily AP execution."
+        : "You have cleared the current must-do school lane. Keep AP and TSA daily touch blocks active."}</p>
       <div class="stats-grid">
         ${renderStatCard("School tasks", `${schoolStats.done}/${schoolStats.total}`, coreTasks.length ? `${coreTasks.length} high-pressure items still active` : "Current must-do lane is clear")}
-        ${renderStatCard("AP roadmap", `${apStats.done}/${apStats.total}`, "Your original AP sequence is still preserved")}
+        ${renderStatCard("AP roadmap", `${apStats.done}/${apStats.total}`, apRequired ? "Daily AP block is required until the AP sprint ends" : "AP sprint window is complete")}
+        ${renderStatCard("TSA execution", `${tsaStats.done}/${tsaStats.total}`, `Daily progress required through ${formatShortDate("2026-04-30")}`)}
         ${renderStatCard("IBO sprint", iboStart > 0 ? `${iboStart} days` : "Live", iboStart > 0 ? `Starts ${formatShortDate(APP_CONFIG.iboSprintStart)}` : `${iboStats.chapterDone + iboStats.bookDone + iboStats.caseDone} tracked wins so far`)}
         ${renderStatCard("SAT target", `${satDiff} days`, `Official target date: ${formatShortDate(APP_CONFIG.satTestDate)}`)}
       </div>
@@ -1543,25 +1752,35 @@ function renderTodayPage() {
       <section class="card">
         <div class="card-head">
           <div>
-            <div class="section-label">After That</div>
-            <h3 class="card-title">${coreTasks.length ? "The rest of today's must-do queue" : "Longer tail schoolwork"}</h3>
+            <div class="section-label">Daily Non-Negotiables</div>
+            <h3 class="card-title">AP + TSA touchpoints that must happen every day</h3>
           </div>
-          <span class="chip due">${esc(getTodayHoursEstimate(coreTasks))}</span>
+          <span class="chip due">${esc(apRequired ? "Required today" : "AP sprint completed")}</span>
         </div>
-        ${coreTasks.length
-          ? `
-            <p class="card-copy">Checking one item off here will immediately move the next one into the main focus slot.</p>
-            <div class="task-list">
-              ${followUps.length ? followUps.map((task) => renderTaskRow(task, { showClass: true })).join("") : `<div class="empty-state">The focus card already shows the only must-do item still left for today.</div>`}
-            </div>
-          `
-          : `
-            <div class="task-list">
-              ${getTodayFollowUpTasks().length
-                ? getTodayFollowUpTasks().map((task) => renderTaskRow(task, { showClass: true })).join("")
-                : `<div class="empty-state">Nothing else in the school lane currently needs your attention.</div>`}
-            </div>
-          `}
+        <div class="progress-wrap">
+          ${renderProgressRow("AP days complete", apStats.done, apStats.total, "var(--blue)")}
+          ${renderProgressRow("TSA tasks complete", tsaStats.done, tsaStats.total, "var(--amber)")}
+        </div>
+        <div class="task-list">
+          ${apRequired && nextApDay
+            ? `<div class="task-row">
+                <div class="task-main">
+                  <div class="task-title-row">
+                    <span class="task-title">${esc(nextApDay.label)} AP execution block</span>
+                    <span class="chip tone-blue">AP Exams</span>
+                  </div>
+                  <div class="task-detail">${esc(formatShortDate(nextApDay.date))} - ${esc(nextApDay.blocks.map((block) => block.title).join(" / "))}</div>
+                  <div class="focus-actions">
+                    <button class="button button-primary" onclick="toggleTask('ap-day-${nextApDay.day}')">${isChecked(`ap-day-${nextApDay.day}`) ? "Marked complete" : "Mark AP day complete"}</button>
+                    <button class="button button-secondary" onclick="setTab('ap')">Open AP roadmap</button>
+                  </div>
+                </div>
+              </div>`
+            : `<div class="empty-state">AP daily execution block is complete for the current sprint window.</div>`}
+          ${tsaDaily.length
+            ? tsaDaily.map((task) => renderTaskRow(task, { showClass: true })).join("")
+            : `<div class="empty-state">TSA tasks are currently all checked. Keep quality reviews active until submission.</div>`}
+        </div>
       </section>
     </div>
 
@@ -1569,26 +1788,36 @@ function renderTodayPage() {
       <section class="card">
         <div class="card-head">
           <div>
-            <div class="section-label">Continue If You Have Time</div>
-            <h3 class="card-title">Long-range study stays available but not pushy</h3>
+            <div class="section-label">Next Few Tasks In Order</div>
+            <h3 class="card-title">Immediate queue after the current focus card</h3>
           </div>
+          <span class="chip due">${esc(getTodayHoursEstimate(coreTasks))}</span>
         </div>
-        <p class="card-copy">This is where AP exam prep, IBO momentum, and SAT habit-building live after school deadlines are handled.</p>
+        <p class="card-copy">These are the highest-priority school/TSA tasks still open, in execution order.</p>
         <div class="task-list">
-          ${continuation.map((lane) => `
-            <div class="task-row">
-              <div class="task-main">
-                <div class="task-title-row">
-                  <span class="task-title">${esc(lane.title)}</span>
-                  <span class="chip tone-${lane.theme}">${esc(lane.area)}</span>
+          ${followUps.length
+            ? followUps.map((task) => renderTaskRow(task, { showClass: true })).join("")
+            : getTodayFollowUpTasks().length
+              ? getTodayFollowUpTasks().map((task) => renderTaskRow(task, { showClass: true })).join("")
+              : `<div class="empty-state">No additional high-pressure tasks queued right now.</div>`}
+        </div>
+        <div class="task-list" style="margin-top:0.75rem;">
+          ${continuation.length
+            ? continuation.map((lane) => `
+                <div class="task-row">
+                  <div class="task-main">
+                    <div class="task-title-row">
+                      <span class="task-title">${esc(lane.title)}</span>
+                      <span class="chip tone-${lane.theme}">${esc(lane.area)}</span>
+                    </div>
+                    <div class="task-detail">${esc(lane.detail)}</div>
+                    <div class="focus-actions">
+                      <button class="button button-secondary" onclick="${lane.action}">${esc(lane.button)}</button>
+                    </div>
+                  </div>
                 </div>
-                <div class="task-detail">${esc(lane.detail)}</div>
-                <div class="focus-actions">
-                  <button class="button button-secondary" onclick="${lane.action}">${esc(lane.button)}</button>
-                </div>
-              </div>
-            </div>
-          `).join("")}
+              `).join("")
+            : `<div class="empty-state">Optional long-range lanes are currently paused.</div>`}
         </div>
       </section>
 
@@ -1619,9 +1848,11 @@ function renderTodayPage() {
 }
 
 function renderClassesPage() {
+  const classrooms = getClassrooms();
+  const allTasks = getAllSchoolTasks();
   const schoolStats = getSchoolCompletion();
-  const dueSoon = ALL_SCHOOL_TASKS.filter((task) => !isChecked(task.id) && task.due && daysUntil(task.due) <= 7).length;
-  const completedThisStack = ALL_SCHOOL_TASKS.filter((task) => isChecked(task.id)).length;
+  const dueSoon = allTasks.filter((task) => !isChecked(task.id) && task.due && daysUntil(task.due) <= 7).length;
+  const completedThisStack = allTasks.filter((task) => isChecked(task.id)).length;
 
   return `
     <section class="hero-card">
@@ -1636,14 +1867,15 @@ function renderClassesPage() {
       </div>
     </section>
 
-    ${CLASSROOMS.map((subject) => renderSubjectCard(subject)).join("")}
+    ${classrooms.map((subject) => renderSubjectCard(subject, { editable: true })).join("")}
   `;
 }
 
-function renderSubjectCard(subject) {
+function renderSubjectCard(subject, options = {}) {
   const done = subject.tasks.filter((task) => isChecked(task.id)).length;
   const total = subject.tasks.length;
   const highlightClass = state.ui.highlightClassId === subject.id ? " highlight" : "";
+  const subjectMeta = SUBJECT_META[subject.id] || { type: "Project Lane" };
   const tasks = [...subject.tasks].sort((left, right) =>
     compareTasks(
       { ...left, classId: subject.id, className: subject.name, theme: subject.theme },
@@ -1655,7 +1887,7 @@ function renderSubjectCard(subject) {
     <section class="subject-card${highlightClass}" id="subject-${subject.id}">
       <div class="subject-head">
         <div>
-          <div class="section-label">${esc(SUBJECT_META[subject.id].type)}</div>
+          <div class="section-label">${esc(subjectMeta.type)}</div>
           <h3>${esc(subject.name)}</h3>
           <p class="subject-note">${esc(subject.summary)}</p>
         </div>
@@ -1670,12 +1902,14 @@ function renderSubjectCard(subject) {
 
       <div class="subject-section">
         <h4>Assessments and checkpoints</h4>
+        ${options.editable ? `<div class="focus-actions"><button class="button button-secondary" onclick="addAssessment('${subject.id}')">Add assessment</button></div>` : ""}
         ${subject.assessments.length
           ? subject.assessments.map((assessment) => `
               <div class="assessment-row">
                 <div>
                   <h4>${esc(assessment.title)}</h4>
                   <p>${esc(assessment.detail)}</p>
+                  ${options.editable ? `<div class="task-meta" style="margin-top:0.5rem;"><button class="button button-ghost" onclick="editAssessment('${subject.id}', '${encodeURIComponent(assessment.title)}')">Edit</button><button class="button button-ghost" onclick="deleteAssessment('${subject.id}', '${encodeURIComponent(assessment.title)}')">Delete</button></div>` : ""}
                 </div>
                 <div class="assessment-date tone-${subject.theme}">
                   <div>${esc(assessmentCountdown(assessment.date))}</div>
@@ -1688,8 +1922,9 @@ function renderSubjectCard(subject) {
 
       <div class="subject-section">
         <h4>Tasks</h4>
+        ${options.editable ? `<div class="focus-actions"><button class="button button-primary" onclick="addTask('${subject.id}')">Add assignment</button></div>` : ""}
         ${tasks.length
-          ? `<div class="task-list">${tasks.map((task) => renderTaskRow({ ...task, classId: subject.id, className: subject.name, theme: subject.theme })).join("")}</div>`
+          ? `<div class="task-list">${tasks.map((task) => renderTaskRow({ ...task, classId: subject.id, className: subject.name, theme: subject.theme }, { editable: options.editable })).join("")}</div>`
           : `<div class="empty-state">No current tasks were added for this class.</div>`}
       </div>
     </section>
@@ -2152,10 +2387,31 @@ function renderTimerPage() {
   `;
 }
 
+function renderTsaPage() {
+  const tsa = getTsaSection();
+  const done = tsa.tasks.filter((task) => isChecked(task.id)).length;
+  const total = tsa.tasks.length;
+  const dueSoon = tsa.tasks.filter((task) => !isChecked(task.id) && task.due && daysUntil(task.due) <= 7).length;
+  return `
+    <section class="hero-card">
+      <div class="eyebrow">TSA</div>
+      <h2>TSA is now a full operating lane with deadlines, challenge tasks, and editable blocks.</h2>
+      <p>This tab is wired like the other sections and feeds the Today roadmap automatically so your next move stays obvious.</p>
+      <div class="stats-grid">
+        ${renderStatCard("TSA completion", `${done}/${total}`, "All four challenges and admin tasks are tracked")}
+        ${renderStatCard("Due within 7 days", `${dueSoon}`, "High-pressure TSA items now flow into Today")}
+        ${renderStatCard("Global TSA deadline", assessmentCountdown("2026-04-30"), "All challenge deliverables complete by April 30")}
+        ${renderStatCard("Start date", formatShortDate("2026-04-14"), "This lane starts today")}
+      </div>
+    </section>
+    ${renderSubjectCard(tsa, { editable: true })}
+  `;
+}
+
 function renderUpLevelPage() {
   return `
     <section class="hero-card">
-      <div class="eyebrow">Up Level</div>
+      <div class="eyebrow">UpLevel</div>
       <h2>This lane is intentionally parked until the school and exam stack settles.</h2>
       <p>You asked for a placeholder that looks ready but does not clutter Today yet. That is exactly what this page is doing for now.</p>
     </section>
@@ -2188,6 +2444,7 @@ function renderTaskRow(task, options = {}) {
           ${renderPriorityChip(task.priority)}
           <span class="chip due">${esc(dueDescriptor(task))}</span>
           ${task.estimate ? `<span class="chip due">${task.estimate} min</span>` : ""}
+          ${options.editable ? `<button class="button button-ghost" onclick="editTask('${task.classId}', '${task.id}')">Edit</button><button class="button button-ghost" onclick="deleteTask('${task.classId}', '${task.id}')">Delete</button>` : ""}
         </div>
       </div>
     </div>
