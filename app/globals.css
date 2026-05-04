@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root { color-scheme: dark; }
+  html, body {
+    background: #0a0a0b;
+    color: #fafafa;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overscroll-behavior-y: none;
+  }
+  body { font-feature-settings: "ss01", "cv11"; }
+  ::selection { background: #a3e63540; color: #fafafa; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #26262e; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type="number"] { -moz-appearance: textfield; }
+  button, a { -webkit-tap-highlight-color: transparent; }
+}
+
+@layer components {
+  .glass {
+    background: linear-gradient(180deg, rgba(26, 26, 31, 0.7), rgba(19, 19, 22, 0.7));
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(63, 63, 70, 0.4);
+  }
+  .grain { position: relative; }
+  .grain::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0.03;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
+    border-radius: inherit;
+  }
+  .live-dot::before {
+    content: "";
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-right: 6px;
+    background: currentColor;
+    animation: pulseSoft 2s ease-in-out infinite;
+  }
+}
