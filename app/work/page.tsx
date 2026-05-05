@@ -176,17 +176,29 @@ function TopBar({ phase, summary }: { phase: ReturnType<typeof getPhase>; summar
   }[phase];
   const hours = Math.round((summary.minutes / 60) * 10) / 10;
   return (
-    <div className="sticky top-0 z-20 px-5 lg:px-10 py-3.5 border-b border-line bg-bg/85 backdrop-blur-md">
-      <div className="max-w-2xl mx-auto flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <span className="w-1.5 h-1.5 rounded-full bg-accent-lime" />
-          <Meta>Work mode</Meta>
-          <span className="text-ink-ghost">·</span>
-          <Meta className="truncate">{phaseLabel}</Meta>
+    <div className="sticky top-0 z-20 px-5 lg:px-10 py-4 border-b border-line bg-bg/90 backdrop-blur-md">
+      <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3 min-w-0">
+          <span className="font-bold text-base tracking-tightest text-ink shrink-0">Work mode</span>
+          <span className="hidden sm:inline-block w-px h-3.5 bg-line-strong shrink-0" />
+          <span className="hidden sm:inline-block font-mono text-2xs tracking-[0.18em] uppercase text-ink-mute truncate">
+            {phaseLabel}
+          </span>
         </div>
-        <div className="flex items-center gap-3 shrink-0">
-          <Meta>{summary.count} · {hours}h</Meta>
-          <Link href="/" className="p-1 -mr-1 text-ink-mute hover:text-ink transition-colors">
+        <div className="flex items-center gap-4 shrink-0">
+          <div className="flex items-baseline gap-1.5">
+            <span className="font-mono text-sm tabular-nums text-ink">{summary.count}</span>
+            <span className="font-mono text-2xs uppercase tracking-[0.18em] text-ink-mute">tasks</span>
+          </div>
+          <div className="flex items-baseline gap-1.5">
+            <span className="font-mono text-sm tabular-nums text-ink">{hours}</span>
+            <span className="font-mono text-2xs uppercase tracking-[0.18em] text-ink-mute">hrs</span>
+          </div>
+          <Link
+            href="/"
+            className="w-8 h-8 -mr-1 rounded-md flex items-center justify-center text-ink-mute hover:text-ink hover:bg-bg-elevated transition-colors"
+            aria-label="Exit work mode"
+          >
             <X size={16} />
           </Link>
         </div>
@@ -273,7 +285,7 @@ function TaskRunner({
     <div>
       <TaskHeader item={item} subTotal={subs.length} subDone={subs.length - remaining.length} />
 
-      <Timer key={item.id} initialMin={item.estimateMin ?? 25} />
+      <Timer taskId={item.id} initialMin={item.estimateMin ?? 25} />
 
       <AnimatePresence mode="wait">
         {currentSub ? (
@@ -306,15 +318,42 @@ function TaskRunner({
 
 function TaskHeader({ item, subTotal, subDone }: { item: WorkItem; subTotal: number; subDone: number }) {
   const tone = categoryTone(item);
+  // Single-line metadata. Use a typed eyebrow + clean inline tags.
+  // Avoid showing the class name twice; categoryLabel already includes it.
+  const metaPieces: { kind: "tag-red" | "tag-amber" | "text"; value: string }[] = [];
+  if (item.overdue) metaPieces.push({ kind: "tag-red", value: "Late" });
+  if (item.due && !item.overdue) {
+    const m = item.due.slice(5).split("-");
+    metaPieces.push({ kind: "text", value: `due ${m[0]}/${m[1]}` });
+  }
+  if (item.gradeType && item.gradeType !== "study" && item.gradeType !== "classwork") {
+    metaPieces.push({ kind: "text", value: item.gradeType });
+  }
+
   return (
     <div className="mb-7">
-      <div className="flex items-center gap-2 flex-wrap mb-3">
+      <div className="flex items-center gap-3 flex-wrap mb-3.5">
         <Eyebrow accent={tone.eyebrow}>{categoryLabel(item)}</Eyebrow>
-        {item.className && <Meta>{item.className}</Meta>}
-        {item.gradeType && item.gradeType !== "study" && <Meta>{item.gradeType}</Meta>}
-        {item.overdue && <Tag tone="red" size="sm">Late</Tag>}
-        {item.due && !item.overdue && <Meta>due {item.due.slice(5)}</Meta>}
+        {metaPieces.length > 0 && (
+          <div className="flex items-center gap-2">
+            {metaPieces.map((p, i) =>
+              p.kind === "tag-red" ? (
+                <Tag key={i} tone="red" size="sm">{p.value}</Tag>
+              ) : p.kind === "tag-amber" ? (
+                <Tag key={i} tone="amber" size="sm">{p.value}</Tag>
+              ) : (
+                <span
+                  key={i}
+                  className="font-mono text-2xs tracking-[0.18em] uppercase text-ink-mute"
+                >
+                  {p.value}
+                </span>
+              )
+            )}
+          </div>
+        )}
       </div>
+
       <h1 className="text-2xl lg:text-[28px] font-bold tracking-tightest leading-[1.15] text-ink">
         {item.title}
       </h1>
@@ -335,7 +374,9 @@ function TaskHeader({ item, subTotal, subDone }: { item: WorkItem; subTotal: num
               />
             ))}
           </div>
-          <Meta>{subDone}/{subTotal}</Meta>
+          <span className="font-mono text-2xs tracking-[0.18em] uppercase text-ink-mute tabular-nums">
+            {subDone}/{subTotal}
+          </span>
         </div>
       )}
     </div>
@@ -346,35 +387,64 @@ function TaskHeader({ item, subTotal, subDone }: { item: WorkItem; subTotal: num
 // Inline timer — count-up by default with a soft target ring
 // ──────────────────────────────────────────────────────────────────────
 
-function Timer({ initialMin }: { initialMin: number }) {
-  const [seconds, setSeconds] = useState(0);
-  const [running, setRunning] = useState(true);
+function Timer({ taskId, initialMin }: { taskId: string; initialMin: number }) {
+  const t = useStore((s) => s.workTimers[taskId]);
+  const start = useStore((s) => s.startWorkTimer);
+  const pause = useStore((s) => s.pauseWorkTimer);
+  const reset = useStore((s) => s.resetWorkTimer);
+
+  const startedAt = t?.startedAt ?? null;
+  const accumulated = t?.accumulated ?? 0;
+  const running = startedAt !== null;
+
+  // Re-render every second while running so the displayed time advances.
+  const [, force] = useState(0);
   useEffect(() => {
     if (!running) return;
-    const i = setInterval(() => setSeconds((s) => s + 1), 1000);
+    const i = setInterval(() => force((n) => n + 1), 1000);
     return () => clearInterval(i);
   }, [running]);
 
+  const elapsedMs = accumulated + (startedAt ? Date.now() - startedAt : 0);
+  const seconds = Math.floor(elapsedMs / 1000);
   const mm = String(Math.floor(seconds / 60)).padStart(2, "0");
   const ss = String(seconds % 60).padStart(2, "0");
   const target = initialMin * 60;
-  const pct = Math.min(100, (seconds / target) * 100);
+  const pct = target > 0 ? Math.min(100, (seconds / target) * 100) : 0;
   const overTarget = seconds > target;
+  const idle = !running && seconds === 0;
 
   return (
     <Card className="p-4 mb-5 flex items-center gap-4">
       <button
-        onClick={() => setRunning((r) => !r)}
-        className="w-10 h-10 rounded-full bg-bg-elevated border border-line hover:border-line-strong flex items-center justify-center text-ink shrink-0 transition-colors"
-        aria-label={running ? "Pause timer" : "Resume timer"}
+        onClick={() => (running ? pause(taskId) : start(taskId))}
+        className={cn(
+          "w-11 h-11 rounded-full flex items-center justify-center shrink-0 transition-colors border",
+          running
+            ? "bg-bg-elevated border-line-strong text-ink hover:bg-line/60"
+            : "bg-ink text-bg border-ink hover:bg-ink/90"
+        )}
+        aria-label={running ? "Pause timer" : "Start timer"}
       >
         {running ? <Pause size={14} /> : <Play size={14} className="ml-0.5" />}
       </button>
       <div className="flex-1 min-w-0">
-        <div className="flex items-baseline gap-2">
-          <span className="font-mono text-2xl tabular-nums tracking-tightest text-ink">{mm}:{ss}</span>
-          <Meta>target {initialMin}m</Meta>
-          {overTarget && <Meta className="text-accent-amber">over</Meta>}
+        <div className="flex items-baseline gap-2.5">
+          <span className={cn(
+            "font-mono text-2xl tabular-nums tracking-tightest",
+            idle ? "text-ink-mute" : "text-ink"
+          )}>
+            {mm}:{ss}
+          </span>
+          <span className="font-mono text-2xs uppercase tracking-[0.18em] text-ink-mute">
+            target {initialMin}m
+          </span>
+          {overTarget && (
+            <span className="font-mono text-2xs uppercase tracking-[0.18em] text-accent-amber">over</span>
+          )}
+          {idle && (
+            <span className="font-mono text-2xs uppercase tracking-[0.18em] text-ink-ghost">tap to start</span>
+          )}
         </div>
         <div className="mt-2 h-1 rounded-full bg-line overflow-hidden">
           <div
@@ -384,7 +454,7 @@ function Timer({ initialMin }: { initialMin: number }) {
         </div>
       </div>
       <button
-        onClick={() => setSeconds(0)}
+        onClick={() => reset(taskId)}
         className="text-ink-mute hover:text-ink text-2xs font-mono uppercase tracking-[0.18em] transition-colors"
       >
         Reset
