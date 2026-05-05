@@ -69,6 +69,7 @@ interface AppState {
   workSkipped: Record<string, number>;           // itemId -> count of skips today (for ranking demotion)
   workSubtaskDone: Record<string, boolean>;      // ${parentId}.${subId} -> done
   recentCompletions: { itemId: string; type: string; subId?: string; at: number; label: string }[];
+  workTimers: Record<string, { startedAt: number | null; accumulated: number }>;  // per-task stopwatch
 
   // Timer
   timer: TimerState;
@@ -130,6 +131,9 @@ interface AppState {
   setSubtaskDone: (parentId: string, subId: string, done: boolean) => void;
   pushRecentCompletion: (rec: { itemId: string; type: string; subId?: string; label: string }) => void;
   clearRecentCompletion: (itemId: string) => void;
+  startWorkTimer: (id: string) => void;
+  pauseWorkTimer: (id: string) => void;
+  resetWorkTimer: (id: string) => void;
 
   // Actions — Timer
   setTimerDuration: (seconds: number) => void;
@@ -185,6 +189,7 @@ export const useStore = create<AppState>()(
       workSkipped: {},
       workSubtaskDone: {},
       recentCompletions: [],
+      workTimers: {},
 
       timer: { duration: 50 * 60, remaining: 50 * 60, endAt: null, sessionsByDate: {} },
 
@@ -341,6 +346,21 @@ export const useStore = create<AppState>()(
         })),
       clearRecentCompletion: (itemId) =>
         set((s) => ({ recentCompletions: s.recentCompletions.filter((r) => r.itemId !== itemId) })),
+      startWorkTimer: (id) =>
+        set((s) => {
+          const cur = s.workTimers[id] || { startedAt: null, accumulated: 0 };
+          if (cur.startedAt) return s;
+          return { workTimers: { ...s.workTimers, [id]: { ...cur, startedAt: Date.now() } } };
+        }),
+      pauseWorkTimer: (id) =>
+        set((s) => {
+          const cur = s.workTimers[id];
+          if (!cur || !cur.startedAt) return s;
+          const accumulated = cur.accumulated + (Date.now() - cur.startedAt);
+          return { workTimers: { ...s.workTimers, [id]: { startedAt: null, accumulated } } };
+        }),
+      resetWorkTimer: (id) =>
+        set((s) => ({ workTimers: { ...s.workTimers, [id]: { startedAt: null, accumulated: 0 } } })),
 
       // Timer
       setTimerDuration: (seconds) =>
@@ -395,6 +415,6 @@ export const useStore = create<AppState>()(
         return Math.round((count / totalItems) * 100);
       },
     }),
-    { name: "praxis-store-v1", version: 1 }
+    { name: "praxis-store-v1", version: 2 }
   )
 );
