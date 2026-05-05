@@ -11,7 +11,7 @@ import {
 import { CLASSES, Task as SchoolTask } from "@/lib/data/school";
 import { ROUTINE_SECTIONS, totalRoutineItems } from "@/lib/data/routine";
 import { SEMINAR_PREP } from "@/lib/data/big-idea";
-import { ArrowUpRight, AlertCircle, Flame } from "lucide-react";
+import { ArrowUpRight, AlertCircle, Flame, Zap } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 type Priority = {
@@ -85,6 +85,31 @@ export default function TodayPage() {
           {dayCopy(tod, macroDays, priorities.length, pct)}
         </p>
       </motion.header>
+
+      {/* Enter Work Mode — primary action */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, delay: 0.1 }}
+        className="mb-7"
+      >
+        <Link href="/work" className="block group">
+          <div className="relative overflow-hidden rounded-2xl border border-line bg-bg-surface hover:border-line-strong transition-colors px-5 py-5 lg:px-6 lg:py-6 grain">
+            <div className="flex items-center gap-4">
+              <div className="w-11 h-11 lg:w-12 lg:h-12 rounded-xl bg-ink/5 border border-line flex items-center justify-center shrink-0">
+                <Zap size={20} className="text-ink" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-base lg:text-lg font-bold tracking-tightest text-ink">Enter work mode</div>
+                <div className="text-xs lg:text-sm text-ink-mute mt-0.5">
+                  One task at a time. Auto-prioritized. Includes AP study modules.
+                </div>
+              </div>
+              <ArrowUpRight size={18} className="text-ink-mute group-hover:text-ink shrink-0 transition-colors" />
+            </div>
+          </div>
+        </Link>
+      </motion.div>
 
       {/* Crash bar */}
       {(macroDays <= 4 && macroDays >= 0) && (
