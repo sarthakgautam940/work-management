@@ -1,9 +1,9 @@
 "use client";
 
 import { cn } from "@/lib/utils/cn";
-import { forwardRef } from "react";
+import { forwardRef, KeyboardEvent } from "react";
 
-type Accent = "lime" | "blue" | "amber" | "violet" | "red" | "orange" | "emerald" | "rose" | "neutral";
+export type Accent = "lime" | "blue" | "amber" | "violet" | "red" | "orange" | "emerald" | "rose" | "neutral";
 
 const accentText: Record<Accent, string> = {
   lime: "text-accent-lime",
@@ -29,28 +29,16 @@ const accentBg: Record<Accent, string> = {
   neutral: "bg-line-strong",
 };
 
-const accentBgSoft: Record<Accent, string> = {
-  lime: "bg-accent-lime/10",
-  blue: "bg-accent-blue/10",
-  amber: "bg-accent-amber/10",
-  violet: "bg-accent-violet/10",
-  red: "bg-accent-red/10",
-  orange: "bg-accent-orange/10",
-  emerald: "bg-accent-emerald/10",
-  rose: "bg-accent-rose/10",
-  neutral: "bg-bg-elevated",
-};
-
 const accentBorder: Record<Accent, string> = {
-  lime: "border-accent-lime/30",
-  blue: "border-accent-blue/30",
-  amber: "border-accent-amber/30",
-  violet: "border-accent-violet/30",
-  red: "border-accent-red/30",
-  orange: "border-accent-orange/30",
-  emerald: "border-accent-emerald/30",
-  rose: "border-accent-rose/30",
-  neutral: "border-line",
+  lime: "border-accent-lime/40",
+  blue: "border-accent-blue/40",
+  amber: "border-accent-amber/40",
+  violet: "border-accent-violet/40",
+  red: "border-accent-red/40",
+  orange: "border-accent-orange/40",
+  emerald: "border-accent-emerald/40",
+  rose: "border-accent-rose/40",
+  neutral: "border-line-strong",
 };
 
 export const Card = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
@@ -63,8 +51,8 @@ Card.displayName = "Card";
 export function Eyebrow({ children, className, accent }: { children: React.ReactNode; className?: string; accent?: Accent }) {
   return (
     <div className={cn(
-      "font-mono text-2xs tracking-[0.2em] uppercase",
-      accent ? accentText[accent] : "text-ink-mute",
+      "font-mono text-2xs tracking-[0.22em] uppercase",
+      accent && accent !== "neutral" ? accentText[accent] : "text-ink-mute",
       className
     )}>
       {children}
@@ -72,11 +60,21 @@ export function Eyebrow({ children, className, accent }: { children: React.React
   );
 }
 
+// Subtle inline metadata. Replaces most uses of <Tag>.
+// e.g. "07:30 · 5m" or "8h block" or "Phase 2"
+export function Meta({ children, className }: { children: React.ReactNode; className?: string }) {
+  return (
+    <span className={cn("font-mono text-2xs tracking-[0.12em] uppercase text-ink-mute", className)}>
+      {children}
+    </span>
+  );
+}
+
 export function Stat({
   label,
   value,
   hint,
-  accent = "lime",
+  accent = "neutral",
   className,
 }: {
   label: string;
@@ -86,9 +84,14 @@ export function Stat({
   className?: string;
 }) {
   return (
-    <div className={cn("rounded-xl bg-bg-elevated border border-line p-4", className)}>
+    <div className={cn("rounded-xl bg-bg-elevated/60 border border-line p-4", className)}>
       <Eyebrow>{label}</Eyebrow>
-      <div className={cn("mt-2 text-2xl font-bold tracking-tightest tabular-nums", accentText[accent])}>{value}</div>
+      <div className={cn(
+        "mt-2 text-2xl font-bold tracking-tightest tabular-nums",
+        accent === "neutral" ? "text-ink" : accentText[accent]
+      )}>
+        {value}
+      </div>
       {hint && <div className="text-xs text-ink-mute mt-1">{hint}</div>}
     </div>
   );
@@ -116,6 +119,7 @@ export function ProgressBar({
   );
 }
 
+// Checkbox with stopPropagation so clicks don't bubble to a parent row handler.
 export function Checkbox({
   checked,
   onChange,
@@ -131,11 +135,11 @@ export function Checkbox({
   return (
     <button
       type="button"
-      onClick={onChange}
+      onClick={(e) => { e.stopPropagation(); onChange(); }}
       className={cn(
         sizeClass,
-        "rounded shrink-0 flex items-center justify-center border-[1.5px] transition-all",
-        checked ? `${accentBorder[accent]} ${accentBg[accent]}` : "border-line-strong bg-transparent"
+        "rounded shrink-0 flex items-center justify-center border-[1.5px] transition-colors",
+        checked ? `${accentBorder[accent]} ${accentBg[accent]}` : "border-line-strong bg-transparent hover:border-ink-mute"
       )}
       aria-checked={checked}
       role="checkbox"
@@ -160,7 +164,7 @@ export function Button({
   size?: "sm" | "md" | "lg";
 }) {
   const variantClass = {
-    primary: "bg-accent-lime text-bg hover:bg-accent-lime/90",
+    primary: "bg-ink text-bg hover:bg-ink/90",
     secondary: "bg-bg-elevated text-ink hover:bg-line border border-line",
     ghost: "text-ink-dim hover:text-ink hover:bg-bg-elevated/40",
     danger: "bg-accent-red/10 text-accent-red border border-accent-red/30 hover:bg-accent-red/20",
@@ -171,29 +175,35 @@ export function Button({
     lg: "px-5 py-3 text-base",
   }[size];
   return (
-    <button className={cn("rounded-lg font-medium transition-all", variantClass, sizeClass, className)} {...props}>
+    <button className={cn("rounded-lg font-medium transition-colors", variantClass, sizeClass, className)} {...props}>
       {children}
     </button>
   );
 }
 
+// Tag is now reserved for STATE indicators only (Urgent, Today, Done, Overdue).
+// Default visual is muted; only "danger" tones get color.
 export function Tag({
   children,
-  accent = "neutral",
+  tone = "neutral",
   size = "md",
 }: {
   children: React.ReactNode;
-  accent?: Accent;
+  tone?: "neutral" | "red" | "amber" | "lime";
   size?: "sm" | "md";
 }) {
+  const tones = {
+    neutral: "text-ink-mute border-line-strong",
+    red: "text-accent-red border-accent-red/40",
+    amber: "text-accent-amber border-accent-amber/40",
+    lime: "text-accent-lime border-accent-lime/40",
+  };
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-md border font-mono tracking-wider uppercase",
-        size === "sm" ? "px-1.5 py-0.5 text-[9px]" : "px-2 py-0.5 text-[10px]",
-        accentBgSoft[accent],
-        accentText[accent],
-        accentBorder[accent]
+        "inline-flex items-center gap-1 rounded font-mono tracking-[0.12em] uppercase border bg-transparent",
+        size === "sm" ? "px-1.5 py-px text-[9px]" : "px-1.5 py-0.5 text-[10px]",
+        tones[tone]
       )}
     >
       {children}
@@ -221,7 +231,7 @@ export function Input({ className, ...props }: React.InputHTMLAttributes<HTMLInp
     <input
       className={cn(
         "w-full px-3 py-2.5 rounded-lg bg-bg-elevated border border-line text-ink",
-        "placeholder:text-ink-mute focus:outline-none focus:border-accent-lime/50 focus:ring-1 focus:ring-accent-lime/20",
+        "placeholder:text-ink-mute focus:outline-none focus:border-ink-mute focus:ring-1 focus:ring-ink-mute/30",
         "transition-colors text-base lg:text-sm",
         className
       )}
@@ -232,6 +242,43 @@ export function Input({ className, ...props }: React.InputHTMLAttributes<HTMLInp
 
 export function Divider({ className }: { className?: string }) {
   return <div className={cn("h-px bg-line", className)} />;
+}
+
+// Row: clickable container that does NOT use a <button> element, so
+// internal interactive children (Checkbox, etc) can nest safely.
+export function Row({
+  onClick,
+  className,
+  children,
+  asButton = true,
+  ...rest
+}: {
+  onClick?: () => void;
+  className?: string;
+  children: React.ReactNode;
+  asButton?: boolean;
+} & Omit<React.HTMLAttributes<HTMLDivElement>, "onClick">) {
+  if (!asButton || !onClick) {
+    return <div className={className} {...rest}>{children}</div>;
+  }
+  const handleKey = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onClick();
+    }
+  };
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={onClick}
+      onKeyDown={handleKey}
+      className={cn("cursor-pointer select-none focus:outline-none focus-visible:ring-1 focus-visible:ring-ink-mute/40", className)}
+      {...rest}
+    >
+      {children}
+    </div>
+  );
 }
 
 export function PageHeader({
@@ -248,14 +295,74 @@ export function PageHeader({
   right?: React.ReactNode;
 }) {
   return (
-    <div className="mb-8">
+    <div className="mb-9">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           {eyebrow && <Eyebrow accent={accent}>{eyebrow}</Eyebrow>}
-          <h1 className="mt-2 text-3xl lg:text-4xl font-bold tracking-tightest">{title}</h1>
-          {subtitle && <p className="mt-2 text-ink-dim text-sm max-w-xl">{subtitle}</p>}
+          <h1 className="mt-3 text-3xl lg:text-4xl font-bold tracking-tightest leading-[1.05]">{title}</h1>
+          {subtitle && <p className="mt-3 text-ink-dim text-sm leading-relaxed max-w-xl">{subtitle}</p>}
         </div>
         {right && <div className="shrink-0">{right}</div>}
+      </div>
+    </div>
+  );
+}
+
+// Section: a typographic break within a page. Use when grouping cards.
+export function Section({
+  eyebrow,
+  hint,
+  children,
+  className,
+}: {
+  eyebrow: string;
+  hint?: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={cn("mt-9 first:mt-0", className)}>
+      <div className="mb-4 flex items-baseline justify-between gap-3">
+        <Eyebrow>{eyebrow}</Eyebrow>
+        {hint && <Meta>{hint}</Meta>}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+// TabBar: cleaner than the old grid-of-pill setup.
+export function TabBar<T extends string>({
+  value,
+  onChange,
+  options,
+  labels,
+}: {
+  value: T;
+  onChange: (v: T) => void;
+  options: readonly T[];
+  labels?: Partial<Record<T, string>>;
+}) {
+  return (
+    <div className="mb-7 border-b border-line">
+      <div className="flex gap-1 -mb-px overflow-x-auto no-scrollbar">
+        {options.map((v) => {
+          const active = value === v;
+          return (
+            <button
+              key={v}
+              onClick={() => onChange(v)}
+              className={cn(
+                "px-3 py-2.5 font-mono text-2xs tracking-[0.18em] uppercase transition-colors border-b-2 whitespace-nowrap",
+                active
+                  ? "text-ink border-ink"
+                  : "text-ink-mute border-transparent hover:text-ink-dim"
+              )}
+            >
+              {labels?.[v] ?? v}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

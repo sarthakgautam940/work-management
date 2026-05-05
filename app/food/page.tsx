@@ -2,38 +2,28 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Card, Eyebrow, ProgressBar, Checkbox, Tag, Button, PageHeader, Stat } from "@/components/ui";
+import { Card, Eyebrow, Meta, Section, ProgressBar, Checkbox, Button, PageHeader, TabBar, Row } from "@/components/ui";
 import { useStore } from "@/lib/store";
-import { MEALS, NEVER_TOUCH, SHOPPING, SICK_DAY_STACK, MealSection, ShopCategory } from "@/lib/data/food";
+import { MEALS, NEVER_TOUCH, SHOPPING, SICK_DAY_STACK, MealSection } from "@/lib/data/food";
 import { ChevronDown, RotateCcw, X } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 type View = "meals" | "shopping" | "sick";
+const VIEWS: readonly View[] = ["meals", "shopping", "sick"] as const;
 
 export default function FoodPage() {
   const [mounted, setMounted] = useState(false);
-  const [view, setView] = useState<View>("meals");
   useEffect(() => setMounted(true), []);
   if (!mounted) return null;
+  return <FoodInner />;
+}
 
+function FoodInner() {
+  const [view, setView] = useState<View>("meals");
   return (
-    <div className="px-5 lg:px-10 pt-6 lg:pt-10 max-w-3xl pb-10">
+    <div className="px-5 lg:px-10 pt-7 lg:pt-12 max-w-3xl pb-16">
       <PageHeader eyebrow="Nutrition" title="Food" subtitle="Meals, shopping, sick day reference." />
-      <div className="grid grid-cols-3 gap-2 mb-6 p-1 rounded-xl bg-bg-surface border border-line">
-        {(["meals", "shopping", "sick"] as View[]).map((v) => (
-          <button
-            key={v}
-            onClick={() => setView(v)}
-            className={cn(
-              "py-2 rounded-lg font-mono text-2xs tracking-wider uppercase transition-all",
-              view === v ? "bg-bg-elevated text-ink" : "text-ink-mute hover:text-ink"
-            )}
-          >
-            {v === "sick" ? "Sick Day" : v}
-          </button>
-        ))}
-      </div>
-
+      <TabBar value={view} onChange={setView} options={VIEWS} labels={{ sick: "Sick Day" }} />
       {view === "meals" && <MealsView />}
       {view === "shopping" && <ShoppingView />}
       {view === "sick" && <SickView />}
@@ -42,39 +32,38 @@ export default function FoodPage() {
 }
 
 function MealsView() {
-  const isFoodDone = useStore((s) => s.isFoodDone);
   const bodyweight = useStore((s) => s.bodyweight);
   const proteinTarget = Math.round(bodyweight * 0.9);
-
   return (
     <>
-      <Card className="p-4 mb-5">
-        <div className="flex items-center justify-between">
-          <div>
-            <Eyebrow>Daily protein target</Eyebrow>
-            <div className="text-2xl font-bold tracking-tightest text-accent-amber mt-1">{proteinTarget}g</div>
-          </div>
-          <div className="text-right text-xs text-ink-mute">
-            From {bodyweight}lb<br />
-            <span className="font-mono">0.9g/lb</span>
-          </div>
+      <Card className="p-5 mb-7 flex items-end justify-between gap-4">
+        <div className="min-w-0">
+          <Eyebrow>Daily protein target</Eyebrow>
+          <div className="mt-2 text-3xl font-bold tracking-tightest">{proteinTarget}<span className="text-base text-ink-mute font-normal ml-1">g</span></div>
+        </div>
+        <div className="text-right text-xs text-ink-mute">
+          From {bodyweight} lb<br />
+          <span className="font-mono">0.9 g/lb</span>
         </div>
       </Card>
 
-      <div className="space-y-3">
-        {MEALS.map((meal) => <MealCard key={meal.id} meal={meal} />)}
-      </div>
+      <Section eyebrow="Meals">
+        <div className="space-y-2">
+          {MEALS.map((meal) => <MealCard key={meal.id} meal={meal} />)}
+        </div>
+      </Section>
 
-      <div className="mt-6 p-4 rounded-2xl bg-accent-red/5 border border-accent-red/20">
-        <Eyebrow accent="red">Never Touch</Eyebrow>
-        <ul className="mt-3 space-y-1.5">
-          {NEVER_TOUCH.map((t, i) => (
-            <li key={i} className="text-sm text-ink-dim flex items-center gap-2">
-              <X size={12} className="text-accent-red shrink-0" /> {t}
-            </li>
-          ))}
-        </ul>
-      </div>
+      <Section eyebrow="Never touch">
+        <Card className="p-5 border-accent-red/30 bg-accent-red/[0.04]">
+          <ul className="space-y-2">
+            {NEVER_TOUCH.map((t, i) => (
+              <li key={i} className="text-sm text-ink-dim flex items-center gap-2.5">
+                <X size={13} className="text-accent-red shrink-0" /> {t}
+              </li>
+            ))}
+          </ul>
+        </Card>
+      </Section>
     </>
   );
 }
@@ -91,33 +80,33 @@ function MealCard({ meal }: { meal: MealSection }) {
   const complete = done === total;
 
   return (
-    <Card className={cn("overflow-hidden transition-all", complete && "opacity-70")}>
-      <button onClick={() => setOpen((o) => !o)} className="w-full px-4 py-3.5 flex items-center gap-4 text-left hover:bg-bg-elevated/30 transition-colors">
+    <Card className={cn("overflow-hidden transition-opacity", complete && "opacity-70")}>
+      <Row onClick={() => setOpen((o) => !o)} className="flex items-center gap-4 px-5 py-4 hover:bg-bg-elevated/30">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between gap-2 mb-2">
-            <div className="flex items-center gap-2 min-w-0">
-              <span className="font-medium text-sm">{meal.label}</span>
-              <Tag accent={meal.accent} size="sm">{meal.time}</Tag>
+          <div className="flex items-center justify-between gap-2 mb-2.5">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <span className="font-medium text-sm text-ink">{meal.label}</span>
+              <Meta>{meal.time}</Meta>
             </div>
             <span className="text-xs font-mono text-ink-mute shrink-0 tabular-nums">{done}/{total}</span>
           </div>
-          <ProgressBar value={pct} accent={complete ? "lime" : meal.accent} />
+          <ProgressBar value={pct} accent={complete ? "lime" : "neutral"} />
         </div>
-        <ChevronDown size={14} className={cn("text-ink-mute shrink-0 transition-transform", open && "rotate-180")} />
-      </button>
+        <ChevronDown size={15} className={cn("text-ink-mute shrink-0 transition-transform", open && "rotate-180")} />
+      </Row>
       <AnimatePresence initial={false}>
         {open && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden border-t border-line">
-            <div className="px-4 py-3 space-y-1">
+            <div className="px-5 py-2">
               {meal.items.map((item, i) => {
                 const checked = states[i];
                 return (
-                  <button key={i} onClick={() => toggleFood(`${meal.id}.${i}`)} className="w-full flex items-center gap-3 py-2 text-left group">
-                    <Checkbox checked={checked} onChange={() => toggleFood(`${meal.id}.${i}`)} accent={meal.accent} size="sm" />
-                    <span className={cn("text-sm transition-all flex-1", checked ? "text-ink-mute line-through" : "text-ink-dim group-hover:text-ink")}>
+                  <Row key={i} onClick={() => toggleFood(`${meal.id}.${i}`)} className="flex items-center gap-3 py-2.5 group">
+                    <Checkbox checked={checked} onChange={() => toggleFood(`${meal.id}.${i}`)} accent="lime" size="sm" />
+                    <span className={cn("text-sm transition-colors flex-1", checked ? "text-ink-mute line-through" : "text-ink-dim group-hover:text-ink")}>
                       {item}
                     </span>
-                  </button>
+                  </Row>
                 );
               })}
             </div>
@@ -136,33 +125,38 @@ function ShoppingView() {
 
   return (
     <>
-      <div className="flex items-center justify-between mb-4">
-        <Eyebrow>{cart.length} items in cart</Eyebrow>
+      <div className="flex items-center justify-between mb-5">
+        <Meta>{cart.length} items in cart</Meta>
         {cart.length > 0 && (
           <Button variant="ghost" size="sm" onClick={clearCart}>
             <span className="flex items-center gap-1.5"><RotateCcw size={11} /> Clear</span>
           </Button>
         )}
       </div>
-      <div className="space-y-3">
+      <div className="space-y-7">
         {SHOPPING.map((cat) => (
-          <Card key={cat.id} className="p-4">
-            <Eyebrow accent={cat.accent}>{cat.label}</Eyebrow>
-            <div className="mt-3 space-y-1">
+          <div key={cat.id}>
+            <Eyebrow className="mb-3">{cat.label}</Eyebrow>
+            <Card className="px-5 py-2">
               {cat.items.map((item, i) => {
                 const id = `${cat.id}.${i}`;
                 const inCart = isInCart(id);
+                const last = i === cat.items.length - 1;
                 return (
-                  <button key={i} onClick={() => toggleShop(id)} className="w-full flex items-center gap-3 py-2 text-left group">
-                    <Checkbox checked={inCart} onChange={() => toggleShop(id)} accent={cat.accent} size="sm" />
-                    <span className={cn("text-sm transition-all flex-1", inCart ? "text-ink-mute line-through" : "text-ink-dim group-hover:text-ink")}>
+                  <Row
+                    key={i}
+                    onClick={() => toggleShop(id)}
+                    className={cn("flex items-center gap-3 py-2.5 group", !last && "border-b border-line")}
+                  >
+                    <Checkbox checked={inCart} onChange={() => toggleShop(id)} accent="lime" size="sm" />
+                    <span className={cn("text-sm transition-colors flex-1", inCart ? "text-ink-mute line-through" : "text-ink-dim group-hover:text-ink")}>
                       {item}
                     </span>
-                  </button>
+                  </Row>
                 );
               })}
-            </div>
-          </Card>
+            </Card>
+          </div>
         ))}
       </div>
     </>
@@ -172,22 +166,20 @@ function ShoppingView() {
 function SickView() {
   return (
     <>
-      <Card className="p-5 mb-4 bg-accent-red/5 border-accent-red/20">
+      <Card className="p-5 mb-5 border-accent-red/30 bg-accent-red/[0.04]">
         <Eyebrow accent="red">Priority order</Eyebrow>
         <p className="mt-2 text-sm text-ink-dim leading-relaxed">
           Soup → kiwi ×2 → honey → yogurt → eggs → potato. Warm water + lemon + honey all day. Sleep maximum.
         </p>
       </Card>
-      <div className="space-y-2">
+      <Card className="px-5 py-2">
         {SICK_DAY_STACK.map((item, i) => (
-          <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-bg-surface border border-line">
-            <div className="w-7 h-7 rounded-full bg-accent-red/10 border border-accent-red/30 flex items-center justify-center shrink-0 mt-0.5">
-              <span className="font-mono text-xs text-accent-red font-bold">{i + 1}</span>
-            </div>
+          <div key={i} className={cn("flex items-start gap-4 py-3.5", i < SICK_DAY_STACK.length - 1 && "border-b border-line")}>
+            <span className="font-mono text-2xs tracking-[0.18em] text-ink-mute pt-0.5 w-6 shrink-0">{String(i + 1).padStart(2, "0")}</span>
             <span className="text-sm text-ink-dim leading-relaxed">{item}</span>
           </div>
         ))}
-      </div>
+      </Card>
     </>
   );
 }

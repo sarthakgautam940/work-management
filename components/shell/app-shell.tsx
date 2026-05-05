@@ -45,8 +45,8 @@ function DesktopSidebar() {
   return (
     <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-[220px] flex-col border-r border-line bg-bg-surface/40 backdrop-blur-md z-40">
       <div className="px-6 py-7">
-        <div className="font-mono text-2xs tracking-[0.25em] text-ink-mute">SYSTEM</div>
-        <div className="font-sans text-xl font-bold tracking-tightest mt-1">Praxis</div>
+        <div className="font-mono text-2xs tracking-[0.22em] uppercase text-ink-mute">System</div>
+        <div className="font-sans text-xl font-bold tracking-tightest mt-1.5">Praxis</div>
       </div>
       <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto">
         {NAV.map((item) => {
@@ -61,14 +61,14 @@ function DesktopSidebar() {
                 active ? "bg-bg-elevated text-ink" : "text-ink-dim hover:text-ink hover:bg-bg-elevated/50"
               )}
             >
-              <Icon size={16} className={active ? "text-accent-lime" : ""} />
+              <Icon size={16} className={active ? "text-ink" : "text-ink-ghost"} />
               <span>{item.label}</span>
             </Link>
           );
         })}
       </nav>
       <div className="p-4 border-t border-line">
-        <div className="font-mono text-2xs text-ink-ghost tracking-wider">v1 · LOCAL</div>
+        <div className="font-mono text-2xs text-ink-ghost tracking-[0.2em] uppercase">v1 · Local</div>
       </div>
     </aside>
   );
@@ -101,8 +101,8 @@ function MobileBottomNav({ onMenu }: { onMenu: () => void }) {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex flex-col items-center gap-1 py-3",
-                active ? "text-accent-lime" : "text-ink-mute"
+                "flex flex-col items-center gap-1 py-3 transition-colors",
+                active ? "text-ink" : "text-ink-mute"
               )}
             >
               <Icon size={18} />
@@ -143,8 +143,8 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
       >
         <div className="flex items-center justify-between p-5 border-b border-line">
           <div>
-            <div className="font-mono text-2xs tracking-[0.2em] text-ink-mute">SYSTEM</div>
-            <div className="font-bold text-lg tracking-tightest mt-0.5">Praxis</div>
+            <div className="font-mono text-2xs tracking-[0.22em] uppercase text-ink-mute">System</div>
+            <div className="font-bold text-lg tracking-tightest mt-1">Praxis</div>
           </div>
           <button onClick={onClose} className="p-2 -mr-2 text-ink-dim hover:text-ink">
             <X size={20} />

@@ -2,21 +2,25 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Card, Eyebrow, ProgressBar, Checkbox, Tag, PageHeader, Stat, Input, Button } from "@/components/ui";
+import { Card, Eyebrow, Meta, Section, Tag, Checkbox, ProgressBar, Stat, Button, Input, PageHeader, TabBar, Row } from "@/components/ui";
 import { useStore } from "@/lib/store";
 import { IBO_CHAPTERS, IBO_BOOKS, IBO_CASES, IBO_KEY_DATES } from "@/lib/data/ibo";
 import { urgencyLabel, daysUntil, shortDate } from "@/lib/utils/date";
-import { ChevronDown, BookOpen, Trophy, Calendar } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 type View = "chapters" | "books" | "cases" | "dates";
+const VIEWS: readonly View[] = ["chapters", "books", "cases", "dates"] as const;
 
 export default function IBOPage() {
   const [mounted, setMounted] = useState(false);
-  const [view, setView] = useState<View>("chapters");
   useEffect(() => setMounted(true), []);
   if (!mounted) return null;
+  return <IBOInner />;
+}
 
+function IBOInner() {
+  const [view, setView] = useState<View>("chapters");
   const iboChapters = useStore((s) => s.iboChapters);
   const iboBooks = useStore((s) => s.iboBooks);
   const iboCases = useStore((s) => s.iboCases);
@@ -28,35 +32,21 @@ export default function IBOPage() {
   const grandTest = daysUntil("2026-08-08");
 
   return (
-    <div className="px-5 lg:px-10 pt-6 lg:pt-10 max-w-3xl pb-10">
+    <div className="px-5 lg:px-10 pt-7 lg:pt-12 max-w-3xl pb-16">
       <PageHeader
         eyebrow="International Business Olympiad"
-        title="IBO Sprint"
+        title="IBO sprint"
         subtitle={sprintStart > 0 ? `Sprint starts in ${sprintStart} days. Phase 1 chapter mastery first.` : "Live sprint. Chapters → books → cases → mocks."}
-        accent="amber"
       />
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-        <Stat label="Chapters" value={`${chapterDone}/${IBO_CHAPTERS.length}`} accent="amber" />
-        <Stat label="Books" value={`${bookDone}/${IBO_BOOKS.length}`} accent="lime" />
-        <Stat label="Cases" value={`${caseDone}/${IBO_CASES.length}`} accent="violet" />
-        <Stat label="Grand Test" value={`${grandTest}d`} hint="Aug 8" accent="red" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-9">
+        <Stat label="Chapters" value={`${chapterDone}/${IBO_CHAPTERS.length}`} accent={chapterDone === IBO_CHAPTERS.length ? "lime" : "amber"} />
+        <Stat label="Books" value={`${bookDone}/${IBO_BOOKS.length}`} />
+        <Stat label="Cases" value={`${caseDone}/${IBO_CASES.length}`} />
+        <Stat label="Grand test" value={`${grandTest}d`} hint="Aug 8" accent={grandTest <= 30 ? "red" : "neutral"} />
       </div>
 
-      <div className="grid grid-cols-4 gap-1 mb-6 p-1 rounded-xl bg-bg-surface border border-line">
-        {(["chapters", "books", "cases", "dates"] as View[]).map((v) => (
-          <button
-            key={v}
-            onClick={() => setView(v)}
-            className={cn(
-              "py-2 rounded-lg font-mono text-2xs tracking-wider uppercase transition-all",
-              view === v ? "bg-bg-elevated text-ink" : "text-ink-mute hover:text-ink"
-            )}
-          >
-            {v}
-          </button>
-        ))}
-      </div>
+      <TabBar value={view} onChange={setView} options={VIEWS} />
 
       {view === "chapters" && <ChaptersView />}
       {view === "books" && <BooksView />}
@@ -68,7 +58,7 @@ export default function IBOPage() {
 
 function ChaptersView() {
   return (
-    <div className="space-y-2.5">
+    <div className="space-y-2">
       {IBO_CHAPTERS.map((ch) => <ChapterCard key={ch.id} ch={ch} />)}
     </div>
   );
@@ -79,29 +69,35 @@ function ChapterCard({ ch }: { ch: typeof IBO_CHAPTERS[0] }) {
   const iboChapters = useStore((s) => s.iboChapters);
   const toggle = useStore((s) => s.toggleIBOChapter);
   const done = !!iboChapters[ch.id];
-  const accent = ch.priority === "critical" ? "red" : ch.priority === "high" ? "amber" : "lime";
+  const priorityTone =
+    ch.priority === "critical" ? "red"
+    : ch.priority === "high" ? "amber"
+    : "neutral";
 
   return (
-    <Card className={cn("overflow-hidden transition-all", done && "opacity-60")}>
-      <button onClick={() => setOpen((o) => !o)} className="w-full px-4 py-3.5 flex items-center gap-4 text-left hover:bg-bg-elevated/30 transition-colors">
-        <Checkbox checked={done} onChange={() => toggle(ch.id)} accent={accent} />
+    <Card className={cn("overflow-hidden transition-opacity", done && "opacity-60")}>
+      <Row
+        onClick={() => setOpen((o) => !o)}
+        className="flex items-center gap-4 px-5 py-4 hover:bg-bg-elevated/30"
+      >
+        <Checkbox checked={done} onChange={() => toggle(ch.id)} accent={priorityTone === "neutral" ? "lime" : priorityTone} />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-mono text-2xs text-ink-ghost">CH {ch.number}</span>
-            <span className="font-medium text-sm">{ch.title}</span>
-            <Tag accent={accent} size="sm">{ch.priority}</Tag>
+            <Meta>Ch {ch.number}</Meta>
+            <span className="font-medium text-sm text-ink">{ch.title}</span>
+            {ch.priority !== "medium" && <Tag tone={priorityTone === "neutral" ? "neutral" : priorityTone} size="sm">{ch.priority}</Tag>}
           </div>
-          <div className="text-2xs text-ink-mute mt-1">{ch.range}</div>
+          <div className="text-xs text-ink-mute mt-1">{ch.range}</div>
         </div>
-        <ChevronDown size={14} className={cn("text-ink-mute transition-transform shrink-0", open && "rotate-180")} />
-      </button>
+        <ChevronDown size={15} className={cn("text-ink-mute transition-transform shrink-0", open && "rotate-180")} />
+      </Row>
       <AnimatePresence initial={false}>
         {open && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden border-t border-line">
-            <div className="px-4 py-3">
+            <div className="px-5 py-4">
               <ul className="space-y-2">
                 {ch.topics.map((t, i) => (
-                  <li key={i} className="text-sm text-ink-dim flex gap-2">
+                  <li key={i} className="text-sm text-ink-dim flex gap-2.5">
                     <span className="text-ink-ghost shrink-0">·</span>{t}
                   </li>
                 ))}
@@ -117,14 +113,16 @@ function ChapterCard({ ch }: { ch: typeof IBO_CHAPTERS[0] }) {
 function BooksView() {
   return (
     <>
-      <Eyebrow className="mb-3">Phase 2 — Priority</Eyebrow>
-      <div className="space-y-2 mb-5">
-        {IBO_BOOKS.filter((b) => b.phase === 2).map((b) => <BookCard key={b.id} book={b} />)}
-      </div>
-      <Eyebrow className="mb-3">Phase 3 — Depth</Eyebrow>
-      <div className="space-y-2">
-        {IBO_BOOKS.filter((b) => b.phase === 3).map((b) => <BookCard key={b.id} book={b} />)}
-      </div>
+      <Section eyebrow="Phase 2 — priority">
+        <div className="space-y-2">
+          {IBO_BOOKS.filter((b) => b.phase === 2).map((b) => <BookCard key={b.id} book={b} />)}
+        </div>
+      </Section>
+      <Section eyebrow="Phase 3 — depth">
+        <div className="space-y-2">
+          {IBO_BOOKS.filter((b) => b.phase === 3).map((b) => <BookCard key={b.id} book={b} />)}
+        </div>
+      </Section>
     </>
   );
 }
@@ -137,30 +135,32 @@ function BookCard({ book }: { book: typeof IBO_BOOKS[0] }) {
   const data = iboBooks[book.id] || { complete: false, pages: 0, total: 0 };
   const [pages, setPages] = useState(String(data.pages || ""));
   const [total, setTotal] = useState(String(data.total || ""));
-  const accent = book.phase === 2 ? "lime" : "blue";
   const pct = data.total > 0 ? (data.pages / data.total) * 100 : 0;
 
   return (
-    <Card className={cn("overflow-hidden transition-all", data.complete && "opacity-60")}>
-      <button onClick={() => setOpen((o) => !o)} className="w-full px-4 py-3.5 flex items-center gap-3 text-left hover:bg-bg-elevated/30 transition-colors">
-        <Checkbox checked={data.complete} onChange={() => toggleComplete(book.id)} accent={accent} />
+    <Card className={cn("overflow-hidden transition-opacity", data.complete && "opacity-60")}>
+      <Row
+        onClick={() => setOpen((o) => !o)}
+        className="flex items-center gap-4 px-5 py-4 hover:bg-bg-elevated/30"
+      >
+        <Checkbox checked={data.complete} onChange={() => toggleComplete(book.id)} accent="lime" />
         <div className="flex-1 min-w-0">
-          <div className="font-medium text-sm truncate">{book.title}</div>
-          <div className="text-2xs text-ink-mute mt-0.5 truncate">{book.author}</div>
+          <div className="font-medium text-sm text-ink truncate">{book.title}</div>
+          <div className="text-xs text-ink-mute mt-0.5 truncate">{book.author}</div>
           {data.total > 0 && (
-            <div className="mt-2">
-              <ProgressBar value={pct} accent={accent} />
-              <div className="text-2xs text-ink-mute font-mono mt-1 tabular-nums">{data.pages}/{data.total} pages</div>
+            <div className="mt-2.5">
+              <ProgressBar value={pct} accent="lime" />
+              <div className="text-2xs text-ink-mute font-mono mt-1.5 tabular-nums">{data.pages} / {data.total} pages</div>
             </div>
           )}
         </div>
-        <ChevronDown size={14} className={cn("text-ink-mute transition-transform shrink-0", open && "rotate-180")} />
-      </button>
+        <ChevronDown size={15} className={cn("text-ink-mute transition-transform shrink-0", open && "rotate-180")} />
+      </Row>
       <AnimatePresence initial={false}>
         {open && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden border-t border-line">
-            <div className="px-4 py-3 space-y-3">
-              <p className="text-xs text-ink-dim leading-relaxed">{book.why}</p>
+            <div className="px-5 py-4 space-y-3">
+              <p className="text-sm text-ink-dim leading-relaxed">{book.why}</p>
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <Eyebrow className="mb-1.5">Pages read</Eyebrow>
@@ -186,43 +186,51 @@ function CasesView() {
   const iboCases = useStore((s) => s.iboCases);
   const toggle = useStore((s) => s.toggleIBOCase);
   return (
-    <div className="space-y-2">
-      {IBO_CASES.map((c) => {
+    <Card className="px-5 py-2">
+      {IBO_CASES.map((c, i) => {
         const done = !!iboCases[c.id];
         return (
-          <Card key={c.id} className={cn("p-4 transition-all", done && "opacity-60")}>
-            <div className="flex items-start gap-3">
-              <Checkbox checked={done} onChange={() => toggle(c.id)} accent="violet" size="sm" />
-              <div className="flex-1 min-w-0">
-                <div className={cn("text-sm font-medium", done && "line-through text-ink-mute")}>{c.title}</div>
-                <div className="text-2xs text-ink-mute mt-1">{c.detail}</div>
-              </div>
+          <Row
+            key={c.id}
+            onClick={() => toggle(c.id)}
+            className={cn(
+              "flex items-start gap-3.5 py-4",
+              i < IBO_CASES.length - 1 && "border-b border-line"
+            )}
+          >
+            <Checkbox checked={done} onChange={() => toggle(c.id)} accent="violet" size="sm" />
+            <div className="flex-1 min-w-0">
+              <div className={cn("text-sm font-medium", done ? "line-through text-ink-mute" : "text-ink")}>{c.title}</div>
+              <div className="text-xs text-ink-mute mt-1 leading-relaxed">{c.detail}</div>
             </div>
-          </Card>
+          </Row>
         );
       })}
-    </div>
+    </Card>
   );
 }
 
 function DatesView() {
   return (
-    <div className="space-y-2">
-      {IBO_KEY_DATES.map((d) => {
+    <Card className="px-5 py-2">
+      {IBO_KEY_DATES.map((d, i) => {
         const u = urgencyLabel(d.date);
+        const tone: "red" | "amber" | "lime" | "neutral" =
+          u.tone === "red" ? "red"
+          : u.tone === "amber" ? "amber"
+          : u.tone === "lime" ? "lime"
+          : "neutral";
         return (
-          <Card key={d.id} className="p-4">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <div className="font-medium text-sm">{d.label}</div>
-                <div className="text-2xs text-ink-mute mt-1">{d.detail}</div>
-                <div className="text-2xs font-mono text-ink-ghost mt-2">{shortDate(d.date)}</div>
-              </div>
-              <Tag accent={u.tone === "ghost" ? "neutral" : u.tone}>{u.text}</Tag>
+          <div key={d.id} className={cn("flex items-start justify-between gap-3 py-4", i < IBO_KEY_DATES.length - 1 && "border-b border-line")}>
+            <div className="min-w-0">
+              <div className="font-medium text-sm text-ink">{d.label}</div>
+              <div className="text-xs text-ink-mute mt-1 leading-relaxed">{d.detail}</div>
+              <div className="text-2xs font-mono text-ink-ghost mt-2">{shortDate(d.date)}</div>
             </div>
-          </Card>
+            <Tag tone={tone}>{u.text}</Tag>
+          </div>
         );
       })}
-    </div>
+    </Card>
   );
 }
