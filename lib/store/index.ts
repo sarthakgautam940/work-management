@@ -57,6 +57,11 @@ interface AppState {
   monthlyRevenue: Record<string, number>;
   uplevelTasks: Record<string, boolean>;
 
+  // Big Idea project
+  bigIdeaTasks: Record<string, boolean>;
+  bigIdeaBookId: string | null;
+  bigIdeaSourceState: Record<string, "pending" | "selected" | "annotated" | "approved">;
+
   // Timer
   timer: TimerState;
 
@@ -104,6 +109,11 @@ interface AppState {
   setMonthlyRevenue: (month: string, amount: number) => void;
   toggleUplevelTask: (id: string) => void;
 
+  // Actions — Big Idea
+  toggleBigIdeaTask: (id: string) => void;
+  setBigIdeaBook: (id: string | null) => void;
+  setBigIdeaSourceState: (id: string, state: "pending" | "selected" | "annotated" | "approved") => void;
+
   // Actions — Timer
   setTimerDuration: (seconds: number) => void;
   startTimer: () => void;
@@ -147,6 +157,10 @@ export const useStore = create<AppState>()(
       leadStatuses: {},
       monthlyRevenue: {},
       uplevelTasks: {},
+
+      bigIdeaTasks: {},
+      bigIdeaBookId: null,
+      bigIdeaSourceState: {},
 
       timer: { duration: 50 * 60, remaining: 50 * 60, endAt: null, sessionsByDate: {} },
 
@@ -275,6 +289,13 @@ export const useStore = create<AppState>()(
         set((s) => ({ monthlyRevenue: { ...s.monthlyRevenue, [month]: amount } })),
       toggleUplevelTask: (id) =>
         set((s) => ({ uplevelTasks: { ...s.uplevelTasks, [id]: !s.uplevelTasks[id] } })),
+
+      // Big Idea
+      toggleBigIdeaTask: (id) =>
+        set((s) => ({ bigIdeaTasks: { ...s.bigIdeaTasks, [id]: !s.bigIdeaTasks[id] } })),
+      setBigIdeaBook: (id) => set({ bigIdeaBookId: id }),
+      setBigIdeaSourceState: (id, state) =>
+        set((s) => ({ bigIdeaSourceState: { ...s.bigIdeaSourceState, [id]: state } })),
 
       // Timer
       setTimerDuration: (seconds) =>
