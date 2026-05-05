@@ -62,6 +62,12 @@ interface AppState {
   bigIdeaBookId: string | null;
   bigIdeaSourceState: Record<string, "pending" | "selected" | "annotated" | "approved">;
 
+  // Work Mode — study lesson progress
+  lessonDone: Record<string, boolean>;
+  lessonAnswers: Record<string, number>;        // lessonId.qIdx -> chosen index
+  workDeferred: Record<string, number>;          // itemId -> epoch ms until which to hide
+  workSkipped: Record<string, number>;           // itemId -> count of skips today (for ranking demotion)
+
   // Timer
   timer: TimerState;
 
@@ -114,6 +120,12 @@ interface AppState {
   setBigIdeaBook: (id: string | null) => void;
   setBigIdeaSourceState: (id: string, state: "pending" | "selected" | "annotated" | "approved") => void;
 
+  // Actions — Work Mode
+  markLessonDone: (id: string, done: boolean) => void;
+  recordLessonAnswer: (key: string, idx: number) => void;
+  deferWorkItem: (id: string, untilMs: number) => void;
+  skipWorkItem: (id: string) => void;
+
   // Actions — Timer
   setTimerDuration: (seconds: number) => void;
   startTimer: () => void;
@@ -161,6 +173,11 @@ export const useStore = create<AppState>()(
       bigIdeaTasks: {},
       bigIdeaBookId: null,
       bigIdeaSourceState: {},
+
+      lessonDone: {},
+      lessonAnswers: {},
+      workDeferred: {},
+      workSkipped: {},
 
       timer: { duration: 50 * 60, remaining: 50 * 60, endAt: null, sessionsByDate: {} },
 
@@ -296,6 +313,16 @@ export const useStore = create<AppState>()(
       setBigIdeaBook: (id) => set({ bigIdeaBookId: id }),
       setBigIdeaSourceState: (id, state) =>
         set((s) => ({ bigIdeaSourceState: { ...s.bigIdeaSourceState, [id]: state } })),
+
+      // Work Mode
+      markLessonDone: (id, done) =>
+        set((s) => ({ lessonDone: { ...s.lessonDone, [id]: done } })),
+      recordLessonAnswer: (key, idx) =>
+        set((s) => ({ lessonAnswers: { ...s.lessonAnswers, [key]: idx } })),
+      deferWorkItem: (id, untilMs) =>
+        set((s) => ({ workDeferred: { ...s.workDeferred, [id]: untilMs } })),
+      skipWorkItem: (id) =>
+        set((s) => ({ workSkipped: { ...s.workSkipped, [id]: (s.workSkipped[id] || 0) + 1 } })),
 
       // Timer
       setTimerDuration: (seconds) =>

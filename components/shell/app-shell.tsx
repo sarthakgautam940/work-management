@@ -5,12 +5,13 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils/cn";
 import {
   Home, ListChecks, Dumbbell, Apple, GraduationCap,
-  BookOpen, Briefcase, Timer, BarChart3, Menu, X, Target,
+  BookOpen, Briefcase, Timer, BarChart3, Menu, X, Target, Zap,
 } from "lucide-react";
 import { useState } from "react";
 
 const NAV = [
   { href: "/", label: "Today", icon: Home },
+  { href: "/work", label: "Work mode", icon: Zap },
   { href: "/routine", label: "Routine", icon: ListChecks },
   { href: "/workout", label: "Workout", icon: Dumbbell },
   { href: "/food", label: "Food", icon: Apple },
@@ -23,7 +24,7 @@ const NAV = [
   { href: "/stats", label: "Stats", icon: BarChart3 },
 ];
 
-const MOBILE_PRIMARY = ["/", "/routine", "/workout", "/school", "/ap"];
+const MOBILE_PRIMARY = ["/", "/work", "/school", "/ap", "/routine"];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
