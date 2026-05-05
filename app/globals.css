@@ -35,14 +35,11 @@
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
     border-radius: inherit;
   }
-  .live-dot::before {
-    content: "";
-    display: inline-block;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    margin-right: 6px;
-    background: currentColor;
-    animation: pulseSoft 2s ease-in-out infinite;
+  .rail-l { position: relative; }
+  .rail-l::before {
+    content: ""; position: absolute; left: 0; top: 12%; bottom: 12%;
+    width: 2px; border-radius: 2px; background: currentColor;
   }
+  .no-scrollbar { scrollbar-width: none; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
 }

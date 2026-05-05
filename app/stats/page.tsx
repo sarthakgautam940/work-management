@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Card, Eyebrow, ProgressBar, Stat, PageHeader, Button, Input, Field, Tag } from "@/components/ui";
+import { Card, Eyebrow, Meta, Section, Stat, PageHeader, Button, Input } from "@/components/ui";
 import { useStore } from "@/lib/store";
 import { todayKey } from "@/lib/utils/date";
 import { totalRoutineItems } from "@/lib/data/routine";
-import { Flame, TrendingUp, Trophy } from "lucide-react";
+import { Trophy } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 export default function StatsPage() {
@@ -29,7 +29,6 @@ function StatsInner() {
 
   const [bwInput, setBwInput] = useState(String(bodyweight));
 
-  // Last 14 days routine completion
   const last14 = Array.from({ length: 14 }, (_, i) => {
     const d = new Date();
     d.setDate(d.getDate() - (13 - i));
@@ -39,132 +38,123 @@ function StatsInner() {
     return { key, pct, done, label: d.toLocaleDateString("en-US", { weekday: "short" })[0] };
   });
 
-  // Workout sessions count last 30 days
   const last30Workouts = Array.from({ length: 30 }, (_, i) => {
     const d = new Date();
     d.setDate(d.getDate() - (29 - i));
     return !!gymSessions[todayKey(d)];
   }).filter(Boolean).length;
 
-  // PR list sorted by recency
   const prList = Object.entries(prs)
     .map(([id, data]) => ({ id, ...data }))
     .sort((a, b) => b.date.localeCompare(a.date))
     .slice(0, 8);
 
-  // Body weight history last 30 days
   const bwHistory = Object.entries(bodyweightLog)
     .sort(([a], [b]) => a.localeCompare(b))
-    .slice(-30);
+    .slice(-30) as [string, number][];
 
   const totalFocusToday = timerSessions[todayKey()] || 0;
   const totalFocusAllTime = Object.values(timerSessions).reduce((s, v) => s + v, 0);
 
   return (
-    <div className="px-5 lg:px-10 pt-6 lg:pt-10 max-w-3xl pb-10">
+    <div className="px-5 lg:px-10 pt-7 lg:pt-12 max-w-3xl pb-16">
       <PageHeader eyebrow="Metrics" title="Stats" subtitle="What's actually happening." />
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-        <Stat label="Streak" value={`${streak}d`} accent="amber" hint="Routine ≥20" />
-        <Stat label="Workouts (30d)" value={last30Workouts} accent="orange" />
-        <Stat label="PRs set" value={Object.keys(prs).length} accent="lime" />
-        <Stat label="Focus blocks" value={totalFocusAllTime} hint={`${totalFocusToday} today`} accent="violet" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-9">
+        <Stat label="Streak" value={`${streak}d`} hint="Routine ≥ 20" accent={streak > 0 ? "amber" : "neutral"} />
+        <Stat label="Workouts (30d)" value={last30Workouts} />
+        <Stat label="PRs set" value={Object.keys(prs).length} accent={Object.keys(prs).length > 0 ? "lime" : "neutral"} />
+        <Stat label="Focus blocks" value={totalFocusAllTime} hint={`${totalFocusToday} today`} />
       </div>
 
-      {/* Routine 14 day chart */}
-      <Card className="p-5 mb-4">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <Eyebrow accent="lime">Last 14 days · Routine</Eyebrow>
-            <div className="text-xs text-ink-mute mt-1">Daily completion %</div>
+      <Section eyebrow="Last 14 days · routine">
+        <Card className="p-5">
+          <div className="flex items-end gap-1.5 h-32">
+            {last14.map((d, i) => (
+              <motion.div
+                key={d.key}
+                initial={{ height: 0 }}
+                animate={{ height: `${Math.max(d.pct, 4)}%` }}
+                transition={{ delay: i * 0.02 }}
+                className="flex-1 flex flex-col items-center"
+              >
+                <div
+                  className={cn(
+                    "w-full rounded-t-sm",
+                    d.pct >= 80 ? "bg-accent-lime" :
+                    d.pct >= 50 ? "bg-accent-amber" :
+                    d.pct > 0 ? "bg-accent-red/70" : "bg-line-strong"
+                  )}
+                  style={{ height: `${Math.max(d.pct, 4)}%` }}
+                />
+              </motion.div>
+            ))}
           </div>
-          <Flame size={16} className="text-accent-amber" />
-        </div>
-        <div className="flex items-end gap-1.5 h-32">
-          {last14.map((d, i) => (
-            <motion.div
-              key={d.key}
-              initial={{ height: 0 }}
-              animate={{ height: `${Math.max(d.pct, 4)}%` }}
-              transition={{ delay: i * 0.02 }}
-              className="flex-1 flex flex-col items-center gap-1"
-            >
-              <div
-                className={cn(
-                  "w-full rounded-t-sm transition-all",
-                  d.pct >= 80 ? "bg-accent-lime" :
-                  d.pct >= 50 ? "bg-accent-amber" :
-                  d.pct > 0 ? "bg-accent-red/60" : "bg-line"
-                )}
-                style={{ height: `${Math.max(d.pct, 4)}%` }}
-              />
-            </motion.div>
-          ))}
-        </div>
-        <div className="flex gap-1.5 mt-2">
-          {last14.map((d, i) => (
-            <div key={i} className="flex-1 text-center text-2xs font-mono text-ink-ghost">{d.label}</div>
-          ))}
-        </div>
-      </Card>
+          <div className="flex gap-1.5 mt-2.5">
+            {last14.map((d, i) => (
+              <div key={i} className="flex-1 text-center text-2xs font-mono text-ink-ghost">{d.label}</div>
+            ))}
+          </div>
+        </Card>
+      </Section>
 
-      {/* Body weight tracker */}
-      <Card className="p-5 mb-4">
-        <Eyebrow accent="orange">Body weight</Eyebrow>
-        <div className="mt-3 flex items-end gap-3">
-          <div className="text-3xl font-bold tracking-tightest">{bodyweight}<span className="text-base text-ink-mute font-normal ml-1">lb</span></div>
-          <div className="text-2xs text-ink-mute font-mono pb-1">Protein target: {Math.round(bodyweight * 0.9)}g</div>
-        </div>
-        <div className="mt-4 flex gap-2">
-          <Input type="number" inputMode="decimal" placeholder="Log today" value={bwInput} onChange={(e) => setBwInput(e.target.value)} />
-          <Button variant="primary" onClick={() => {
-            const v = parseFloat(bwInput);
-            if (v > 0) logBodyweight(v);
-          }}>Save</Button>
-        </div>
-        {bwHistory.length > 1 && (
-          <div className="mt-4">
-            <Eyebrow className="mb-2">Last {bwHistory.length} entries</Eyebrow>
-            <div className="flex items-end gap-1 h-20">
-              {bwHistory.map(([date, w], i) => {
-                const min = Math.min(...bwHistory.map(([, v]) => v as number));
-                const max = Math.max(...bwHistory.map(([, v]) => v as number));
-                const range = max - min || 1;
-                const h = ((w as number - min) / range) * 100;
-                return (
-                  <div key={date} className="flex-1 flex flex-col justify-end" title={`${w}lb on ${date}`}>
-                    <div className="bg-accent-orange/60 rounded-t-sm" style={{ height: `${Math.max(h, 8)}%` }} />
-                  </div>
-                );
-              })}
+      <Section eyebrow="Body weight">
+        <Card className="p-5">
+          <div className="flex items-end gap-3 mb-4">
+            <div className="text-3xl font-bold tracking-tightest">
+              {bodyweight}<span className="text-base text-ink-mute font-normal ml-1">lb</span>
             </div>
+            <div className="text-xs text-ink-mute font-mono pb-1">protein target {Math.round(bodyweight * 0.9)}g</div>
           </div>
-        )}
-      </Card>
+          <div className="flex gap-2 mb-4">
+            <Input type="number" inputMode="decimal" placeholder="Log today" value={bwInput} onChange={(e) => setBwInput(e.target.value)} />
+            <Button variant="primary" onClick={() => {
+              const v = parseFloat(bwInput);
+              if (v > 0) logBodyweight(v);
+            }}>Save</Button>
+          </div>
+          {bwHistory.length > 1 && (
+            <>
+              <Meta>Last {bwHistory.length} entries</Meta>
+              <div className="mt-2 flex items-end gap-1 h-20">
+                {bwHistory.map(([date, w], i) => {
+                  const min = Math.min(...bwHistory.map(([, v]) => v));
+                  const max = Math.max(...bwHistory.map(([, v]) => v));
+                  const range = max - min || 1;
+                  const h = ((w - min) / range) * 100;
+                  return (
+                    <div key={date} className="flex-1 flex flex-col justify-end" title={`${w} lb on ${date}`}>
+                      <div className="bg-ink-mute/50 rounded-t-sm" style={{ height: `${Math.max(h, 8)}%` }} />
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </Card>
+      </Section>
 
-      {/* PRs */}
       {prList.length > 0 && (
-        <Card className="p-5 mb-4">
-          <Eyebrow accent="amber">Recent PRs</Eyebrow>
-          <div className="mt-3 space-y-2">
-            {prList.map((pr) => (
-              <div key={pr.id} className="flex items-center justify-between py-2 border-b border-line last:border-0">
-                <div className="flex items-center gap-2">
+        <Section eyebrow="Recent PRs">
+          <Card className="px-5 py-2">
+            {prList.map((pr, i) => (
+              <div key={pr.id} className={cn("flex items-center justify-between py-3", i < prList.length - 1 && "border-b border-line")}>
+                <div className="flex items-center gap-2.5">
                   <Trophy size={12} className="text-accent-amber" />
                   <span className="text-sm font-medium capitalize">{pr.id.replace(/-/g, " ")}</span>
                 </div>
                 <div className="text-right">
-                  <div className="font-mono text-sm tabular-nums text-accent-amber">{pr.weight}lb × {pr.reps}</div>
+                  <div className="font-mono text-sm tabular-nums text-ink">{pr.weight} lb × {pr.reps}</div>
                   <div className="text-2xs text-ink-mute font-mono">{pr.date}</div>
                 </div>
               </div>
             ))}
-          </div>
-        </Card>
+          </Card>
+        </Section>
       )}
 
-      <div className="text-2xs font-mono text-ink-ghost tracking-wider mt-8 text-center">
-        ALL DATA · LOCAL · v1
+      <div className="mt-12 text-center">
+        <Meta>All data · local · v1</Meta>
       </div>
     </div>
   );

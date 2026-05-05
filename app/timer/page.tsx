@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Card, Eyebrow, ProgressBar, PageHeader, Stat, Button, Input } from "@/components/ui";
+import { Card, Eyebrow, Meta, Section, ProgressBar, PageHeader, Stat, Button, Input } from "@/components/ui";
 import { useStore } from "@/lib/store";
 import { todayKey } from "@/lib/utils/date";
 import { Play, Pause, RotateCcw, Check } from "lucide-react";
@@ -47,25 +47,25 @@ function TimerInner() {
   };
 
   return (
-    <div className="px-5 lg:px-10 pt-6 lg:pt-10 max-w-2xl pb-10">
-      <PageHeader eyebrow="Focus" title="Timer" subtitle="Persistent across pages. Use it." accent="amber" />
+    <div className="px-5 lg:px-10 pt-7 lg:pt-12 max-w-2xl pb-16">
+      <PageHeader eyebrow="Focus" title="Timer" subtitle="Persistent across pages. Use it." />
 
-      <div className="grid grid-cols-3 gap-3 mb-6">
-        <Stat label="Sessions today" value={sessionsToday} accent="amber" />
-        <Stat label="Duration" value={`${Math.round(timer.duration / 60)}m`} accent="amber" />
+      <div className="grid grid-cols-3 gap-3 mb-9">
+        <Stat label="Sessions today" value={sessionsToday} accent={sessionsToday > 0 ? "amber" : "neutral"} />
+        <Stat label="Duration" value={`${Math.round(timer.duration / 60)}m`} />
         <Stat label="Status" value={running ? "Live" : finished ? "Done" : "Idle"} accent={running ? "lime" : finished ? "lime" : "neutral"} />
       </div>
 
-      <Card className="p-8 lg:p-12 mb-6 grain text-center relative overflow-hidden">
+      <Card className="p-10 lg:p-14 mb-7 grain text-center relative overflow-hidden">
         <motion.div
           key={`${timer.duration}-${running}`}
-          initial={{ opacity: 0, y: 8 }}
+          initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           className="font-mono text-7xl lg:text-9xl font-bold tracking-tightest tabular-nums"
         >
           {minutes}:{seconds}
         </motion.div>
-        <div className="text-sm text-ink-mute mt-4">
+        <div className="text-sm text-ink-mute mt-5">
           {finished ? "Session complete. Take a breath." : running ? "Stay with it." : "Ready when you are."}
         </div>
         <div className="mt-6">
@@ -73,7 +73,7 @@ function TimerInner() {
         </div>
       </Card>
 
-      <div className="flex flex-wrap gap-2 mb-6 justify-center">
+      <div className="flex flex-wrap gap-2 mb-9 justify-center">
         {!running && remaining > 0 && (
           <Button variant="primary" size="lg" onClick={start} className="px-8">
             <span className="flex items-center gap-2"><Play size={16} /> {remaining === timer.duration ? "Start" : "Resume"}</span>
@@ -96,36 +96,32 @@ function TimerInner() {
         )}
       </div>
 
-      <Eyebrow className="mb-3">Presets</Eyebrow>
-      <div className="grid grid-cols-3 gap-2 mb-3">
-        {[25, 50, 90].map((m) => (
-          <button
-            key={m}
-            onClick={() => setMinutes(m)}
-            className={cn(
-              "p-4 rounded-xl border text-center transition-all",
-              timer.duration === m * 60 ? "bg-accent-amber/10 border-accent-amber/40 text-accent-amber" : "bg-bg-surface border-line text-ink-dim hover:border-line-strong hover:text-ink"
-            )}
-          >
-            <div className="text-2xl font-bold tracking-tightest">{m}</div>
-            <div className="font-mono text-2xs tracking-wider uppercase mt-1">min</div>
-          </button>
-        ))}
-      </div>
-
-      <Card className="p-4">
-        <Eyebrow className="mb-2">Custom</Eyebrow>
-        <div className="flex gap-2">
-          <Input
-            type="number"
-            inputMode="numeric"
-            placeholder="Minutes (1-240)"
-            value={custom}
-            onChange={(e) => setCustom(e.target.value)}
-          />
-          <Button variant="secondary" onClick={setCustomMinutes}>Set</Button>
+      <Section eyebrow="Presets">
+        <div className="grid grid-cols-3 gap-2 mb-3">
+          {[25, 50, 90].map((m) => (
+            <button
+              key={m}
+              onClick={() => setMinutes(m)}
+              className={cn(
+                "p-5 rounded-xl border text-center transition-colors",
+                timer.duration === m * 60
+                  ? "bg-bg-elevated border-line-strong text-ink"
+                  : "bg-bg-surface border-line text-ink-dim hover:border-line-strong hover:text-ink"
+              )}
+            >
+              <div className="text-2xl font-bold tracking-tightest">{m}</div>
+              <div className="font-mono text-2xs tracking-[0.18em] uppercase mt-1">min</div>
+            </button>
+          ))}
         </div>
-      </Card>
+        <Card className="p-5">
+          <Eyebrow className="mb-2.5">Custom</Eyebrow>
+          <div className="flex gap-2">
+            <Input type="number" inputMode="numeric" placeholder="Minutes (1–240)" value={custom} onChange={(e) => setCustom(e.target.value)} />
+            <Button variant="secondary" onClick={setCustomMinutes}>Set</Button>
+          </div>
+        </Card>
+      </Section>
     </div>
   );
 }
