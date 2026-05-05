@@ -67,6 +67,8 @@ interface AppState {
   lessonAnswers: Record<string, number>;        // lessonId.qIdx -> chosen index
   workDeferred: Record<string, number>;          // itemId -> epoch ms until which to hide
   workSkipped: Record<string, number>;           // itemId -> count of skips today (for ranking demotion)
+  workSubtaskDone: Record<string, boolean>;      // ${parentId}.${subId} -> done
+  recentCompletions: { itemId: string; type: string; subId?: string; at: number; label: string }[];
 
   // Timer
   timer: TimerState;
@@ -125,6 +127,9 @@ interface AppState {
   recordLessonAnswer: (key: string, idx: number) => void;
   deferWorkItem: (id: string, untilMs: number) => void;
   skipWorkItem: (id: string) => void;
+  setSubtaskDone: (parentId: string, subId: string, done: boolean) => void;
+  pushRecentCompletion: (rec: { itemId: string; type: string; subId?: string; label: string }) => void;
+  clearRecentCompletion: (itemId: string) => void;
 
   // Actions — Timer
   setTimerDuration: (seconds: number) => void;
@@ -178,6 +183,8 @@ export const useStore = create<AppState>()(
       lessonAnswers: {},
       workDeferred: {},
       workSkipped: {},
+      workSubtaskDone: {},
+      recentCompletions: [],
 
       timer: { duration: 50 * 60, remaining: 50 * 60, endAt: null, sessionsByDate: {} },
 
@@ -323,6 +330,17 @@ export const useStore = create<AppState>()(
         set((s) => ({ workDeferred: { ...s.workDeferred, [id]: untilMs } })),
       skipWorkItem: (id) =>
         set((s) => ({ workSkipped: { ...s.workSkipped, [id]: (s.workSkipped[id] || 0) + 1 } })),
+      setSubtaskDone: (parentId, subId, done) =>
+        set((s) => ({ workSubtaskDone: { ...s.workSubtaskDone, [`${parentId}.${subId}`]: done } })),
+      pushRecentCompletion: (rec) =>
+        set((s) => ({
+          recentCompletions: [
+            { ...rec, at: Date.now() },
+            ...s.recentCompletions.filter((r) => !(r.itemId === rec.itemId && r.subId === rec.subId)),
+          ].slice(0, 8),
+        })),
+      clearRecentCompletion: (itemId) =>
+        set((s) => ({ recentCompletions: s.recentCompletions.filter((r) => r.itemId !== itemId) })),
 
       // Timer
       setTimerDuration: (seconds) =>

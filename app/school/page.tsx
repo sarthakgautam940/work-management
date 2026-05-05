@@ -14,9 +14,20 @@ import {
   SOURCE_SLOTS,
   SCHEDULE,
 } from "@/lib/data/big-idea";
-import { urgencyLabel, daysUntil, shortDate } from "@/lib/utils/date";
+import { urgencyLabel, daysUntil, shortDate, todayKey } from "@/lib/utils/date";
 import { ChevronDown, AlertCircle, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+
+const SEMINAR_DATE = "2026-05-05";
+
+function relativeDateLabel(d: string): string {
+  const days = daysUntil(d);
+  if (days === 0) return "today";
+  if (days === 1) return "tomorrow";
+  if (days < 0) return `${Math.abs(days)}d overdue`;
+  if (days <= 7) return `in ${days}d`;
+  return `on ${shortDate(d)}`;
+}
 
 export default function SchoolPage() {
   const [mounted, setMounted] = useState(false);
@@ -217,7 +228,9 @@ function BigIdeaPanel() {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2.5 flex-wrap">
             <span className="font-medium text-base text-ink">Big Idea project</span>
-            <Tag tone="red" size="sm">Seminar tomorrow</Tag>
+            <Tag tone={daysUntil(SEMINAR_DATE) <= 0 ? "red" : daysUntil(SEMINAR_DATE) === 1 ? "red" : "amber"} size="sm">
+              Seminar {relativeDateLabel(SEMINAR_DATE)}
+            </Tag>
           </div>
           <div className="text-xs text-ink-mute mt-1">
             {ESSENTIAL_QUESTION} · {BIG_IDEA_GROUP}
@@ -234,7 +247,7 @@ function BigIdeaPanel() {
           {/* Seminar prep */}
           <div className="px-5 py-5">
             <div className="flex items-baseline justify-between mb-3">
-              <Eyebrow accent="rose">Seminar prep — tomorrow</Eyebrow>
+              <Eyebrow accent="rose">Seminar prep — {relativeDateLabel(SEMINAR_DATE)}</Eyebrow>
               <Meta>≈ {Math.round(totalEstimate / 60 * 10) / 10}h</Meta>
             </div>
 
@@ -363,28 +376,34 @@ function BigIdeaPanel() {
           <div className="px-5 py-5 border-t border-line">
             <Eyebrow className="mb-3">Project timeline</Eyebrow>
             <div>
-              {SCHEDULE.map((s, i) => (
-                <div
-                  key={s.date}
-                  className={cn(
-                    "flex items-center gap-3 py-2 text-sm",
-                    i < SCHEDULE.length - 1 && "border-b border-line"
-                  )}
-                >
-                  <span className="font-mono text-2xs text-ink-mute w-20 shrink-0">{shortDate(s.date)}</span>
-                  <span
+              {SCHEDULE.map((s, i) => {
+                const today = todayKey();
+                const isToday = s.date === today;
+                const isMissed = !isToday && s.date < today;
+                const isUpcoming = s.date > today;
+                return (
+                  <div
+                    key={s.date}
                     className={cn(
-                      "flex-1",
-                      s.status === "missed" && "text-ink-mute line-through",
-                      s.status === "today" && "text-ink font-medium",
-                      s.status === "upcoming" && "text-ink-dim"
+                      "flex items-center gap-3 py-2 text-sm",
+                      i < SCHEDULE.length - 1 && "border-b border-line"
                     )}
                   >
-                    {s.label}
-                  </span>
-                  {s.status === "today" && <Tag tone="amber" size="sm">Today</Tag>}
-                </div>
-              ))}
+                    <span className="font-mono text-2xs text-ink-mute w-20 shrink-0">{shortDate(s.date)}</span>
+                    <span
+                      className={cn(
+                        "flex-1",
+                        isMissed && "text-ink-mute line-through",
+                        isToday && "text-ink font-medium",
+                        isUpcoming && "text-ink-dim"
+                      )}
+                    >
+                      {s.label}
+                    </span>
+                    {isToday && <Tag tone="amber" size="sm">Today</Tag>}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>

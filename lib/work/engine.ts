@@ -21,20 +21,32 @@ export type WorkType =
   | "ibo-case"
   | "sat-module";
 
+export type SubtaskType = "concept" | "formulas" | "example" | "mcq" | "checklist";
+
+export type Subtask = {
+  id: string;
+  type: SubtaskType;
+  label: string;
+  detail?: string;
+  estimateMin?: number;
+  payload?: any;
+};
+
 export type WorkItem = {
   id: string;
   type: WorkType;
   category: Category;
   title: string;
   detail?: string;
-  className?: string;        // when category=school, the class short name
-  due?: string;              // YYYY-MM-DD
+  className?: string;
+  due?: string;
   estimateMin?: number;
   gradeType?: "test" | "quiz" | "classwork" | "homework" | "project" | "study";
   overdue?: boolean;
-  link?: string;             // external URL to open
-  internalRoute?: string;    // in-app route (e.g., "/school")
-  payload?: { lesson?: Lesson };  // typed extra data per type
+  link?: string;
+  internalRoute?: string;
+  payload?: { lesson?: Lesson };
+  subtasks?: Subtask[];
   score: number;
 };
 
@@ -149,22 +161,30 @@ export function buildQueue(today: Date, state: State): WorkItem[] {
     });
   });
 
-  // ── Big Idea seminar prep ───────────────────────────────────────
-  SEMINAR_PREP.forEach((p) => {
-    if (state.bigIdeaTasks[p.id]) return;
+  // ── Big Idea seminar prep — single parent task, 8 subtasks ─────
+  const seminarSubtasks: Subtask[] = SEMINAR_PREP.map((p) => ({
+    id: p.id,
+    type: "checklist",
+    label: p.label,
+    detail: p.detail,
+    estimateMin: p.estimateMin,
+  }));
+  const seminarRemaining = seminarSubtasks.filter((st) => !state.bigIdeaTasks[st.id]);
+  if (seminarRemaining.length > 0) {
     items.push({
-      id: `bi-${p.id}`,
+      id: "big-idea-seminar",
       type: "big-idea-prep",
       category: "school",
-      title: `Big Idea seminar — ${p.label}`,
-      detail: p.detail,
+      title: "Big Idea Socratic seminar — prep",
+      detail: "8 prep steps for the English seminar. Walk through each in order.",
       className: "English",
       due: "2026-05-05",
-      estimateMin: p.estimateMin,
+      estimateMin: seminarRemaining.reduce((s, st) => s + (st.estimateMin || 0), 0),
       gradeType: "quiz",
       internalRoute: "/school",
+      subtasks: seminarSubtasks,
     });
-  });
+  }
 
   // ── Big Idea sources (only surface the next-due un-annotated one) ─
   SOURCE_SLOTS.forEach((s) => {
@@ -189,6 +209,22 @@ export function buildQueue(today: Date, state: State): WorkItem[] {
     const lessons = STUDY_LESSONS.filter((l) => l.examId === examId);
     const nextUndone = lessons.find((l) => !state.lessonDone[l.id]);
     if (!nextUndone) return;
+    const subtasks: Subtask[] = [];
+    subtasks.push({ id: "concept", type: "concept", label: "Read the concept", payload: { body: nextUndone.body } });
+    if (nextUndone.formulas && nextUndone.formulas.length > 0) {
+      subtasks.push({ id: "formulas", type: "formulas", label: "Memorize the formulas", payload: { formulas: nextUndone.formulas } });
+    }
+    if (nextUndone.example) {
+      subtasks.push({ id: "example", type: "example", label: "Work through the example", payload: { example: nextUndone.example } });
+    }
+    nextUndone.mcqs.forEach((mcq, i) => {
+      subtasks.push({
+        id: `q${i}`,
+        type: "mcq",
+        label: `Question ${i + 1}`,
+        payload: { mcq, qIdx: i, lessonId: nextUndone.id },
+      });
+    });
     items.push({
       id: `lesson-${nextUndone.id}`,
       type: "ap-lesson",
@@ -200,6 +236,7 @@ export function buildQueue(today: Date, state: State): WorkItem[] {
       gradeType: "study",
       internalRoute: "/work",
       payload: { lesson: nextUndone },
+      subtasks,
     });
   });
 
