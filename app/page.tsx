@@ -155,7 +155,7 @@ export default function TodayPage() {
       {/* Lanes */}
       <Section eyebrow="Lanes" hint={`${pct}% routine · protein ${proteinTarget}g`}>
         <div className="space-y-px rounded-xl bg-bg-surface border border-line overflow-hidden">
-          <Lane href="/school" label="School" hint={`${countOpenTasks(schoolTasks)} open · Big Idea seminar tomorrow`} state="urgent" />
+          <Lane href="/school" label="School" hint={`${countOpenTasks(schoolTasks)} open · Big Idea seminar ${seminarRelative()}`} state="urgent" />
           <Lane href="/ap" label="AP crash plans" hint={`Macro ${macroDays}d · Precalc ${precalcDays}d`} state="urgent" />
           <Lane href="/routine" label="Daily routine" hint={`${routineDone} of ${totalItems} done`} state={pct >= 80 ? "done" : pct >= 50 ? "active" : undefined} />
           <Lane href="/workout" label={workout === "rest" ? "Rest day" : `${cap(workout)} session`} hint={workout === "rest" ? "Active recovery" : "Track every set"} />
@@ -264,6 +264,14 @@ function buildPriorities(
   });
 
   return out;
+}
+
+function seminarRelative(): string {
+  const d = daysUntil("2026-05-05");
+  if (d === 0) return "today";
+  if (d === 1) return "tomorrow";
+  if (d < 0) return `${Math.abs(d)}d past`;
+  return `in ${d}d`;
 }
 
 function countOpenTasks(schoolTasks: Record<string, boolean>): number {

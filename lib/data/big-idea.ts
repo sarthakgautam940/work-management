@@ -153,23 +153,22 @@ export const SOURCE_SLOTS: SourceSlot[] = [
   },
 ];
 
-// Project schedule (collapsed) — what's already been missed and what's next.
+// Project schedule. Status is computed live based on today's date — never hardcoded.
 export type ScheduleItem = {
   date: string;
   label: string;
-  status: "missed" | "today" | "upcoming";
 };
 
 export const SCHEDULE: ScheduleItem[] = [
-  { date: "2026-04-15", label: "Pick book + select essential question", status: "missed" },
-  { date: "2026-04-22", label: "Unit 6 flip book due", status: "missed" },
-  { date: "2026-04-28", label: "Unit 6 quiz", status: "missed" },
-  { date: "2026-05-04", label: "AP exams begin · midpoint check", status: "today" },
-  { date: "2026-05-05", label: "Big Idea Socratic seminar (Day 1) + Unit 7 flip book due + midpoint reading quiz", status: "upcoming" },
-  { date: "2026-05-06", label: "HW: print song lyrics with annotations", status: "upcoming" },
-  { date: "2026-05-08", label: "Unit 7 quiz + Reader Response 3", status: "upcoming" },
-  { date: "2026-05-12", label: "Article selected + annotated", status: "upcoming" },
-  { date: "2026-05-14", label: "Cultural Literacy Test (test grade)", status: "upcoming" },
-  { date: "2026-05-19", label: "Book finished", status: "upcoming" },
-  { date: "2026-05-20", label: "Final exam review", status: "upcoming" },
+  { date: "2026-04-15", label: "Pick book + select essential question" },
+  { date: "2026-04-22", label: "Unit 6 flip book due" },
+  { date: "2026-04-28", label: "Unit 6 quiz" },
+  { date: "2026-05-04", label: "AP exams begin · midpoint check" },
+  { date: "2026-05-05", label: "Big Idea Socratic seminar (Day 1) + Unit 7 flip book due + midpoint reading quiz" },
+  { date: "2026-05-06", label: "HW: print song lyrics with annotations" },
+  { date: "2026-05-08", label: "Unit 7 quiz + Reader Response 3" },
+  { date: "2026-05-12", label: "Article selected + annotated" },
+  { date: "2026-05-14", label: "Cultural Literacy Test (test grade)" },
+  { date: "2026-05-19", label: "Book finished" },
+  { date: "2026-05-20", label: "Final exam review" },
 ];

@@ -244,20 +244,11 @@ export const CLASSES: ClassRoom[] = [
     short: "AP Macro",
     type: "Period · AP",
     accent: "blue",
-    summary: "Exam in 4 days. Open the AP crash plan — Day 1 block today.",
+    summary: "Exam in 4 days. Open the AP crash plan and Work Mode to study.",
     assessments: [
       { title: "AP Macro Exam", date: "2026-05-08", detail: "Friday — full AP exam." },
     ],
-    tasks: [
-      {
-        id: "macro-day1-block",
-        title: "Today's crash block",
-        details: "Open /ap → AP Macro → Day 1. Don't skip — exam is Friday.",
-        due: "2026-05-04",
-        priority: "critical",
-        estimate: 150,
-      },
-    ],
+    tasks: [],
   },
   {
     id: "pe",
