@@ -1,7 +1,9 @@
-// Today: May 4, 2026 (Monday)
-// AP Macro test: May 8, 2026 (Friday) — 4 days
-// AP Precalc test: May 12, 2026 (Tuesday) — 8 days
-// IBO sprint starts: May 9, 2026
+// Today: 2026-05-04 (Monday, Day 2 in chemistry rotation)
+// AP Macro: 2026-05-08 (Friday) — 4 days
+// AP Precalc: 2026-05-12 (Tuesday) — 8 days
+// Heat transfer quiz (chem): 2026-05-07 (Thursday, Day 1)
+// English Big Idea Socratic seminar (Day 1 students): 2026-05-05 (Tuesday)
+// Cultural Literacy Test (English): 2026-05-14 / 2026-05-15
 
 export type Priority = "critical" | "high" | "medium" | "low";
 
@@ -12,8 +14,10 @@ export type Task = {
   due?: string;
   dueLabel?: string;
   priority: Priority;
-  estimate?: number;
+  estimate?: number;       // minutes
   defaultDone?: boolean;
+  overdue?: boolean;        // true if past due and not yet submitted
+  grade?: "test" | "quiz" | "classwork" | "homework" | "project";
 };
 
 export type Assessment = {
@@ -29,6 +33,7 @@ export type ClassRoom = {
   type: string;
   accent: "blue" | "amber" | "lime" | "violet" | "rose";
   summary: string;
+  grade?: number;            // current course grade as %
   assessments: Assessment[];
   tasks: Task[];
 };
@@ -38,63 +43,317 @@ export const CLASSES: ClassRoom[] = [
     id: "precalc",
     name: "AP Precalculus",
     short: "Precalc",
-    type: "AP Course",
+    type: "Period 1 · AP",
     accent: "blue",
-    summary: "AP Precalc exam in 8 days. Crash plan now active.",
+    summary: "One assignment is the entire grade. Finish Calmedic, exam in 8 days.",
+    grade: 58.7,
     assessments: [
-      { title: "AP Precalc Exam", date: "2026-05-12", detail: "Full AP exam — Tuesday May 12, 2026." },
+      { title: "AP Precalc Exam", date: "2026-05-12", detail: "Tuesday — full AP exam." },
     ],
-    tasks: [],
+    tasks: [
+      {
+        id: "precalc-calmedic-13",
+        title: "Calmedic — Units 1–3",
+        details: "Quiz grade. NTI. Was due 4/27. Finish FIRST — single biggest grade lever in the course.",
+        due: "2026-04-27",
+        priority: "critical",
+        estimate: 90,
+        overdue: true,
+        grade: "quiz",
+      },
+      {
+        id: "precalc-calmedic-46",
+        title: "Calmedic — Units 4–6",
+        details: "Required by Wednesday 5/6. Cleans the bulk of the course.",
+        due: "2026-05-06",
+        priority: "critical",
+        estimate: 90,
+        grade: "quiz",
+      },
+      {
+        id: "precalc-calmedic-rest",
+        title: "Calmedic — remaining units (7+)",
+        details: "Final stretch. Locks the assignment and the grade.",
+        priority: "high",
+        estimate: 90,
+        grade: "quiz",
+      },
+      {
+        id: "precalc-exam-prep",
+        title: "AP Precalc exam prep",
+        details: "Open the AP crash plan and follow it. Compressed 8-day schedule.",
+        due: "2026-05-12",
+        priority: "high",
+        estimate: 120,
+        grade: "test",
+      },
+    ],
   },
   {
     id: "marketing",
     name: "Marketing 1",
     short: "Marketing",
-    type: "Business Course",
+    type: "Period · Business",
     accent: "amber",
-    summary: "No active assignments. Light load until teacher posts new work.",
+    summary: "Two missing assignments. Submit both tonight.",
     assessments: [],
-    tasks: [],
+    tasks: [
+      {
+        id: "mkt-derby",
+        title: "Kentucky Derby worksheet",
+        details: "Was due today 11:35 AM. Submit late tonight — every hour worsens the late penalty.",
+        due: "2026-05-04",
+        priority: "critical",
+        estimate: 30,
+        overdue: true,
+        grade: "classwork",
+      },
+      {
+        id: "mkt-promotions",
+        title: "Promotions project",
+        details: "Was due 4/23. Confirm if there's a paired worksheet — submit both.",
+        due: "2026-04-23",
+        priority: "critical",
+        estimate: 60,
+        overdue: true,
+        grade: "project",
+      },
+      {
+        id: "mkt-promotions-worksheet",
+        title: "Verify Promotions worksheet",
+        details: "Check Schoology for the worksheet that pairs with the project. Submit if it exists.",
+        priority: "high",
+        estimate: 10,
+      },
+    ],
   },
   {
     id: "chemistry",
     name: "Chemistry 1 Honors",
-    short: "Chemistry",
-    type: "Science Course",
+    short: "Chem",
+    type: "Period · Science",
     accent: "lime",
-    summary: "Final research paper looms. Steady progress prevents a May crunch.",
+    summary: "Grade is bleeding (67.1). Three NTI / overdue items + a heat-transfer quiz Thursday.",
+    grade: 67.1,
     assessments: [
-      { title: "Final research paper", date: "2026-05-15", detail: "Hard deadline — Friday May 15, 2026." },
+      { title: "Heat transfer quiz", date: "2026-05-07", detail: "Thursday (Day 1) — day before AP Macro." },
     ],
     tasks: [
-      { id: "chem-final-paper", title: "Final research paper", details: "Long runway — keep steady weekly progress.", due: "2026-05-15", priority: "high", estimate: 90 },
+      {
+        id: "chem-final-paper",
+        title: "Final research paper (TEST grade)",
+        details: "Was due 5/1. Counts as a TEST grade — the single biggest grade lever in this class. Submit late TONIGHT.",
+        due: "2026-05-01",
+        priority: "critical",
+        estimate: 180,
+        overdue: true,
+        grade: "test",
+      },
+      {
+        id: "chem-irp-intro",
+        title: "IRP revised intro",
+        details: "Quiz grade · NTI. Was due 3/26. Re-submit tonight.",
+        due: "2026-03-26",
+        priority: "critical",
+        estimate: 45,
+        overdue: true,
+        grade: "quiz",
+      },
+      {
+        id: "chem-lab-makeup",
+        title: "Calorimetry lab — online makeup",
+        details: "Missed Friday 5/1 (in person + paper). Use the online makeup version.",
+        due: "2026-05-04",
+        priority: "high",
+        estimate: 45,
+        overdue: true,
+        grade: "classwork",
+      },
+      {
+        id: "chem-lab-distillation",
+        title: "Lab on paper — distillation + electrolysis",
+        details: "Paper-based lab writeup.",
+        priority: "high",
+        estimate: 40,
+        grade: "classwork",
+      },
+      {
+        id: "chem-cw-pure-substances",
+        title: "Defining pure substances",
+        details: "Classwork — finish and submit.",
+        priority: "medium",
+        estimate: 20,
+        grade: "classwork",
+      },
+      {
+        id: "chem-concept-builder-heat",
+        title: "Concept Builder — Heat Equation",
+        details: "Classwork / homework.",
+        priority: "medium",
+        estimate: 25,
+        grade: "homework",
+      },
+      {
+        id: "chem-heating-curve",
+        title: "Heating curve practice worksheet",
+        details: "Due in class tomorrow.",
+        due: "2026-05-05",
+        priority: "high",
+        estimate: 25,
+        grade: "classwork",
+      },
+      {
+        id: "chem-wayground",
+        title: "Heating curves Wayground (screenshot)",
+        details: "Due Thursday 5/7 11:59 PM. Take a screenshot of completion and submit it.",
+        due: "2026-05-07",
+        priority: "high",
+        estimate: 30,
+        grade: "homework",
+      },
+      {
+        id: "chem-quiz-heat-transfer",
+        title: "Heat transfer quiz prep",
+        details: "Quiz Thursday 5/7 (Day 1). Day BEFORE AP Macro — keep it short and high-yield.",
+        due: "2026-05-07",
+        priority: "high",
+        estimate: 60,
+        grade: "quiz",
+      },
+      {
+        id: "chem-checkin-calorimetry",
+        title: "Check-in: Calorimetry",
+        details: "Submit when prompted.",
+        priority: "medium",
+        estimate: 15,
+        grade: "classwork",
+      },
+      {
+        id: "chem-pivot-heat",
+        title: "Pivot — Heat transfer",
+        details: "Classwork / homework. Aligns with quiz prep.",
+        priority: "medium",
+        estimate: 25,
+        grade: "homework",
+      },
     ],
   },
   {
     id: "macro",
     name: "AP Macroeconomics",
     short: "AP Macro",
-    type: "AP Course",
+    type: "Period · AP",
     accent: "blue",
-    summary: "AP Macro exam in 4 days. Maximum priority lane.",
+    summary: "Exam in 4 days. Open the AP crash plan — Day 1 block today.",
     assessments: [
-      { title: "AP Macro Exam", date: "2026-05-08", detail: "Full AP exam — Friday May 8, 2026." },
+      { title: "AP Macro Exam", date: "2026-05-08", detail: "Friday — full AP exam." },
     ],
-    tasks: [],
+    tasks: [
+      {
+        id: "macro-day1-block",
+        title: "Today's crash block",
+        details: "Open /ap → AP Macro → Day 1. Don't skip — exam is Friday.",
+        due: "2026-05-04",
+        priority: "critical",
+        estimate: 150,
+      },
+    ],
+  },
+  {
+    id: "pe",
+    name: "Physical Education",
+    short: "PE",
+    type: "Period · PE",
+    accent: "lime",
+    summary: "One form to submit by 12:40 tomorrow.",
+    assessments: [],
+    tasks: [
+      {
+        id: "pe-form",
+        title: "PE form — write your number",
+        details: "Hand in tomorrow by 12:40 PM. Bring it to school.",
+        due: "2026-05-05",
+        priority: "high",
+        estimate: 5,
+        grade: "classwork",
+      },
+    ],
   },
   {
     id: "english",
     name: "English 10",
     short: "English",
-    type: "English Course",
+    type: "Period · English",
     accent: "rose",
-    summary: "Several dated deliverables. Manageable cadence.",
+    summary: "92.2% — protect this. Big Idea Socratic seminar tomorrow with no book read yet. See Big Idea panel.",
+    grade: 92.2,
     assessments: [
-      { title: "Midpoint reading quiz", date: "2026-05-04", detail: "Today — Monday May 4." },
+      { title: "Big Idea Socratic seminar", date: "2026-05-05", detail: "Tomorrow (Day 1). Quiz grade — graded holistically on prep + discussion + reflection." },
+      { title: "Unit 7 quiz", date: "2026-05-08", detail: "Quiz grade." },
+      { title: "Cultural Literacy Test", date: "2026-05-14", detail: "Test grade." },
     ],
     tasks: [
-      { id: "eng-midpoint", title: "Midpoint reading quiz", details: "Today.", due: "2026-05-04", priority: "critical", estimate: 45 },
-      { id: "eng-flipbook", title: "Unit 6 flip book", details: "Wednesday April 22 (CONFIRM if past — likely complete).", due: "2026-04-22", priority: "low", estimate: 60, defaultDone: true },
+      {
+        id: "eng-bigidea-prep",
+        title: "Big Idea — handwritten prep + book + seminar",
+        details: "Open the Big Idea panel below. Tomorrow's quiz grade.",
+        due: "2026-05-05",
+        priority: "critical",
+        estimate: 240,
+        grade: "quiz",
+      },
+      {
+        id: "eng-flipbook-7",
+        title: "Unit 7 flip book",
+        details: "Vocab flashcards. Due in class tomorrow (CW grade).",
+        due: "2026-05-05",
+        priority: "high",
+        estimate: 45,
+        grade: "classwork",
+      },
+      {
+        id: "eng-midpoint-quiz",
+        title: "Midpoint reading quiz of book",
+        details: "Quiz grade — listed for tomorrow on Schoology. Even if it's the wrong date there, study tonight in case.",
+        due: "2026-05-05",
+        priority: "high",
+        estimate: 30,
+        grade: "quiz",
+      },
+      {
+        id: "eng-rr3",
+        title: "Reader Response #3 — to self-selected song",
+        details: "CW grade. Class on 5/8.",
+        due: "2026-05-08",
+        priority: "medium",
+        estimate: 25,
+        grade: "classwork",
+      },
+      {
+        id: "eng-song",
+        title: "Curate + annotate self-selected song",
+        details: "Print lyrics with annotations. HW for 5/6.",
+        due: "2026-05-06",
+        priority: "medium",
+        estimate: 30,
+      },
+      {
+        id: "eng-article",
+        title: "Select + annotate article (NYT or WSJ)",
+        details: "Class on 5/12 — must be approved by Mrs. Hawkins.",
+        due: "2026-05-12",
+        priority: "medium",
+        estimate: 45,
+      },
+      {
+        id: "eng-clt",
+        title: "Cultural Literacy Test",
+        details: "Test grade. 5/14–5/15. Use the post-CLT study guide.",
+        due: "2026-05-14",
+        priority: "medium",
+        estimate: 90,
+        grade: "test",
+      },
     ],
   },
 ];
@@ -117,7 +376,7 @@ export const AP_MACRO_PLAN: APBlock[] = [
       "Unit 1: Comparative advantage, supply/demand, market equilibrium",
       "Unit 2: GDP definition, components (C+I+G+NX), real vs nominal, CPI/inflation",
       "Unit 2: Unemployment types, business cycles",
-      "Practice: 10 MCQ from Units 1-2",
+      "Practice: 10 MCQ from Units 1–2",
     ],
   },
   {
@@ -141,12 +400,12 @@ export const AP_MACRO_PLAN: APBlock[] = [
       "Unit 4: Money market, loanable funds market",
       "Unit 4: Fed tools, monetary policy, interest rates",
       "Unit 5: Phillips curve (SR + LR), MV=PQ",
-      "Practice: 10 MCQ on Units 4-5",
+      "Practice: 10 MCQ on Units 4–5",
     ],
   },
   {
     date: "2026-05-07",
-    label: "Day 4 — Thu",
+    label: "Day 4 — Thu (chem heat-transfer quiz too — keep balanced)",
     hours: 3,
     topics: [
       "Unit 5: Deficits, debt, crowding out, growth + productivity",
@@ -175,8 +434,8 @@ export const AP_PRECALC_PLAN: APBlock[] = [
     label: "Day 1 — Mon",
     hours: 1.5,
     topics: [
-      "1.1-1.4: Rates of change, polynomial functions",
-      "1.5-1.6: Polynomial zeros, multiplicity, end behavior",
+      "1.1–1.4: Rates of change, polynomial functions",
+      "1.5–1.6: Polynomial zeros, multiplicity, end behavior",
       "Practice: 8 problems from progress check",
     ],
   },
@@ -185,18 +444,18 @@ export const AP_PRECALC_PLAN: APBlock[] = [
     label: "Day 2 — Tue",
     hours: 1.5,
     topics: [
-      "1.7-1.10: Rational functions, asymptotes, holes",
-      "1.11-1.12: Equivalent representations, transformations",
+      "1.7–1.10: Rational functions, asymptotes, holes",
+      "1.11–1.12: Equivalent representations, transformations",
       "Practice: 10 mixed problems",
     ],
   },
   {
     date: "2026-05-06",
-    label: "Day 3 — Wed",
+    label: "Day 3 — Wed (Calmedic 1–6 due)",
     hours: 1.5,
     topics: [
-      "1.13-1.14: Model selection, application, inverse proportionality",
-      "2.1-2.3: Sequences (arithmetic + geometric), exponential basics",
+      "1.13–1.14: Model selection, application, inverse proportionality",
+      "2.1–2.3: Sequences (arithmetic + geometric), exponential basics",
       "Practice: 8 problems",
     ],
   },
@@ -205,18 +464,18 @@ export const AP_PRECALC_PLAN: APBlock[] = [
     label: "Day 4 — Thu",
     hours: 1.5,
     topics: [
-      "2.4-2.7: Exponential properties, modeling, composition",
-      "2.8-2.10: Inverses, logarithms, exponential-log relationship",
+      "2.4–2.7: Exponential properties, modeling, composition",
+      "2.8–2.10: Inverses, logarithms, exponential-log relationship",
       "Practice: 8 problems",
     ],
   },
   {
     date: "2026-05-08",
-    label: "Day 5 — Fri (Macro exam, light Precalc)",
+    label: "Day 5 — Fri (Macro exam — light Precalc)",
     hours: 1,
     topics: [
-      "2.11-2.13: Log functions, properties (product/quotient/power), equations",
-      "2.14-2.15: Log modeling, semi-log plots",
+      "2.11–2.13: Log functions, properties, equations",
+      "2.14–2.15: Log modeling, semi-log plots",
       "Light review only — protect Macro exam energy",
     ],
   },
@@ -225,7 +484,7 @@ export const AP_PRECALC_PLAN: APBlock[] = [
     label: "Day 6 — Sat",
     hours: 2,
     topics: [
-      "3.1-3.6: Periodic functions, unit circle, sin/cos graphs + transformations",
+      "3.1–3.6: Periodic functions, unit circle, sin/cos graphs + transformations",
       "Practice: 12 trig problems",
     ],
   },
@@ -234,8 +493,8 @@ export const AP_PRECALC_PLAN: APBlock[] = [
     label: "Day 7 — Sun",
     hours: 2,
     topics: [
-      "3.7-3.12: Sinusoidal modeling, tangent, inverse trig, identities",
-      "3.13-3.15: Polar coordinates, polar graphs, polar rates of change",
+      "3.7–3.12: Sinusoidal modeling, tangent, inverse trig, identities",
+      "3.13–3.15: Polar coordinates, polar graphs, polar rates of change",
       "Practice: 12 mixed problems",
     ],
   },
