@@ -9,7 +9,11 @@ import { CLASSES, ClassRoom, Task, Assessment } from "@/lib/data/school";
 import {
   ESSENTIAL_QUESTION,
   BIG_IDEA_GROUP,
+  BIG_IDEA_SUBTHEMES,
   BOOK_PICKS,
+  HEX_SHEET_PREP,
+  HEX_SHEET_DUE,
+  SEMINAR_DONE,
   SEMINAR_PREP,
   SOURCE_SLOTS,
   SCHEDULE,
@@ -17,8 +21,6 @@ import {
 import { urgencyLabel, daysUntil, shortDate, todayKey } from "@/lib/utils/date";
 import { ChevronDown, AlertCircle, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-
-const SEMINAR_DATE = "2026-05-05";
 
 function relativeDateLabel(d: string): string {
   const days = daysUntil(d);
@@ -216,10 +218,15 @@ function BigIdeaPanel() {
   const sourceState = useStore((s) => s.bigIdeaSourceState);
   const setSourceState = useStore((s) => s.setBigIdeaSourceState);
 
-  const seminarDone = SEMINAR_PREP.filter((t) => tasks[t.id]).length;
-  const seminarTotal = SEMINAR_PREP.length;
-  const seminarPct = (seminarDone / seminarTotal) * 100;
-  const totalEstimate = SEMINAR_PREP.reduce((s, t) => s + t.estimateMin, 0);
+  // The active deliverable is the hex sheet now that the seminar is done.
+  const activePrep = SEMINAR_DONE ? HEX_SHEET_PREP : SEMINAR_PREP;
+  const activeDue = SEMINAR_DONE ? HEX_SHEET_DUE : "2026-05-05";
+  const activeLabel = SEMINAR_DONE ? "Hex sheet" : "Seminar prep";
+
+  const prepDone = activePrep.filter((t) => tasks[t.id]).length;
+  const prepTotal = activePrep.length;
+  const prepPct = (prepDone / prepTotal) * 100;
+  const totalEstimate = activePrep.reduce((s, t) => s + t.estimateMin, 0);
 
   return (
     <Card className="overflow-hidden mb-7 border-accent-rose/30">
@@ -228,26 +235,40 @@ function BigIdeaPanel() {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2.5 flex-wrap">
             <span className="font-medium text-base text-ink">Big Idea project</span>
-            <Tag tone={daysUntil(SEMINAR_DATE) <= 0 ? "red" : daysUntil(SEMINAR_DATE) === 1 ? "red" : "amber"} size="sm">
-              Seminar {relativeDateLabel(SEMINAR_DATE)}
+            <Tag
+              tone={daysUntil(activeDue) <= 0 ? "red" : daysUntil(activeDue) === 1 ? "red" : "amber"}
+              size="sm"
+            >
+              {activeLabel} {relativeDateLabel(activeDue)}
             </Tag>
+            {SEMINAR_DONE && <Tag tone="lime" size="sm">Seminar done</Tag>}
           </div>
-          <div className="text-xs text-ink-mute mt-1">
+          <div className="text-xs text-ink-mute mt-1 leading-relaxed">
             {ESSENTIAL_QUESTION} · {BIG_IDEA_GROUP}
           </div>
         </div>
         <span className="font-mono text-2xs text-ink-mute tabular-nums shrink-0">
-          {seminarDone}/{seminarTotal}
+          {prepDone}/{prepTotal}
         </span>
         <ChevronDown size={15} className={cn("text-ink-mute transition-transform shrink-0", open && "rotate-180")} />
       </Row>
 
       {open && (
         <div className="border-t border-line">
-          {/* Seminar prep */}
+          {/* Sub-themes */}
+          <div className="px-5 pt-5">
+            <Eyebrow className="mb-2">Sub-themes</Eyebrow>
+            <div className="flex flex-wrap gap-1.5">
+              {BIG_IDEA_SUBTHEMES.map((s) => (
+                <Tag key={s} tone="neutral" size="sm">{s}</Tag>
+              ))}
+            </div>
+          </div>
+
+          {/* Active prep — hex sheet (or seminar before it was completed) */}
           <div className="px-5 py-5">
             <div className="flex items-baseline justify-between mb-3">
-              <Eyebrow accent="rose">Seminar prep — {relativeDateLabel(SEMINAR_DATE)}</Eyebrow>
+              <Eyebrow accent="rose">{activeLabel} — {relativeDateLabel(activeDue)}</Eyebrow>
               <Meta>≈ {Math.round(totalEstimate / 60 * 10) / 10}h</Meta>
             </div>
 
@@ -255,14 +276,14 @@ function BigIdeaPanel() {
               <div
                 className={cn(
                   "h-full transition-all duration-500",
-                  seminarPct === 100 ? "bg-accent-lime" : "bg-accent-rose"
+                  prepPct === 100 ? "bg-accent-lime" : "bg-accent-rose"
                 )}
-                style={{ width: `${seminarPct}%` }}
+                style={{ width: `${prepPct}%` }}
               />
             </div>
 
             <div>
-              {SEMINAR_PREP.map((t, i) => {
+              {activePrep.map((t, i) => {
                 const done = !!tasks[t.id];
                 return (
                   <Row
@@ -270,7 +291,7 @@ function BigIdeaPanel() {
                     onClick={() => toggleTask(t.id)}
                     className={cn(
                       "flex items-start gap-3 py-2.5 group",
-                      i < SEMINAR_PREP.length - 1 && "border-b border-line"
+                      i < activePrep.length - 1 && "border-b border-line"
                     )}
                   >
                     <Checkbox

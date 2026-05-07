@@ -1,5 +1,8 @@
 // English 10 — Big Idea project tracker.
-// Today: 2026-05-04. Socratic seminar (Day 1 students): 2026-05-05.
+// As of 2026-05-06 evening: Socratic seminar is COMPLETE (delivered 5/5).
+// Group changed (Human Condition was full) — now in The Evolving World.
+// Book picked: Algorithms to Live By (Christian & Griffiths).
+// Active deliverable: Hexagonal Thinking sheet, due 2026-05-07 EOD.
 
 export type BookPick = {
   id: string;
@@ -12,19 +15,37 @@ export type BookPick = {
 
 export const ESSENTIAL_QUESTION = "When is a risk worth taking?";
 
-export const BIG_IDEA_GROUP = "Human condition · adventure & risk";
+export const BIG_IDEA_GROUP = "The Evolving World · mysteries of life + responsibility & morality";
+
+export const BIG_IDEA_SUBTHEMES = [
+  "future technologies",
+  "the power of the human mind",
+  "ethical obligations to the planet",
+  "ethical obligations to each other",
+];
+
+// True when the Socratic seminar deliverable has been completed.
+// Hides the seminar prep parent task from the work-mode queue.
+export const SEMINAR_DONE = true;
 
 // Selected book + ranked backups.
-// David and Goliath: chapters are self-contained (skim-friendly under deadline),
-// the central thesis directly answers the essential question, and it's stocked
-// at the DRHS library.
+// Algorithms to Live By picked because chapters 1-6 directly map to the EQ:
+// Optimal Stopping, Explore/Exploit, Sorting, Caching, Scheduling, Bayes.
 export const BOOK_PICKS: BookPick[] = [
+  {
+    id: "christian-griffiths-algorithms",
+    title: "Algorithms to Live By: The Computer Science of Human Decisions",
+    author: "Brian Christian, Tom Griffiths",
+    pages: 368,
+    why: "Picked. Chapters on Optimal Stopping (37% rule, Ch 1), Explore/Exploit (Ch 2), and Bayes (Ch 6) directly answer the EQ. Self-contained chapters allow targeted re-reads while annotating.",
+    available: "Owned (physical copy).",
+  },
   {
     id: "gladwell-david-goliath",
     title: "David and Goliath: Underdogs, Misfits, and the Art of Battling Giants",
     author: "Malcolm Gladwell",
     pages: 305,
-    why: "Whole book is built on when an apparent disadvantage becomes an advantage — exactly the question. Each chapter is a self-contained story, so you can read out of order and still annotate.",
+    why: "Backup #1. Whole book is built on when an apparent disadvantage becomes an advantage.",
     available: "DRHS library *",
   },
   {
@@ -32,20 +53,12 @@ export const BOOK_PICKS: BookPick[] = [
     title: "Grit: The Power of Passion and Perseverance",
     author: "Angela Duckworth",
     pages: 352,
-    why: "Backup #1. Same shelf section. Risk-tolerance-through-effort thesis pairs with the question.",
-    available: "DRHS library *",
-  },
-  {
-    id: "christian-griffiths-algorithms",
-    title: "Algorithms to Live By: The Computer Science of Human Decisions",
-    author: "Brian Christian, Tom Griffiths",
-    pages: 368,
-    why: "Backup #2. Explore-vs-exploit chapter is literally a math model of when a risk is worth taking.",
+    why: "Backup #2. Risk-tolerance-through-effort thesis pairs with the question.",
     available: "DRHS library *",
   },
 ];
 
-// Tomorrow's Socratic seminar — minimum-viable prep.
+// Seminar prep — kept for history. Hidden from queue when SEMINAR_DONE = true.
 export type SeminarTask = {
   id: string;
   label: string;
@@ -101,6 +114,63 @@ export const SEMINAR_PREP: SeminarTask[] = [
     label: "Pack: book, hexagonal sheet, two pens, sticky notes, index cards",
     detail: "Lay it all out tonight so it's ready to grab.",
     estimateMin: 5,
+  },
+];
+
+// Active hex-sheet deliverable — front + back of the printed sheet.
+// Replaces SEMINAR_PREP as the surfaceable Big Idea task once SEMINAR_DONE = true.
+// Subtask IDs are namespaced "hexsheet-*" to avoid collisions with seminar IDs in
+// the bigIdeaTasks store map.
+export const HEX_SHEET_DUE = "2026-05-07";
+
+export const HEX_SHEET_PREP: SeminarTask[] = [
+  {
+    id: "hexsheet-central",
+    label: "Confirm central claim using the Evolving World sentence frame",
+    detail: "\"Although some may say ___, the mysteries in life like [risk/decision] are ___ because ___ and ___.\" One filled-in sentence in the shaded center hexagon.",
+    estimateMin: 10,
+  },
+  {
+    id: "hexsheet-evidence",
+    label: "Pull 6–8 evidence quotes from Algorithms to Live By, Ch 1–6",
+    detail: "Hardest-hitting chapters for the EQ: Optimal Stopping (Ch 1), Explore/Exploit (Ch 2), Bayes (Ch 6). Mark each with a page number and target sub-theme (future tech / human mind / planet ethics / ethics to each other).",
+    estimateMin: 45,
+  },
+  {
+    id: "hexsheet-place-evidence",
+    label: "Place evidence into the 6 surrounding white hexagons",
+    detail: "Quote format with (Christian & Griffiths p.X). Each hexagon = one self-contained sub-claim.",
+    estimateMin: 20,
+  },
+  {
+    id: "hexsheet-connections",
+    label: "Draw connection lines + label transitions",
+    detail: "Each line from center hex to evidence hex gets one transition: Furthermore, Moreover, However, Therefore, Hence, Consequently, As a result.",
+    estimateMin: 15,
+  },
+  {
+    id: "hexsheet-literary",
+    label: "Required Connection #1 — Literary",
+    detail: "1 paragraph. Pick a character from a text I've read this year (English 10) who faced a seemingly impossible challenge. Tie back to the EQ.",
+    estimateMin: 15,
+  },
+  {
+    id: "hexsheet-realworld",
+    label: "Required Connection #2 — Real World",
+    detail: "1 paragraph. Current event or historical figure representing a 'shift in morality' or 'shaping of society.' Fed/recession decisions or AI ethics are unusually applicable.",
+    estimateMin: 15,
+  },
+  {
+    id: "hexsheet-personal",
+    label: "Required Connection #3 — Personal",
+    detail: "1 paragraph. How my own story defines what I see as 'risk.' UpLevel itself is the natural answer — starting an LLC at 15.",
+    estimateMin: 15,
+  },
+  {
+    id: "hexsheet-review",
+    label: "Final review pass",
+    detail: "Verify rubric criteria, page citations on every quote, transition word logic, all three Required Connections written. Pack the sheet for tomorrow.",
+    estimateMin: 10,
   },
 ];
 
@@ -164,8 +234,9 @@ export const SCHEDULE: ScheduleItem[] = [
   { date: "2026-04-22", label: "Unit 6 flip book due" },
   { date: "2026-04-28", label: "Unit 6 quiz" },
   { date: "2026-05-04", label: "AP exams begin · midpoint check" },
-  { date: "2026-05-05", label: "Big Idea Socratic seminar (Day 1) + Unit 7 flip book due + midpoint reading quiz" },
+  { date: "2026-05-05", label: "Big Idea Socratic seminar — DONE" },
   { date: "2026-05-06", label: "HW: print song lyrics with annotations" },
+  { date: "2026-05-07", label: "Hexagonal Thinking sheet — full (front + back) DUE" },
   { date: "2026-05-08", label: "Unit 7 quiz + Reader Response 3" },
   { date: "2026-05-12", label: "Article selected + annotated" },
   { date: "2026-05-14", label: "Cultural Literacy Test (test grade)" },
