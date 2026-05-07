@@ -2,10 +2,13 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Card, Eyebrow, Meta, Section, Tag, Checkbox, PageHeader, Row, Stat } from "@/components/ui";
-import { useStore } from "@/lib/store";
+import { TaskEditModal, TaskMenu, type TaskEditTarget } from "@/components/ui/task-edit-modal";
+import { useStore, type CustomTask } from "@/lib/store";
 import { CLASSES, ClassRoom, Task, Assessment } from "@/lib/data/school";
+import { Plus } from "lucide-react";
 import {
   ESSENTIAL_QUESTION,
   BIG_IDEA_GROUP,
@@ -40,12 +43,22 @@ export default function SchoolPage() {
 
 function SchoolInner() {
   const schoolTasks = useStore((s) => s.schoolTasks);
+  const customTasks = useStore((s) => s.customTasks);
+  const customTaskEdits = useStore((s) => s.customTaskEdits);
+  const deletedTasks = useStore((s) => s.deletedTasks);
+
+  const [editTarget, setEditTarget] = useState<TaskEditTarget | null>(null);
+
+  // Combined live counts (built-in + custom, edits applied, deletes removed)
+  const allOpen = CLASSES.reduce((sum, c) => {
+    return sum + c.tasks.filter((t) => {
+      if (deletedTasks[t.id]) return false;
+      return !(schoolTasks[t.id] ?? t.defaultDone);
+    }).length;
+  }, 0) + customTasks.filter((c) => c.parent.startsWith("school:") && !deletedTasks[c.id] && !schoolTasks[c.id]).length;
 
   const overdueCount = CLASSES.reduce((sum, c) => {
-    return sum + c.tasks.filter((t) => t.overdue && !(schoolTasks[t.id] ?? t.defaultDone)).length;
-  }, 0);
-  const totalOpen = CLASSES.reduce((sum, c) => {
-    return sum + c.tasks.filter((t) => !(schoolTasks[t.id] ?? t.defaultDone)).length;
+    return sum + c.tasks.filter((t) => !deletedTasks[t.id] && t.overdue && !(schoolTasks[t.id] ?? t.defaultDone)).length;
   }, 0);
 
   return (
@@ -56,10 +69,8 @@ function SchoolInner() {
         subtitle="Five classes. Real assignments, real grades, real due dates."
       />
 
-      {/* Big Idea panel — most urgent academic crisis */}
       <BigIdeaPanel />
 
-      {/* Crash bar */}
       <Card className="p-4 mb-7 border-accent-red/30 bg-accent-red/[0.04]">
         <div className="flex items-start gap-3">
           <AlertCircle size={15} className="text-accent-red mt-0.5 shrink-0" />
@@ -74,7 +85,7 @@ function SchoolInner() {
       </Card>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-7">
-        <Stat label="Open tasks" value={totalOpen} />
+        <Stat label="Open tasks" value={allOpen} />
         <Stat label="Overdue" value={overdueCount} accent={overdueCount > 0 ? "red" : "neutral"} />
         <Stat label="Days to AP Macro" value={`${daysUntil("2026-05-08")}d`} accent="red" />
         <Stat label="Days to AP Precalc" value={`${daysUntil("2026-05-12")}d`} accent="amber" />
@@ -82,19 +93,37 @@ function SchoolInner() {
 
       <Section eyebrow="Classes">
         <div className="space-y-2">
-          {CLASSES.map((cls) => <ClassCard key={cls.id} cls={cls} />)}
+          {CLASSES.map((cls) => (
+            <ClassCard key={cls.id} cls={cls} onEdit={setEditTarget} />
+          ))}
         </div>
       </Section>
+
+      <TaskEditModal target={editTarget} onClose={() => setEditTarget(null)} />
     </div>
   );
 }
 
-function ClassCard({ cls }: { cls: ClassRoom }) {
+function ClassCard({ cls, onEdit }: { cls: ClassRoom; onEdit: (target: TaskEditTarget) => void }) {
   const [open, setOpen] = useState(false);
   const schoolTasks = useStore((s) => s.schoolTasks);
-  const openTasks = cls.tasks.filter((t) => !(schoolTasks[t.id] ?? t.defaultDone));
+  const customTasks = useStore((s) => s.customTasks);
+  const customTaskEdits = useStore((s) => s.customTaskEdits);
+  const deletedTasks = useStore((s) => s.deletedTasks);
+  const parentKey = `school:${cls.id}`;
+  const customForClass = customTasks.filter((c) => c.parent === parentKey && !deletedTasks[c.id]);
+  const liveTasks = cls.tasks
+    .filter((t) => !deletedTasks[t.id])
+    .map((t) => {
+      const edit = customTaskEdits[t.id];
+      if (!edit) return t;
+      return { ...t, title: edit.title ?? t.title, details: edit.details ?? t.details, due: edit.due ?? t.due, estimate: edit.estimateMin ?? t.estimate };
+    });
+  const openTasks = liveTasks.filter((t) => !(schoolTasks[t.id] ?? t.defaultDone));
+  const openCustom = customForClass.filter((c) => !schoolTasks[c.id]);
   const overdueOpen = openTasks.filter((t) => t.overdue).length;
-  const doneTasks = cls.tasks.length - openTasks.length;
+  const doneTasks = liveTasks.length - openTasks.length + (customForClass.length - openCustom.length);
+  const totalCount = liveTasks.length + customForClass.length;
   const nextAssessment = cls.assessments[0];
   const nextU = nextAssessment ? urgencyLabel(nextAssessment.date) : null;
   const tone: "red" | "amber" | "lime" | "neutral" = !nextU ? "neutral"
@@ -123,9 +152,9 @@ function ClassCard({ cls }: { cls: ClassRoom }) {
           {cls.grade !== undefined && (
             <Tag tone={gradeTone} size="sm">{cls.grade.toFixed(1)}%</Tag>
           )}
-          {cls.tasks.length > 0 && (
+          {totalCount > 0 && (
             <span className="font-mono text-2xs text-ink-mute tabular-nums">
-              {doneTasks}/{cls.tasks.length}{overdueOpen > 0 ? ` · ${overdueOpen} late` : ""}
+              {doneTasks}/{totalCount}{overdueOpen > 0 ? ` · ${overdueOpen} late` : ""}
             </span>
           )}
           {nextU && <Tag tone={tone} size="sm">{nextU.text}</Tag>}
@@ -145,16 +174,35 @@ function ClassCard({ cls }: { cls: ClassRoom }) {
                 </div>
               </div>
             )}
-            {cls.tasks.length > 0 ? (
+            {(liveTasks.length > 0 || customForClass.length > 0) ? (
               <div>
                 <Eyebrow className="mb-2">Tasks</Eyebrow>
                 <div>
-                  {cls.tasks.map((t) => <TaskRow key={t.id} task={t} />)}
+                  {liveTasks.map((t) => (
+                    <TaskRow
+                      key={t.id}
+                      task={t}
+                      onEdit={() => onEdit({
+                        kind: "builtin",
+                        id: t.id,
+                        defaults: { title: t.title, details: t.details, due: t.due, estimateMin: t.estimate },
+                      })}
+                    />
+                  ))}
+                  {customForClass.map((c) => (
+                    <CustomTaskRow key={c.id} task={c} onEdit={() => onEdit({ kind: "custom", task: c })} />
+                  ))}
                 </div>
               </div>
             ) : (
-              <div className="text-sm text-ink-mute italic">No active tasks.</div>
+              <div className="text-sm text-ink-mute italic mb-2">No active tasks.</div>
             )}
+            <button
+              onClick={() => onEdit({ kind: "new", parent: parentKey })}
+              className="mt-3 flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-2xs font-mono uppercase tracking-[0.18em] text-ink-mute hover:text-ink hover:bg-bg-elevated/40 transition-colors"
+            >
+              <Plus size={11} /> Add task
+            </button>
           </div>
         </motion.div>
       )}
@@ -180,9 +228,11 @@ function AssessmentRow({ a, last }: { a: Assessment; last: boolean }) {
   );
 }
 
-function TaskRow({ task }: { task: Task }) {
+function TaskRow({ task, onEdit }: { task: Task; onEdit: () => void }) {
+  const router = useRouter();
   const schoolTasks = useStore((s) => s.schoolTasks);
   const toggle = useStore((s) => s.toggleSchoolTask);
+  const deleteTask = useStore((s) => s.deleteTask);
   const checked = schoolTasks[task.id] ?? task.defaultDone ?? false;
   const u = task.due ? urgencyLabel(task.due) : null;
   const tone: "red" | "amber" | "lime" | "neutral" = !u ? "neutral"
@@ -205,6 +255,45 @@ function TaskRow({ task }: { task: Task }) {
         {task.details && <div className="text-xs text-ink-mute mt-1 leading-relaxed">{task.details}</div>}
         {task.estimate && <div className="text-2xs font-mono text-ink-ghost mt-1">~{task.estimate}m</div>}
       </div>
+      <TaskMenu
+        onWork={() => router.push(`/work?focus=${encodeURIComponent(task.id)}&from=/school`)}
+        onEdit={onEdit}
+        onDelete={() => deleteTask(task.id, true)}
+      />
+    </Row>
+  );
+}
+
+function CustomTaskRow({ task, onEdit }: { task: CustomTask; onEdit: () => void }) {
+  const router = useRouter();
+  const schoolTasks = useStore((s) => s.schoolTasks);
+  const toggle = useStore((s) => s.toggleSchoolTask);
+  const deleteTask = useStore((s) => s.deleteTask);
+  const checked = !!schoolTasks[task.id];
+  const u = task.due ? urgencyLabel(task.due) : null;
+  const tone: "red" | "amber" | "lime" | "neutral" = !u ? "neutral"
+    : u.tone === "red" ? "red"
+    : u.tone === "amber" ? "amber"
+    : u.tone === "lime" ? "lime"
+    : "neutral";
+
+  return (
+    <Row onClick={() => toggle(task.id)} className="flex items-start gap-3 py-2.5 group">
+      <Checkbox checked={checked} onChange={() => toggle(task.id)} accent="lime" size="sm" />
+      <div className="flex-1 min-w-0">
+        <div className={cn("text-sm flex items-center gap-2 flex-wrap", checked ? "text-ink-mute line-through" : "text-ink-dim group-hover:text-ink")}>
+          {task.title}
+          <Tag tone="neutral" size="sm">custom</Tag>
+          {u && <Tag tone={tone} size="sm">{u.text}</Tag>}
+        </div>
+        {task.details && <div className="text-xs text-ink-mute mt-1 leading-relaxed">{task.details}</div>}
+        {task.estimateMin && <div className="text-2xs font-mono text-ink-ghost mt-1">~{task.estimateMin}m</div>}
+      </div>
+      <TaskMenu
+        onWork={() => router.push(`/work?focus=${encodeURIComponent(task.id)}&from=/school`)}
+        onEdit={onEdit}
+        onDelete={() => deleteTask(task.id, true)}
+      />
     </Row>
   );
 }
