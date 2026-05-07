@@ -39,12 +39,19 @@ function Inner() {
         title="AP Macro crash course"
         subtitle="One-night mastery path. Modules ordered for max ROI per minute."
         right={
-          <Link href={`/ap/crash/macro/${continueModule}`}>
-            <button className="px-4 py-2 rounded-lg bg-ink text-bg text-sm font-medium hover:bg-ink/90 transition-colors flex items-center gap-1.5">
-              <Zap size={14} /> {doneSteps > 0 ? "Continue" : "Start"}
-              <ChevronRight size={14} />
-            </button>
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link href="/ap/crash">
+              <button className="px-3 py-2 rounded-lg border border-line text-ink-dim text-sm hover:border-line-strong hover:text-ink transition-colors flex items-center gap-1.5">
+                ← Courses
+              </button>
+            </Link>
+            <Link href={`/ap/crash/macro/${continueModule}`}>
+              <button className="px-4 py-2 rounded-lg bg-ink text-bg text-sm font-medium hover:bg-ink/90 transition-colors flex items-center gap-1.5">
+                <Zap size={14} /> {doneSteps > 0 ? "Continue" : "Start"}
+                <ChevronRight size={14} />
+              </button>
+            </Link>
+          </div>
         }
       />
 
