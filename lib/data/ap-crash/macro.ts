@@ -123,7 +123,7 @@ const MOD_HUB: Module = {
 // ─────────────────────────────────────────────────────────────────────
 const MOD_CALC: Module = {
   id: "macro-calc",
-  partNumber: 3,
+  partNumber: 4,
   title: "Calculation Fluency",
   subtitle: "Every formula the AP exam tests. Drill until each is under 30 seconds.",
   estimateMin: 35,
@@ -440,6 +440,30 @@ const MOD_CALC: Module = {
         },
       ],
     },
+  
+    {
+      id: "calc-flashcards",
+      title: "Calculation cards",
+      estimateMin: 3,
+      steps: [
+        {
+          type: "flashcards",
+          title: "Formula recall",
+          cards: [
+            { front: "Real GDP formula", back: "Real GDP = (Nominal / Deflator) × 100." },
+            { front: "GDP Deflator formula", back: "Deflator = (Nominal / Real) × 100." },
+            { front: "Inflation rate", back: "(CPI₂ − CPI₁) / CPI₁ × 100." },
+            { front: "Unemployment rate", back: "(Unemployed / Labor Force) × 100. Denominator = LF, not population." },
+            { front: "LFPR formula", back: "LF / Working-age Population × 100." },
+            { front: "Spending multiplier formula", back: "1 / MPS = 1 / (1 − MPC)." },
+            { front: "Tax multiplier formula", back: "−MPC / MPS. Magnitude is Spending mult − 1." },
+            { front: "Balanced budget multiplier", back: "1. Always." },
+            { front: "Money multiplier formula", back: "1 / RRR." },
+            { front: "Real interest rate (Fisher)", back: "Real ≈ Nominal − Inflation." },
+          ],
+        },
+      ],
+    },
   ],
 };
 
@@ -448,7 +472,7 @@ const MOD_CALC: Module = {
 // ─────────────────────────────────────────────────────────────────────
 const MOD_INDET: Module = {
   id: "macro-indet",
-  partNumber: 4,
+  partNumber: 5,
   title: "Indeterminacy Mastery",
   subtitle: "The 'both curves shift' rule. One rule, six markets, multiple MCQs.",
   estimateMin: 15,
@@ -540,6 +564,42 @@ const MOD_INDET: Module = {
         },
       ],
     },
+  
+    {
+      id: "indet-more-mcqs",
+      title: "Universal rule across markets — extra reps",
+      estimateMin: 4,
+      steps: [
+        {
+          type: "mcq",
+          prompt: "In the forex market, US income rises (S_USD shifts right) AND foreign income rises (D_USD shifts right). What happens to the equilibrium quantity of USD traded?",
+          choices: ["Definitely rises", "Definitely falls", "Indeterminate", "No change"],
+          answer: 0,
+          explain: "Both shifts push quantity up (S right increases Q, D right increases Q). Same-direction quantity effect → DEFINITELY UP. The exchange rate is INDETERMINATE since they push price oppositely.",
+          trap: "Don't confuse the rule. Same-direction shifts → quantity is determined. Opposite-direction shifts → price is determined.",
+        },
+        {
+          type: "mcq",
+          prompt: "A bumper crop year (S right) AND consumer income falls for a normal good (D left). Effect on price and quantity?",
+          choices: [
+            "P up, Q up",
+            "P up, Q indeterminate",
+            "P down, Q indeterminate",
+            "P indeterminate, Q down",
+          ],
+          answer: 2,
+          explain: "S right pushes P down; D left also pushes P down. SAME direction on price → P definitely DOWN. Q goes opposite ways (S right ↑Q, D left ↓Q) → INDETERMINATE.",
+          trap: "Re-derive each shift's separate impact. Both push P down here even though they look like 'opposite shifts' at first glance.",
+        },
+        {
+          type: "mcq",
+          prompt: "In the reserve market, the Fed lowers IORB (RD shifts down) AND simultaneously increases reserves (RS right). Effect on the equilibrium federal funds rate?",
+          choices: ["Definitely rises", "Definitely falls", "Indeterminate", "No change in equilibrium"],
+          answer: 1,
+          explain: "Lower IORB: RD effectively shifts down (lower demand for holding reserves at any rate). RS right pushes the policy rate down. Both push rate DOWN → DEFINITELY DOWN.",
+        },
+      ],
+    },
   ],
 };
 
@@ -548,7 +608,7 @@ const MOD_INDET: Module = {
 // ─────────────────────────────────────────────────────────────────────
 const MOD_U3: Module = {
   id: "macro-u3",
-  partNumber: 5,
+  partNumber: 6,
   title: "Unit 3 Deep — AD/AS Hub",
   subtitle: "17–27% of the exam. The most-graphed model. Every chain ends here.",
   estimateMin: 30,
@@ -709,6 +769,84 @@ const MOD_U3: Module = {
         },
       ],
     },
+  
+    {
+      id: "u3-more-mcqs",
+      title: "Unit 3 — extra reps",
+      estimateMin: 4,
+      steps: [
+        {
+          type: "mcq",
+          prompt: "An increase in the price level causes",
+          choices: [
+            "AD to shift left",
+            "Movement along AD (less RGDP demanded due to wealth/interest/exchange effects)",
+            "AD to shift right",
+            "SRAS to shift right",
+          ],
+          answer: 1,
+          explain: "Price-level changes cause MOVEMENT along AD via the three effects (wealth, interest rate, exchange rate). They don't shift AD itself. AD shifts only when C, I, G, or NX change for non-PL reasons.",
+          trap: "PL is on the AD curve's Y-axis. Changes in PL move you ALONG AD; only other-axis-irrelevant changes shift it.",
+        },
+        {
+          type: "mcq",
+          prompt: "Which most likely shifts SRAS LEFT?",
+          choices: [
+            "A productivity gain from new technology",
+            "An oil price spike",
+            "A subsidy for manufacturers",
+            "A drop in expected inflation",
+          ],
+          answer: 1,
+          explain: "Oil is a key input. Higher input prices squeeze margins → firms reduce output → SRAS LEFT (cost-push). Productivity gains shift SRAS right. Subsidies shift SRAS right. Lower expected inflation shifts SRAS right.",
+        },
+        {
+          type: "mcq",
+          prompt: "An economy's actual unemployment is 7%, NRU is 5%. The economy is in",
+          choices: ["Long-run equilibrium", "Inflationary gap", "Recessionary gap", "Stagflation"],
+          answer: 2,
+          explain: "Actual U > NRU → cyclical unemployment exists → RGDP < potential → RECESSIONARY gap. AD/SRAS intersect to the LEFT of LRAS.",
+          trap: "Don't conflate stagflation with recessionary gap. Stagflation has cost-push origins (PL up AND RGDP down). A standard recessionary gap can come from AD falling (PL down, RGDP down).",
+        },
+        {
+          type: "mcq",
+          prompt: "Which fiscal action is CONTRACTIONARY?",
+          choices: [
+            "Increase government spending",
+            "Decrease income tax rates",
+            "Increase transfer payments",
+            "Increase income tax rates",
+          ],
+          answer: 3,
+          explain: "Higher taxes → less disposable income → C falls → AD shifts LEFT. Contractionary. The other options all expand AD.",
+        },
+      ],
+    },
+    {
+      id: "u3-flashcards",
+      title: "Unit 3 vocab cards",
+      estimateMin: 3,
+      steps: [
+        {
+          type: "flashcards",
+          title: "AD/AS recall",
+          cards: [
+            { front: "AD slopes down because of", back: "Wealth effect, interest rate effect, exchange rate effect. (Movement along AD when PL changes.)" },
+            { front: "AD shifters (one acronym)", back: "CIGXM. Any change in C, I, G, or X−M for non-PL reasons shifts AD." },
+            { front: "SRAS shifters", back: "Input prices, productivity/tech, expected inflation, taxes/subsidies, supply shocks." },
+            { front: "LRAS shifters", back: "Capital, labor, technology, human capital. (Same as PPC outward shifters.)" },
+            { front: "Recessionary gap signature", back: "AD/SRAS intersect LEFT of LRAS. RGDP < potential. U > NRU. Cyclical exists." },
+            { front: "Inflationary gap signature", back: "AD/SRAS intersect RIGHT of LRAS. RGDP > potential. U < NRU." },
+            { front: "Long-run self-correction (recession)", back: "High U → wages fall → SRAS RIGHT → return to LRAS at LOWER PL." },
+            { front: "Long-run self-correction (inflationary)", back: "Tight labor → wages rise → SRAS LEFT → return to LRAS at HIGHER PL." },
+            { front: "Spending multiplier", back: "1 / MPS = 1 / (1 − MPC)." },
+            { front: "Tax multiplier", back: "−MPC / MPS. Smaller absolute value than spending mult." },
+            { front: "Balanced budget multiplier", back: "1. Always. Regardless of MPC. ΔGDP = ΔSpending when ΔG = ΔT." },
+            { front: "Crowding out (chain)", back: "Gov deficit → DLF right → real rate ↑ → private I ↓. Lives in loanable funds market." },
+          ],
+        },
+      ],
+    },
   ],
 };
 
@@ -717,7 +855,7 @@ const MOD_U3: Module = {
 // ─────────────────────────────────────────────────────────────────────
 const MOD_U4: Module = {
   id: "macro-u4",
-  partNumber: 6,
+  partNumber: 7,
   title: "Unit 4 Deep — Money + Two Rates",
   subtitle: "18–23% of the exam. The single most-confused area: money market vs loanable funds.",
   estimateMin: 30,
@@ -868,6 +1006,101 @@ const MOD_U4: Module = {
         },
       ],
     },
+  
+    {
+      id: "u4-more-mcqs",
+      title: "Unit 4 — extra reps",
+      estimateMin: 5,
+      steps: [
+        {
+          type: "mcq",
+          prompt: "Which question is about the LOANABLE FUNDS market?",
+          choices: [
+            "What happens to nominal interest rates when the Fed buys bonds?",
+            "What happens to real interest rates when the government runs a deficit?",
+            "How much currency is in circulation?",
+            "What is the discount rate?",
+          ],
+          answer: 1,
+          explain: "Loanable funds Y-axis = REAL rate; driven by borrowers/savers. Money market = NOMINAL rate, Fed-driven. Government deficits, savings, capital inflow → loanable funds territory.",
+          trap: "Crowding out always lives in loanable funds, not money market. Misidentify the market and you'll grab the wrong shifter.",
+        },
+        {
+          type: "mcq",
+          prompt: "Bond prices fall sharply. The most likely cause is",
+          choices: [
+            "The Fed lowered interest rates",
+            "Interest rates rose",
+            "Inflation expectations fell",
+            "Money supply increased",
+          ],
+          answer: 1,
+          explain: "Bond prices and interest rates move INVERSELY. If prices fell, rates rose. The Fed lowering rates would RAISE bond prices.",
+        },
+        {
+          type: "mcq",
+          prompt: "RRR = 20%. New deposit of $5,000. Maximum increase in money supply (assuming all excess loaned)?",
+          choices: ["$1,000", "$4,000", "$20,000", "$25,000"],
+          answer: 2,
+          explain: "Required = $5,000 × 0.20 = $1,000. Excess = $4,000. Money mult = 1/0.20 = 5. Max ΔMS = $4,000 × 5 = $20,000.",
+          trap: "Don't include the original deposit unless the question asks 'total ΔMS including the deposit.' 'Max new money created from lending' uses excess × multiplier.",
+        },
+        {
+          type: "mcq",
+          prompt: "The economy's price level falls. Which curve in the money market shifts, and which way?",
+          choices: [
+            "MS shifts right",
+            "MS shifts left",
+            "MD shifts right",
+            "MD shifts left",
+          ],
+          answer: 3,
+          explain: "Lower PL → people need less money for transactions → MD shifts LEFT → nominal rate falls.",
+          trap: "MS doesn't move based on PL; only the Fed shifts MS. The MD curve responds to PL and real GDP.",
+        },
+        {
+          type: "mcq",
+          prompt: "The Fed wants to raise the federal funds rate (contractionary). Which action achieves this?",
+          choices: [
+            "Buy government bonds",
+            "Lower the discount rate",
+            "Raise IORB",
+            "Lower the reserve requirement",
+          ],
+          answer: 2,
+          explain: "Raising IORB makes banks prefer to hold reserves at the Fed (earning more) rather than lend at lower rates → reduces effective MS → rates rise. The other options are EXPANSIONARY.",
+          trap: "Memorize the direction. Buy bonds = expansionary (adds reserves). Sell bonds = contractionary. Lower rates = expansionary. Higher rates = contractionary.",
+        },
+      ],
+    },
+    {
+      id: "u4-flashcards",
+      title: "Unit 4 vocab cards",
+      estimateMin: 4,
+      steps: [
+        {
+          type: "flashcards",
+          title: "Money + banking recall",
+          cards: [
+            { front: "Money market Y-axis", back: "NOMINAL interest rate. (Loanable funds = REAL rate.)" },
+            { front: "MS curve shape", back: "VERTICAL. Fed sets it directly." },
+            { front: "MD shifters", back: "Real GDP / income, price level. (Both shift MD right when they rise.)" },
+            { front: "MS shifters (Fed tools)", back: "Buy/sell bonds (OMO), reserve requirement, discount rate, IORB." },
+            { front: "Three functions of money", back: "Medium of exchange, unit of account, store of value." },
+            { front: "M1", back: "Currency in circulation + demand deposits + traveler's checks. Highly liquid." },
+            { front: "M2", back: "M1 + savings deposits + small CDs + money market mutual funds. Less liquid." },
+            { front: "What's NOT money", back: "Stocks, bonds (financial assets), credit cards (borrowing), gold (commodity)." },
+            { front: "Money multiplier", back: "1 / RRR. With RRR = 10%, mult = 10." },
+            { front: "Required reserves formula", back: "Required = Deposits × RRR." },
+            { front: "Bond prices and rates", back: "INVERSE. Always. Fed buys bonds → prices ↑ → rates ↓ (expansionary)." },
+            { front: "DLF shifters (right)", back: "Gov deficit, business confidence, investment tax credits, consumer big-ticket borrowing." },
+            { front: "SLF shifters (right)", back: "Household savings, foreign capital inflow, gov surplus, higher expected inflation." },
+            { front: "Crowding out", back: "Gov deficit → DLF right → real rate ↑ → private I ↓. LF market only." },
+            { front: "Expansionary monetary chain", back: "Buy bonds → MS right → nominal i ↓ → real i ↓ → I ↑ → AD right → PL ↑, RGDP ↑, U ↓." },
+          ],
+        },
+      ],
+    },
   ],
 };
 
@@ -876,7 +1109,7 @@ const MOD_U4: Module = {
 // ─────────────────────────────────────────────────────────────────────
 const MOD_U5: Module = {
   id: "macro-u5",
-  partNumber: 7,
+  partNumber: 8,
   title: "Unit 5 Deep — Long-run + Phillips",
   subtitle: "20–30% — HIGHEST-WEIGHTED unit. Where Units 3 and 4 stop being separate.",
   estimateMin: 30,
@@ -1040,6 +1273,87 @@ const MOD_U5: Module = {
         },
       ],
     },
+  
+    {
+      id: "u5-more-mcqs",
+      title: "Unit 5 — extra reps",
+      estimateMin: 4,
+      steps: [
+        {
+          type: "mcq",
+          prompt: "The Short-Run Phillips Curve shifts RIGHT when",
+          choices: [
+            "AD shifts right (demand-pull)",
+            "Expected inflation rises",
+            "AD shifts left (recession)",
+            "LRAS shifts right (long-run growth)",
+          ],
+          answer: 1,
+          explain: "Higher expected inflation → workers demand higher wages → SRAS LEFT → SRPC SHIFTS RIGHT (worse trade-off at every U level). AD shifts cause MOVEMENT along SRPC, not shifts of it.",
+          trap: "Demand-side shocks move you ALONG the SRPC. Supply-side shocks (or expectations changes) SHIFT the SRPC.",
+        },
+        {
+          type: "mcq",
+          prompt: "Crowding out occurs when",
+          choices: [
+            "Government surplus reduces aggregate demand",
+            "Government deficit raises real interest rates and reduces private investment",
+            "Imports replace domestic production",
+            "The Fed sells bonds",
+          ],
+          answer: 1,
+          explain: "Crowding out is the loanable funds story: gov deficit → DLF right → real rate ↑ → private I falls. Reduces long-run capital formation and growth.",
+        },
+        {
+          type: "mcq",
+          prompt: "Which is a source of long-run economic growth?",
+          choices: [
+            "Increase in consumer confidence",
+            "Lower nominal interest rates",
+            "Investment in human capital",
+            "Higher transfer payments",
+          ],
+          answer: 2,
+          explain: "Long-run growth = LRAS right = more resources or better productivity. Human capital investment qualifies. The others are demand-side stimulus that don't grow potential output.",
+        },
+        {
+          type: "mcq",
+          prompt: "In the LONG run, an increase in the money supply growth rate will",
+          choices: [
+            "Permanently raise real GDP",
+            "Permanently lower unemployment below NRU",
+            "Raise the price level with no real effect",
+            "Reduce nominal interest rates permanently",
+          ],
+          answer: 2,
+          explain: "Long-run neutrality of money: monetary policy only affects PL, not real output, in the long run. Expectations adjust and the economy returns to potential at higher PL.",
+          trap: "It's tempting to think more money = more spending = more output. True in the SHORT run; false in the LONG run.",
+        },
+      ],
+    },
+    {
+      id: "u5-flashcards",
+      title: "Unit 5 vocab cards",
+      estimateMin: 3,
+      steps: [
+        {
+          type: "flashcards",
+          title: "Long-run + Phillips recall",
+          cards: [
+            { front: "SRPC slope", back: "Downward. Trade-off between inflation and unemployment in the SR." },
+            { front: "LRPC shape", back: "VERTICAL at NRU. No long-run trade-off." },
+            { front: "SRPC shifts when", back: "Expected inflation changes, supply shocks." },
+            { front: "AD shift effect on SRPC", back: "MOVEMENT along SRPC — does NOT shift it." },
+            { front: "Higher expected inflation", back: "SRPC shifts RIGHT (worse trade-off)." },
+            { front: "Quantity theory", back: "MV = PQ → %ΔP ≈ %ΔM − %ΔQ (V constant)." },
+            { front: "Long-run neutrality of money", back: "Monetary policy affects PL but not real GDP in the long run." },
+            { front: "Crowding out cause", back: "Gov deficit → DLF right → real rate ↑ → private I ↓." },
+            { front: "Sources of LR growth", back: "More capital, technology, labor, human capital, productivity." },
+            { front: "Self-correction direction (recession)", back: "Wages fall → SRAS shifts RIGHT → return to LRAS at LOWER PL." },
+          ],
+        },
+      ],
+    },
   ],
 };
 
@@ -1048,10 +1362,10 @@ const MOD_U5: Module = {
 // ─────────────────────────────────────────────────────────────────────
 const MOD_PATTERNS: Module = {
   id: "macro-patterns",
-  partNumber: 2,
+  partNumber: 10,
   title: "Question Pattern Library",
   subtitle: "Every MCQ archetype with the trap named. Once you can name the pattern, half the work is done.",
-  estimateMin: 40,
+  estimateMin: 30,
   priority: "must",
   lessons: [
     {
@@ -1197,6 +1511,93 @@ const MOD_PATTERNS: Module = {
         },
       ],
     },
+  
+    {
+      id: "patterns-extra-reps",
+      title: "Pattern reps — second MCQs on patterns 1, 2, 4, 5, 6, 9, 10, 14, 15",
+      estimateMin: 7,
+      steps: [
+        {
+          type: "mcq",
+          prompt: "Pattern 1 (PPC feasibility) — A linear PPC passes through (0, 30) and (15, 0). Which point is INSIDE the curve?",
+          choices: ["(5, 18)", "(10, 10)", "(7, 17)", "(8, 14)"],
+          answer: 0,
+          explain: "Slope = −30/15 = −2. Equation: y = 30 − 2x. (5, 18): max y at x=5 is 20. 18 < 20 → INSIDE. (10, 10): max = 10 → on. (7, 17): max = 16, need 17 > 16 → OUTSIDE. (8, 14): max = 14 → on.",
+        },
+        {
+          type: "mcq",
+          prompt: "Pattern 2 (indeterminate) — In the goods market, demand RISES and supply RISES. What's true?",
+          choices: [
+            "Q rises, P rises",
+            "Q rises, P indeterminate",
+            "Q indeterminate, P rises",
+            "Q indeterminate, P falls",
+          ],
+          answer: 1,
+          explain: "Same-direction shifts → Q determined (UP), P indeterminate. D pushes P up; S pushes P down → ambiguous depending on relative magnitudes.",
+        },
+        {
+          type: "mcq",
+          prompt: "Pattern 4 (U rate) — Country has population 400K, working-age 280K, LF 200K, employed 180K. Find U rate.",
+          choices: ["5.0%", "7.1%", "10.0%", "20.0%"],
+          answer: 2,
+          explain: "Unemployed = 200K − 180K = 20K. U Rate = 20/200 × 100 = 10%. Don't divide by 280K (LFPR territory) or 400K (population).",
+        },
+        {
+          type: "mcq",
+          prompt: "Pattern 5 (multiplier) — MPC = 0.6. What ΔG closes a $500B recessionary gap?",
+          choices: ["+$200B", "+$250B", "+$300B", "+$500B"],
+          answer: 0,
+          explain: "Spending mult = 1/(1−0.6) = 2.5. ΔG × 2.5 = $500B → ΔG = $200B.",
+          trap: "Reading question carefully: this is a 'divide' problem (find ΔG to CLOSE gap), not a 'multiply' problem (find ΔGDP from ΔG).",
+        },
+        {
+          type: "mcq",
+          prompt: "Pattern 6 (money market) — MS shifts LEFT and MD shifts RIGHT. The nominal interest rate",
+          choices: ["Definitely rises", "Definitely falls", "Indeterminate", "No change"],
+          answer: 0,
+          explain: "MS left pushes rate UP. MD right pushes rate UP. SAME-direction (both raise rate) → DEFINITELY UP. Quantity is indeterminate.",
+        },
+        {
+          type: "mcq",
+          prompt: "Pattern 9 (compound policy) — Expansionary fiscal + Contractionary monetary. What's the effect on real interest rates?",
+          choices: ["Definitely down", "Definitely up", "Indeterminate", "No change"],
+          answer: 1,
+          explain: "Both push real rate UP. Fiscal: gov borrows more → DLF right → real rate up. Monetary: Fed drains liquidity → SLF left → real rate up. Same-direction → DEFINITELY UP. AD effect is indeterminate (forces opposite).",
+        },
+        {
+          type: "mcq",
+          prompt: "Pattern 10 (LF shifters) — Which shifts SLF (saving supply) RIGHT?",
+          choices: [
+            "Government deficit increases",
+            "Foreign capital flows in",
+            "Business confidence rises",
+            "Consumer credit borrowing rises",
+          ],
+          answer: 1,
+          explain: "Foreign capital inflow adds to the saving pool → SLF right → real rate falls. The other three shift DLF (demand for borrowing), not SLF.",
+        },
+        {
+          type: "mcq",
+          prompt: "Pattern 14 (Phillips reading) — A SRPC has visible points (3, 5) and (5, 3). At inflation = 4%, what's U?",
+          choices: ["3%", "4%", "5%", "6%"],
+          answer: 1,
+          explain: "Linear SRPC slope from (3, 5) to (5, 3): inflation drops 2 as U rises 2 → slope = −1. Equation: inflation = 8 − U → U = 8 − inflation. At inflation = 4: U = 4%.",
+        },
+        {
+          type: "mcq",
+          prompt: "Pattern 15 (deficit-to-currency) — A US budget deficit increase leads to which currency outcome?",
+          choices: [
+            "Dollar depreciates because rates fall",
+            "Dollar appreciates because rates rise",
+            "No effect on dollar",
+            "Dollar appreciates because rates fall",
+          ],
+          answer: 1,
+          explain: "Deficit ↑ → DLF right → real rate ↑ → foreign capital inflow → D_USD right → dollar APPRECIATES. The chain: deficit → rates ↑ → capital in → currency up.",
+        },
+      ],
+    },
   ],
 };
 
@@ -1205,7 +1606,7 @@ const MOD_PATTERNS: Module = {
 // ─────────────────────────────────────────────────────────────────────
 const MOD_CHAINS: Module = {
   id: "macro-chains",
-  partNumber: 10,
+  partNumber: 11,
   title: "Master Chain Library",
   subtitle: "Every 'trace through all markets' FRQ reduces to one of these 12.",
   estimateMin: 25,
@@ -1390,6 +1791,32 @@ const MOD_CHAINS: Module = {
             "5. Long-run neutrality of money: real GDP unchanged, prices higher.",
           ],
           finalEffect: "Long-run: PL ↑, RGDP unchanged.",
+        },
+      ],
+    },
+  
+    {
+      id: "chains-flashcards",
+      title: "Chain trigger → effect cards",
+      estimateMin: 5,
+      steps: [
+        {
+          type: "flashcards",
+          title: "12 chain summaries",
+          cards: [
+            { front: "Expansionary fiscal (↑G or ↓T)", back: "AD right → PL ↑, RGDP ↑, U ↓. DLF right → real rate ↑ (CROWDING OUT). Dollar APPRECIATES → X ↓ slightly." },
+            { front: "Contractionary fiscal (↓G or ↑T)", back: "AD left → PL ↓, RGDP ↓, U ↑. DLF left → real rate ↓. Dollar depreciates → X ↑ slightly." },
+            { front: "Expansionary monetary (Fed BUYS bonds)", back: "MS right → nominal i ↓ → real i ↓ → I ↑ → AD right → PL ↑, RGDP ↑, U ↓. Dollar DEPRECIATES → X ↑." },
+            { front: "Contractionary monetary (Fed SELLS bonds)", back: "Bond prices ↓, rates ↑. MS left → real i ↑ → I ↓ → AD left → PL ↓, RGDP ↓. Dollar APPRECIATES → X ↓." },
+            { front: "Positive supply shock", back: "SRAS right. PL ↓, RGDP ↑, U ↓. SRPC LEFT. (Goldilocks — only shock that does this.)" },
+            { front: "Negative supply shock", back: "SRAS left. STAGFLATION: PL ↑, RGDP ↓, U ↑. SRPC RIGHT. Policy bind." },
+            { front: "Long-run growth", back: "LRAS right. PPC outward. Long-run PL ↓, RGDP ↑." },
+            { front: "Foreign income ↑", back: "X ↑ → D_USD right → dollar APPRECIATES → AD right → PL ↑, RGDP ↑, U ↓." },
+            { front: "Domestic recession (confidence falls)", back: "C, I fall → AD left → PL ↓, RGDP ↓, U ↑. Both rates ↓. Dollar depreciates." },
+            { front: "Inflationary boom (confidence surges)", back: "C, I rise → AD right → PL ↑, RGDP > potential, U < NRU. Both rates ↑. Dollar APPRECIATES." },
+            { front: "Household savings ↑", back: "SLF right → real rate ↓. SR AD ambiguous (C ↓ vs I ↑). LR: more I → LRAS right → growth." },
+            { front: "Money supply growth ↑ (long run)", back: "Inflation rises. SRPC right. SRAS left. Long-run real GDP unchanged (money neutrality)." },
+          ],
         },
       ],
     },
@@ -1651,10 +2078,10 @@ const MOD_FRQ: Module = {
 // ─────────────────────────────────────────────────────────────────────
 const MOD_SCENARIOS: Module = {
   id: "macro-scenarios",
-  partNumber: 11,
+  partNumber: 13,
   title: "Scenario Drills",
   subtitle: "10 high-value scenarios. Cover the answer first; reason chain; then check.",
-  estimateMin: 25,
+  estimateMin: 15,
   priority: "high",
   lessons: [
     {
@@ -1788,7 +2215,7 @@ const MOD_CHEATSHEET: Module = {
   partNumber: 14,
   title: "Cheat Sheet + Strategy",
   subtitle: "All formulas in one place + 10 final MCQs + exam-day mantra.",
-  estimateMin: 30,
+  estimateMin: 20,
   priority: "high",
   lessons: [
     {
@@ -2010,6 +2437,910 @@ const MOD_CHEATSHEET: Module = {
 };
 
 // ─────────────────────────────────────────────────────────────────────
+// MODULE — Unit 1 Foundations (NEW)
+// ─────────────────────────────────────────────────────────────────────
+const MOD_U1: Module = {
+  id: "macro-u1",
+  partNumber: 2,
+  title: "Unit 1 — Basic Concepts",
+  subtitle: "Scarcity, PPC, comparative advantage, supply/demand. AP weight: 5–10%.",
+  estimateMin: 15,
+  priority: "medium",
+  lessons: [
+    {
+      id: "u1-scarcity-ppc",
+      title: "Scarcity, opportunity cost, PPC",
+      estimateMin: 5,
+      steps: [
+        {
+          type: "read",
+          title: "The starting axiom",
+          body: [
+            "Scarcity = unlimited wants meeting limited resources. Every choice trades off the alternative — that alternative IS the opportunity cost.",
+            "OC formula: OC of A = what you give up of B / what you gain of A. Always quantify trade-offs in terms of the alternative not chosen.",
+            "PPC (Production Possibilities Curve) plots maximum combinations of two goods given fixed resources. Points ON the curve = efficient. INSIDE = recession or unemployed resources. OUTSIDE = unattainable now.",
+            "PPC shifts OUTWARD with: more capital (investment), more labor (immigration / LFPR), better technology, better human capital. PPC shifts INWARD with: resource depletion, war damage, capital destruction.",
+          ],
+          callouts: [
+            {
+              kind: "insight",
+              title: "PPC + LRAS move together",
+              body: "Anything that grows the PPC outward also shifts LRAS right. They're the same idea (potential output) drawn on different graphs.",
+            },
+          ],
+        },
+        {
+          type: "example",
+          title: "Opportunity cost calc",
+          prompt: "Country A can produce 10 cars OR 30 wheat with one unit of resources. What's the OC of 1 car in terms of wheat?",
+          solution: [
+            "OC of 1 car = wheat given up / cars gained",
+            "= 30 wheat / 10 cars",
+            "= 3 wheat per car",
+          ],
+        },
+        {
+          type: "mcq",
+          prompt: "An economy is operating INSIDE its PPC. Which best explains?",
+          choices: [
+            "Resources are at full capacity",
+            "Resources are unemployed or used inefficiently",
+            "The economy has experienced technological growth",
+            "Opportunity cost is zero",
+          ],
+          answer: 1,
+          explain: "Inside the PPC = some resources idle or misallocated. On = efficient. Outside = unattainable today.",
+          trap: "Don't confuse 'inside the curve' with 'growing.' Growth = curve shifts outward, not movement to a different point on it.",
+        },
+      ],
+    },
+    {
+      id: "u1-comparative",
+      title: "Comparative advantage",
+      estimateMin: 5,
+      steps: [
+        {
+          type: "read",
+          title: "Output table vs input table — different formulas",
+          body: [
+            "ABSOLUTE advantage: produce MORE of a good with the same resources (output table) or use FEWER resources for the same output (input table).",
+            "COMPARATIVE advantage: produce a good with LOWER opportunity cost. The country with the lower OC has comparative advantage in that good.",
+            "OUTPUT table (units of good per worker): OC = OTHER / OWN.",
+            "INPUT table (workers per unit of good): OC = OWN / OTHER.",
+            "Trade benefits BOTH parties when the terms of trade fall BETWEEN the two countries' opportunity costs.",
+          ],
+          callouts: [
+            {
+              kind: "memory",
+              title: "Output: Other / Own. Input: Own / Other.",
+              body: "When in doubt: output is what each WORKER produces. Input is how many WORKERS per unit. Sandwich rule for terms of trade.",
+            },
+          ],
+        },
+        {
+          type: "example",
+          title: "Find comparative advantage from output",
+          prompt: "USA: 10 cars OR 20 wheat. Mexico: 3 cars OR 12 wheat. Who has comparative advantage in cars?",
+          solution: [
+            "USA's OC of 1 car = 20 / 10 = 2 wheat",
+            "Mexico's OC of 1 car = 12 / 3 = 4 wheat",
+            "USA gives up LESS wheat per car → USA has comparative advantage in cars.",
+            "Mexico, by elimination, has comparative advantage in wheat.",
+          ],
+        },
+        {
+          type: "mcq",
+          prompt: "Country X has absolute advantage in BOTH goods. Should the countries still trade?",
+          choices: [
+            "No — Country X already produces more of both",
+            "Yes — gains from trade come from comparative, not absolute, advantage",
+            "Only if Country X subsidizes Y",
+            "Only if both have the same opportunity costs",
+          ],
+          answer: 1,
+          explain: "Absolute advantage doesn't determine specialization — opportunity cost does. Each country has comparative advantage in something even if the other has absolute advantage in everything.",
+          trap: "The classic mistake: assuming the more productive country shouldn't trade. They should — both gain when each specializes by lower OC.",
+        },
+        {
+          type: "mcq",
+          prompt: "USA's OC of cars is 2 wheat. Mexico's OC of cars is 4 wheat. A mutually beneficial terms-of-trade for cars must fall:",
+          choices: [
+            "Below 2 wheat per car",
+            "Above 4 wheat per car",
+            "Between 2 and 4 wheat per car",
+            "Exactly at 3 wheat per car",
+          ],
+          answer: 2,
+          explain: "Terms of trade fall between the two countries' OCs (2 < TOT < 4). Outside that range, one country prefers self-production.",
+        },
+      ],
+    },
+    {
+      id: "u1-supply-demand",
+      title: "Supply, demand, equilibrium",
+      estimateMin: 5,
+      steps: [
+        {
+          type: "read",
+          title: "Shifters and disequilibrium",
+          body: [
+            "DEMAND shifters (TRIBE): Tastes, Related goods (substitutes / complements), Income (normal / inferior), Buyers, Expectations.",
+            "SUPPLY shifters: Resource/input prices, Productivity/tech, Number of sellers, Taxes/subsidies, Expectations (often opposite direction from demand).",
+            "Surplus = Qs > Qd → price falls toward equilibrium. Shortage = Qd > Qs → price rises.",
+            "Price ceiling (binding when below equilibrium): causes a SHORTAGE (rent control).",
+            "Price floor (binding when above equilibrium): causes a SURPLUS (minimum wage).",
+          ],
+        },
+        {
+          type: "mcq",
+          prompt: "Coffee and donuts are complements. Coffee price falls. Effect on donut market?",
+          choices: [
+            "Demand for donuts DECREASES",
+            "Demand for donuts INCREASES",
+            "Supply of donuts decreases",
+            "Equilibrium price of donuts falls",
+          ],
+          answer: 1,
+          explain: "Complements move together. Cheaper coffee → people consume more coffee → more donuts demanded → demand curve shifts right → equilibrium P and Q for donuts both rise.",
+          trap: "If you mistook complements for substitutes, you'd predict the opposite. Complements consumed together; substitutes replace each other.",
+        },
+        {
+          type: "flashcards",
+          title: "Unit 1 vocab",
+          cards: [
+            { front: "Scarcity", back: "Unlimited wants meet limited resources. The fundamental economic problem." },
+            { front: "Opportunity cost", back: "Value of the next-best alternative given up. Drives every choice." },
+            { front: "PPC inside the curve", back: "Recession or unemployed/inefficient resources. NOT growth." },
+            { front: "PPC outside the curve", back: "Unattainable today. Can become attainable via outward shift (growth)." },
+            { front: "Comparative advantage", back: "Lower opportunity cost. Drives trade. ≠ absolute advantage." },
+            { front: "OC from output table", back: "OC = Other / Own. (Other good's quantity divided by own good's quantity.)" },
+            { front: "OC from input table", back: "OC = Own / Other. (Own resources used divided by other's.)" },
+            { front: "TRIBE", back: "Demand shifters: Tastes, Related goods, Income, Buyers, Expectations." },
+            { front: "Price ceiling binding", back: "Below equilibrium → SHORTAGE." },
+            { front: "Price floor binding", back: "Above equilibrium → SURPLUS." },
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+// ─────────────────────────────────────────────────────────────────────
+// MODULE — Unit 2 Concepts (NEW)
+// ─────────────────────────────────────────────────────────────────────
+const MOD_U2: Module = {
+  id: "macro-u2",
+  partNumber: 3,
+  title: "Unit 2 — Indicators & Business Cycle",
+  subtitle: "GDP, unemployment, inflation, business cycle. AP weight: 12–17%. Calc fluency lives in MOD_CALC.",
+  estimateMin: 20,
+  priority: "high",
+  lessons: [
+    {
+      id: "u2-gdp",
+      title: "GDP definition + what's in/out",
+      estimateMin: 5,
+      steps: [
+        {
+          type: "read",
+          title: "GDP rules",
+          body: [
+            "GDP measures the market value of all FINAL goods and services produced WITHIN a country's borders DURING a given period (usually a year).",
+            "Expenditure approach: GDP = C + I + G + (X − M).",
+            "C = household consumption (largest share, ~70% in US).",
+            "I = private investment: business capital, NEW housing construction, INVENTORY CHANGES.",
+            "G = government purchases of goods/services and government wages. NOT transfer payments.",
+            "(X − M) = net exports.",
+            "Excluded: used goods (already counted), intermediate goods (avoid double-counting), financial transactions (stocks/bonds), transfer payments (Social Security, welfare), household production, illegal/underground economy, nonmarket activities.",
+          ],
+        },
+        {
+          type: "mcq",
+          prompt: "Which is COUNTED in GDP?",
+          choices: [
+            "Sale of a 2015 car this year",
+            "Construction of a new home this year",
+            "Stocks bought on the NYSE",
+            "Social Security check received",
+          ],
+          answer: 1,
+          explain: "New construction counts as Investment (I). Used cars are excluded (already counted when first produced). Stocks are financial transactions, not production. Transfer payments (SS) involve no current production.",
+          trap: "Used-good sale is the most common trap — it FEELS like production but it isn't. It's a transfer of ownership of a good already produced and counted.",
+        },
+        {
+          type: "mcq",
+          prompt: "Which is NOT counted in GDP?",
+          choices: [
+            "Inventory increase at a factory",
+            "A government employee's salary",
+            "An exported soybean shipment",
+            "A welfare check",
+          ],
+          answer: 3,
+          explain: "Welfare = transfer payment, no current production. Inventory increases ARE counted (as I). Government wages count as G. Exports count in NX.",
+        },
+      ],
+    },
+    {
+      id: "u2-real-cycle",
+      title: "Real vs nominal GDP, business cycle phases",
+      estimateMin: 5,
+      steps: [
+        {
+          type: "read",
+          title: "Why real matters more than nominal",
+          body: [
+            "NOMINAL GDP measures output at CURRENT prices. It mixes price changes with quantity changes — bad for tracking actual economic activity over time.",
+            "REAL GDP measures output at BASE-YEAR prices. It strips out inflation. The number you want when comparing across years.",
+            "Standard of living = REAL GDP per CAPITA. Not nominal GDP. Not raw real GDP.",
+            "Business cycle phases: EXPANSION → PEAK → RECESSION (formally: 2+ consecutive quarters of declining real GDP) → TROUGH → recovery (back to expansion).",
+            "Recessions ≠ depressions. Depression = exceptionally severe and prolonged recession. Last US depression: Great Depression (1929–~1939).",
+          ],
+        },
+        {
+          type: "mcq",
+          prompt: "Nominal GDP rises 8%. Inflation is 5%. Approximately what happens to real GDP?",
+          choices: [
+            "Falls by 3%",
+            "Rises by about 3%",
+            "Rises by 8%",
+            "Stays flat",
+          ],
+          answer: 1,
+          explain: "Approximation: %ΔReal GDP ≈ %ΔNominal − %ΔPrice level = 8% − 5% = 3%. Real output is what changed once we strip out price changes.",
+        },
+      ],
+    },
+    {
+      id: "u2-unemployment",
+      title: "Unemployment categories",
+      estimateMin: 5,
+      steps: [
+        {
+          type: "read",
+          title: "The four types and the discouraged-worker trap",
+          body: [
+            "FRICTIONAL: voluntary, between jobs, temporary (recent grad, just-quit). Always exists; healthy.",
+            "STRUCTURAL: skills mismatch, technological displacement, industry shift. Persistent, requires retraining.",
+            "CYCLICAL: recession-driven. Rises when AD falls. The ONLY type tied to the business cycle.",
+            "SEASONAL: predictable cycle (lifeguards, ski instructors). Sometimes lumped into frictional.",
+            "NRU (natural rate of unemployment) = Frictional + Structural. Full employment = U at NRU. Cyclical = U − NRU.",
+            "DISCOURAGED workers are NOT in the labor force. They've stopped seeking. Official rate UNDERSTATES true unemployment when they exist.",
+          ],
+        },
+        {
+          type: "mcq",
+          prompt: "An autoworker laid off because robots replaced his line is",
+          choices: [
+            "Frictionally unemployed",
+            "Structurally unemployed",
+            "Cyclically unemployed",
+            "Not unemployed",
+          ],
+          answer: 1,
+          explain: "His skills no longer match what employers need (technology displaced him) — STRUCTURAL unemployment. Frictional = voluntarily transitioning. Cyclical = caused by recession.",
+        },
+        {
+          type: "mcq",
+          prompt: "Discouraged workers re-enter the labor force seeking jobs but don't find them. The OFFICIAL unemployment rate",
+          choices: [
+            "Falls",
+            "Rises",
+            "Stays the same",
+            "Cannot be determined",
+          ],
+          answer: 1,
+          explain: "Both numerator (unemployed) and denominator (LF) rise, but numerator rises more proportionally. Official rate ROSE even though true joblessness is unchanged.",
+          trap: "This shows the official rate UNDERSTATES true unemployment. When discouraged workers rejoin, the rate gets more accurate (and higher).",
+        },
+      ],
+    },
+    {
+      id: "u2-inflation",
+      title: "Inflation types + winners/losers",
+      estimateMin: 5,
+      steps: [
+        {
+          type: "read",
+          title: "Demand-pull, cost-push, redistribution",
+          body: [
+            "DEMAND-PULL inflation: AD shifts right → PL ↑ AND RGDP ↑ AND U ↓. Boom-driven.",
+            "COST-PUSH inflation: SRAS shifts left → PL ↑ AND RGDP ↓ AND U ↑. STAGFLATION.",
+            "BUILT-IN (wage-price spiral): wages rise to match expected inflation → input costs rise → SRAS left → more inflation → more wage demands. Self-perpetuating.",
+            "ONLY UNEXPECTED inflation redistributes. Expected inflation gets priced into nominal interest rates and wage contracts.",
+            "Real ≈ Nominal − Inflation (Fisher equation).",
+          ],
+          callouts: [
+            {
+              kind: "insight",
+              title: "Stagflation signature",
+              body: "If you see PL ↑ AND RGDP ↓, the shock is SRAS left (cost-push). No other shock produces this combination.",
+            },
+          ],
+        },
+        {
+          type: "read",
+          title: "Winners and losers from UNEXPECTED inflation",
+          body: [
+            "WINNERS: borrowers (pay back with cheaper dollars), gov with debt, asset/property owners.",
+            "LOSERS: lenders/creditors (paid back with cheaper dollars), people on fixed nominal income (retirees on fixed pension), workers with fixed nominal wages, cash holders / savers in low-interest accounts.",
+            "If the inflation was EXPECTED, no redistribution — nominal rates and wage contracts already incorporated it.",
+          ],
+        },
+        {
+          type: "mcq",
+          prompt: "Unexpected inflation occurs. Who is HURT?",
+          choices: [
+            "Borrowers with fixed-rate loans",
+            "Workers with cost-of-living wage adjustments",
+            "Lenders who issued fixed-rate loans",
+            "Asset owners with appreciating real estate",
+          ],
+          answer: 2,
+          explain: "Lenders receive fixed nominal payments. Inflation erodes the real value of those payments → lenders lose. Borrowers WIN. Workers with COLA-adjusted wages are protected. Asset owners benefit from appreciation.",
+        },
+        {
+          type: "mcq",
+          prompt: "An economy experiences PL ↑ and RGDP ↓ simultaneously. The cause is",
+          choices: [
+            "AD shifts right (demand-pull)",
+            "AD shifts left (recession)",
+            "SRAS shifts right (productivity gain)",
+            "SRAS shifts left (cost-push, stagflation)",
+          ],
+          answer: 3,
+          explain: "PL ↑ AND RGDP ↓ is the stagflation signature, caused only by SRAS shifting LEFT. Demand-pull would raise both PL and RGDP. AD left would lower both. SRAS right would raise RGDP and lower PL.",
+        },
+        {
+          type: "flashcards",
+          title: "Unit 2 vocab",
+          cards: [
+            { front: "GDP formula", back: "GDP = C + I + G + (X − M)" },
+            { front: "I in GDP includes what 3 things?", back: "Business capital, NEW housing, INVENTORY changes." },
+            { front: "What's NOT in GDP?", back: "Used goods, intermediates, stocks/bonds, transfers, household production, illegal economy." },
+            { front: "Real GDP formula", back: "Real = (Nominal / Deflator) × 100" },
+            { front: "Standard of living", back: "Real GDP / Population (per capita). Not raw real GDP." },
+            { front: "Frictional unemployment", back: "Voluntary, between jobs, temporary. Healthy. Always exists." },
+            { front: "Structural unemployment", back: "Skills mismatch, tech displacement, industry shift. Requires retraining." },
+            { front: "Cyclical unemployment", back: "Caused by recession (AD falls). Only type tied to business cycle." },
+            { front: "NRU formula", back: "NRU = Frictional + Structural. Full employment = U at NRU." },
+            { front: "Demand-pull signature", back: "AD right → PL ↑, RGDP ↑, U ↓. Boom." },
+            { front: "Cost-push signature", back: "SRAS left → PL ↑, RGDP ↓, U ↑. Stagflation." },
+            { front: "Inflation winners", back: "Borrowers, gov with debt, asset owners. Only with UNEXPECTED inflation." },
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+// ─────────────────────────────────────────────────────────────────────
+// MODULE — Unit 6 Open Economy (NEW)
+// ─────────────────────────────────────────────────────────────────────
+const MOD_U6: Module = {
+  id: "macro-u6",
+  partNumber: 9,
+  title: "Unit 6 — Open Economy",
+  subtitle: "Forex, balance of payments, capital flows. AP weight: 10–13%.",
+  estimateMin: 20,
+  priority: "high",
+  lessons: [
+    {
+      id: "u6-forex",
+      title: "Forex market mechanics",
+      estimateMin: 7,
+      steps: [
+        {
+          type: "read",
+          title: "Reading the forex graph",
+          body: [
+            "Y-axis: exchange rate (e.g., yen per USD, or another currency per USD). X-axis: quantity of the currency.",
+            "DEMAND for USD comes from: foreigners buying US goods/services (X), foreigners buying US assets (capital inflow). Downward-sloping in price of USD.",
+            "SUPPLY of USD comes from: Americans buying foreign goods/services (M), Americans buying foreign assets (capital outflow). Upward-sloping.",
+            "APPRECIATION of USD = exchange rate (price of USD) RISES. Each USD buys more foreign currency.",
+            "DEPRECIATION of USD = exchange rate FALLS. Each USD buys less foreign currency.",
+          ],
+          callouts: [
+            {
+              kind: "memory",
+              title: "Read the axis label first",
+              body: "If Y-axis is 'yen per USD,' higher = USD appreciates. If Y-axis is 'USD per yen,' higher = USD depreciates. ALWAYS check axis label before stating direction.",
+            },
+          ],
+        },
+        {
+          type: "read",
+          title: "Forex shifters",
+          body: [
+            "US real interest rate ↑ → foreign capital flows IN → D_USD shifts RIGHT → USD APPRECIATES.",
+            "US inflation > foreign inflation → US goods less competitive → foreigners buy fewer US goods → D_USD left → USD DEPRECIATES.",
+            "US income ↑ → Americans import more → S_USD right → USD DEPRECIATES.",
+            "Foreign income ↑ → foreigners buy more US exports → D_USD right → USD APPRECIATES.",
+            "Foreign tastes for US goods ↑ → D_USD right → USD APPRECIATES.",
+            "Speculation USD will rise → D_USD right (self-fulfilling) → USD APPRECIATES.",
+          ],
+        },
+        {
+          type: "example",
+          title: "Trace a forex shift",
+          prompt: "Foreign investors decide to invest more in US bonds. What happens in the forex market for USD?",
+          solution: [
+            "Foreign investors need to buy USD to purchase US bonds.",
+            "DEMAND for USD shifts RIGHT.",
+            "Equilibrium exchange rate RISES (USD APPRECIATES).",
+            "Quantity of USD traded RISES.",
+            "Downstream: stronger USD makes US exports MORE expensive abroad → X falls. Imports become CHEAPER for Americans → M rises. NX falls. AD shifts LEFT (slightly).",
+          ],
+        },
+        {
+          type: "mcq",
+          prompt: "If the dollar APPRECIATES significantly, the most likely effect on US net exports?",
+          choices: [
+            "X up, M down, NX up",
+            "X down, M up, NX down",
+            "Both X and M up",
+            "No effect on NX",
+          ],
+          answer: 1,
+          explain: "Stronger USD makes US goods more expensive abroad (X ↓) and foreign goods cheaper for Americans (M ↑). NX = X − M falls.",
+        },
+        {
+          type: "mcq",
+          prompt: "Higher US real interest rates will most likely cause",
+          choices: [
+            "Capital outflow and dollar depreciation",
+            "Capital inflow and dollar appreciation",
+            "No effect on capital flows",
+            "Reduce US imports immediately",
+          ],
+          answer: 1,
+          explain: "Foreign investors seek higher US returns → buy USD-denominated assets → demand for USD rises → USD APPRECIATES. Capital INFLOW.",
+          trap: "Don't confuse the direction. HIGHER US rates ATTRACT foreign capital (inflow), not push it out.",
+        },
+      ],
+    },
+    {
+      id: "u6-capital-chain",
+      title: "Capital flows + interest rate connection",
+      estimateMin: 7,
+      steps: [
+        {
+          type: "read",
+          title: "How rates drive capital flows",
+          body: [
+            "When US real rates rise relative to other countries, foreign investors want US bonds — they offer higher returns.",
+            "To buy US bonds, foreigners must first acquire USD → DEMAND for USD increases → USD APPRECIATES.",
+            "Stronger USD → US exports more expensive abroad → X ↓. Foreign goods cheaper at home → M ↑. NX ↓ → AD ↓ slightly.",
+            "Mirror: lower US rates → capital outflow → S_USD up → USD DEPRECIATES → X ↑, M ↓ → NX up → AD up slightly.",
+          ],
+        },
+        {
+          type: "chain",
+          title: "US interest rates rise → forex consequences",
+          trigger: "US real interest rate rises (e.g., from contractionary monetary policy or fiscal deficit)",
+          steps: [
+            "1. Foreign investors find US bonds more attractive.",
+            "2. Foreign investors buy USD → D_USD shifts RIGHT.",
+            "3. USD APPRECIATES.",
+            "4. US exports become more expensive for foreigners → X ↓.",
+            "5. Foreign goods become cheaper for Americans → M ↑.",
+            "6. Net exports fall (NX ↓).",
+            "7. AD shifts LEFT slightly (offsetting the higher-rate domestic effect on I).",
+          ],
+          finalEffect: "USD appreciates, capital INFLOW, X ↓, M ↑, NX ↓, AD ↓ slightly. Memorize — multiple FRQs hinge on this.",
+        },
+        {
+          type: "mcq",
+          prompt: "The Fed raises interest rates. The most likely sequence in the forex market is",
+          choices: [
+            "Capital outflow → S_USD right → USD depreciates",
+            "Capital inflow → D_USD right → USD appreciates",
+            "Both D and S of USD rise → USD unchanged",
+            "USD has no relationship to Fed actions",
+          ],
+          answer: 1,
+          explain: "Higher US rates attract foreign capital → demand for USD rises → USD appreciates. This is the contractionary monetary chain's forex leg.",
+        },
+      ],
+    },
+    {
+      id: "u6-bop",
+      title: "Balance of payments",
+      estimateMin: 6,
+      steps: [
+        {
+          type: "read",
+          title: "Two halves that must balance",
+          body: [
+            "CURRENT ACCOUNT (CA) = net exports + net investment income from abroad + net unilateral transfers.",
+            "FINANCIAL/CAPITAL ACCOUNT (FA) = net foreign direct investment + net portfolio investment + reserve transactions.",
+            "Identity: CA + FA = 0. Always.",
+            "Implication: a current account DEFICIT must be matched by a financial account SURPLUS. A trade deficit comes WITH capital inflow.",
+            "Example: US imports more goods than it exports (trade deficit). Foreigners holding US dollars from those exports use them to buy US assets (financial inflow). The two are mirror images.",
+          ],
+          callouts: [
+            {
+              kind: "insight",
+              title: "Trade deficit ⇔ capital inflow",
+              body: "These are TWO SIDES of the same coin. Politicians often complain about trade deficits while celebrating foreign investment — they're the same thing.",
+            },
+          ],
+        },
+        {
+          type: "example",
+          title: "Calc CA from FA",
+          prompt: "A country has a financial account surplus of $300B. What's its current account?",
+          solution: [
+            "CA + FA = 0",
+            "CA = −FA = −$300B",
+            "Current account DEFICIT of $300B.",
+            "Translation: this country imports $300B more in goods/services than it exports. The surplus on the financial side (foreigners buying its assets) finances that.",
+          ],
+        },
+        {
+          type: "mcq",
+          prompt: "Country X has a current account surplus of $200B. Its financial account must be",
+          choices: [
+            "Surplus of $200B",
+            "Deficit of $200B",
+            "Balanced",
+            "Cannot be determined",
+          ],
+          answer: 1,
+          explain: "CA + FA = 0. CA = +$200B → FA = −$200B (deficit). Surplus on goods/services means net OUTFLOW of capital — Country X is sending capital abroad to buy foreign assets.",
+        },
+        {
+          type: "mcq",
+          prompt: "If Country Y has a CURRENT ACCOUNT DEFICIT, which best describes its financial account?",
+          choices: [
+            "Surplus — net capital INFLOW",
+            "Deficit — net capital outflow",
+            "Balanced",
+            "Depends on inflation rate",
+          ],
+          answer: 0,
+          explain: "CA deficit (importing more than exporting) is mirrored by FA surplus (foreigners buying domestic assets, providing the capital). Trade deficit ⇔ capital inflow.",
+          trap: "It's intuitive to think a 'deficit' on one side means deficit on both. The accounting identity ensures one's surplus is the other's deficit.",
+        },
+        {
+          type: "flashcards",
+          title: "Unit 6 vocab",
+          cards: [
+            { front: "Forex Y-axis vs X-axis", back: "Y = exchange rate (price of currency). X = quantity of currency." },
+            { front: "Demand for USD comes from", back: "Foreigners buying US goods/services (X) and foreign capital buying US assets." },
+            { front: "Supply of USD comes from", back: "Americans buying foreign goods/services (M) and US capital flowing abroad." },
+            { front: "USD appreciates means", back: "USD price RISES — each $1 buys more foreign currency." },
+            { front: "Higher US rates → forex effect", back: "Capital INFLOW → D_USD right → USD APPRECIATES." },
+            { front: "Lower US inflation than abroad → ", back: "US goods more competitive → D_USD right → USD appreciates." },
+            { front: "BOP identity", back: "Current Account + Financial Account = 0." },
+            { front: "Current account components", back: "Net exports + net foreign income + net transfers." },
+            { front: "Trade deficit means", back: "CA negative. Mirrored by FA positive (capital inflow)." },
+            { front: "Stronger currency → exports", back: "Exports DECREASE (US goods more expensive abroad). NX falls." },
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+// ─────────────────────────────────────────────────────────────────────
+// MODULE — Final Timed Block (NEW)
+// ─────────────────────────────────────────────────────────────────────
+const MOD_FINAL: Module = {
+  id: "macro-final",
+  partNumber: 15,
+  title: "Final Timed Block",
+  subtitle: "30 MCQs, 35 minutes. Last thing before sleep. Simulates exam pacing (~70 sec per question).",
+  estimateMin: 35,
+  priority: "must",
+  lessons: [
+    {
+      id: "final-brief",
+      title: "Pre-test brief",
+      estimateMin: 2,
+      steps: [
+        {
+          type: "read",
+          title: "Set the conditions and start the clock",
+          body: [
+            "30 multiple choice questions. 35 minutes hard cap. ~70 seconds per question — same pace as the real AP exam.",
+            "Treat this like the real thing. No looking up answers. No external resources. No breaks. No phone.",
+            "If a question stalls past 90 seconds, lock in your best guess and move on. You can come back at the end.",
+            "Score interpretation lives in the post-test step at the end. Run it first, then check.",
+          ],
+          callouts: [
+            {
+              kind: "strategy",
+              title: "Pacing rules",
+              body: "Two-pass MCQ technique: first pass = answer everything you know in <60 sec. Mark uncertain. Second pass = uncertain ones. Final guess on any blanks (no penalty).",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "final-30mcqs",
+      title: "30-question timed block",
+      estimateMin: 33,
+      steps: [
+        // Unit 1 (3)
+        {
+          type: "mcq",
+          prompt: "An economy producing INSIDE its PPC is",
+          choices: ["At full employment", "Experiencing recession or unemployed resources", "Growing", "Producing efficiently"],
+          answer: 1,
+          explain: "Inside the curve = some resources idle or misallocated. The economy is below potential.",
+        },
+        {
+          type: "mcq",
+          prompt: "Country A's OC of 1 widget is 3 gadgets. Country B's OC of 1 widget is 5 gadgets. Comparative advantage in widgets belongs to",
+          choices: ["Country A", "Country B", "Neither", "Both equally"],
+          answer: 0,
+          explain: "Lower OC has comparative advantage. A gives up 3 gadgets per widget vs B's 5 → A has comparative advantage in widgets.",
+        },
+        {
+          type: "mcq",
+          prompt: "A binding price ceiling on rent will most likely cause",
+          choices: ["Surplus of housing", "Shortage of housing", "Equilibrium quantity to rise", "No change"],
+          answer: 1,
+          explain: "Binding price ceiling = below equilibrium → quantity demanded > quantity supplied → SHORTAGE.",
+        },
+        // Unit 2 (5)
+        {
+          type: "mcq",
+          prompt: "Which is INCLUDED in this year's GDP?",
+          choices: ["Sale of a 2018 car", "A new car built in Detroit this year", "Stocks bought on the NYSE", "A welfare check"],
+          answer: 1,
+          explain: "Newly produced goods count. Used goods, financial transactions, transfers don't.",
+        },
+        {
+          type: "mcq",
+          prompt: "Population 600,000. Working-age 450,000. Labor force 320,000. Employed 288,000. Unemployment rate?",
+          choices: ["5.0%", "7.1%", "10.0%", "32.0%"],
+          answer: 2,
+          explain: "Unemployed = LF − Employed = 320K − 288K = 32K. U Rate = 32/320 × 100 = 10%. Don't divide by population.",
+          trap: "The trap is dividing by 600,000 (gives 5.3%) or 450,000 (gives 7.1%). The denominator is ALWAYS the labor force.",
+        },
+        {
+          type: "mcq",
+          prompt: "CPI rose from 250 to 270. Inflation rate is",
+          choices: ["7.4%", "8.0%", "10.0%", "20%"],
+          answer: 1,
+          explain: "Inflation = (270 − 250) / 250 × 100 = 20/250 × 100 = 8%.",
+        },
+        {
+          type: "mcq",
+          prompt: "Unexpected inflation HURTS",
+          choices: ["Borrowers with fixed-rate loans", "People on fixed pensions", "Asset owners", "Government with debt"],
+          answer: 1,
+          explain: "Fixed-pension recipients lose because nominal payments don't keep pace with inflation. Borrowers, asset owners, and indebted gov all WIN from unexpected inflation.",
+        },
+        {
+          type: "mcq",
+          prompt: "An economy's RGDP rises and unemployment falls below NRU. The economy is in",
+          choices: ["Recessionary gap", "Long-run equilibrium", "Inflationary gap", "Stagflation"],
+          answer: 2,
+          explain: "RGDP > potential AND U < NRU → INFLATIONARY gap. The economy is overheating.",
+        },
+        // Unit 3 (7)
+        {
+          type: "mcq",
+          prompt: "An increase in consumer wealth will most likely",
+          choices: ["Shift AD left", "Shift AD right", "Shift SRAS left", "Shift LRAS right"],
+          answer: 1,
+          explain: "Wealth ↑ → consumption rises (regardless of PL) → AD shifts RIGHT.",
+        },
+        {
+          type: "mcq",
+          prompt: "Higher input prices will most likely",
+          choices: ["Shift AD right", "Shift AD left", "Shift SRAS right", "Shift SRAS left"],
+          answer: 3,
+          explain: "Higher input costs squeeze profit margins → firms reduce output → SRAS shifts LEFT (cost-push).",
+        },
+        {
+          type: "mcq",
+          prompt: "An economy in a RECESSIONARY gap will, with no policy intervention,",
+          choices: [
+            "Stay there permanently",
+            "See SRAS shift right as wages fall, restoring full employment at lower PL",
+            "See LRAS shift left",
+            "Experience hyperinflation",
+          ],
+          answer: 1,
+          explain: "Self-correction (classical view): high U → wages fall → input costs fall → SRAS shifts RIGHT → return to LRAS at LOWER PL.",
+        },
+        {
+          type: "mcq",
+          prompt: "Government spending rises $200B. MPC = 0.75. Maximum ΔGDP?",
+          choices: ["$200B", "$400B", "$600B", "$800B"],
+          answer: 3,
+          explain: "Spending mult = 1/(1−0.75) = 4. ΔGDP = $200B × 4 = $800B.",
+        },
+        {
+          type: "mcq",
+          prompt: "Government cuts taxes by $100B. MPC = 0.8. Maximum ΔGDP?",
+          choices: ["$100B", "$400B", "$500B", "$800B"],
+          answer: 1,
+          explain: "Tax mult = −0.8/0.2 = −4. ΔGDP = $100B (cut, so think of it as ΔT = −$100B) × (−4) = +$400B.",
+        },
+        {
+          type: "mcq",
+          prompt: "If government raises BOTH spending and taxes by $300B, ΔGDP equals",
+          choices: ["$0", "$300B", "$600B", "Depends on MPC"],
+          answer: 1,
+          explain: "Balanced budget multiplier = 1 (always). ΔGDP = ΔSpending = $300B regardless of MPC.",
+        },
+        {
+          type: "mcq",
+          prompt: "A positive supply shock most likely causes",
+          choices: ["PL ↑, RGDP ↑", "PL ↓, RGDP ↑", "PL ↑, RGDP ↓", "PL ↓, RGDP ↓"],
+          answer: 1,
+          explain: "SRAS shifts RIGHT → PL falls AND RGDP rises. The 'Goldilocks' outcome — only positive supply shocks give this combo.",
+        },
+        // Unit 4 (7)
+        {
+          type: "mcq",
+          prompt: "If RRR = 25%, the money multiplier is",
+          choices: ["1.33", "2", "4", "5"],
+          answer: 2,
+          explain: "Money mult = 1/RRR = 1/0.25 = 4.",
+        },
+        {
+          type: "mcq",
+          prompt: "Which is NOT in M1?",
+          choices: ["Currency in circulation", "Demand deposits", "Savings deposits", "Traveler's checks"],
+          answer: 2,
+          explain: "Savings deposits are in M2, not M1. M1 = currency + demand deposits + traveler's checks.",
+        },
+        {
+          type: "mcq",
+          prompt: "The Fed BUYS government bonds. The most direct effect is",
+          choices: [
+            "MS rises and rates fall",
+            "MS falls and rates rise",
+            "Reserve requirement falls",
+            "Discount rate rises",
+          ],
+          answer: 0,
+          explain: "Buying bonds adds reserves to the banking system → MS shifts RIGHT → nominal rates FALL. Expansionary OMO.",
+        },
+        {
+          type: "mcq",
+          prompt: "Crowding out occurs because",
+          choices: [
+            "Fed buying bonds raises money supply",
+            "Government borrowing raises real rates and reduces private investment",
+            "Imports fall due to currency depreciation",
+            "Inflation reduces consumer purchasing power",
+          ],
+          answer: 1,
+          explain: "Crowding out is in the loanable funds market: gov deficit → DLF right → real rate ↑ → private I falls.",
+        },
+        {
+          type: "mcq",
+          prompt: "Bond prices and interest rates",
+          choices: ["Move together", "Move inversely", "Are independent", "Have a complex non-linear relationship"],
+          answer: 1,
+          explain: "Bond pays fixed payments. If rates rise, the fixed-payment bond becomes less attractive → its price falls. Always inverse.",
+        },
+        {
+          type: "mcq",
+          prompt: "Bank has $20,000 in deposits, RRR = 10%, total reserves $5,000. Maximum new money supply increase from the excess reserves?",
+          choices: ["$3,000", "$10,000", "$30,000", "$50,000"],
+          answer: 2,
+          explain: "Required = 20K × 0.10 = $2K. Excess = 5K − 2K = $3K. Money mult = 1/0.10 = 10. Max ΔMS = $3K × 10 = $30K.",
+        },
+        {
+          type: "mcq",
+          prompt: "Real interest rate = 4%. Inflation = 6%. Approximately, the nominal rate is",
+          choices: ["−2%", "2%", "10%", "24%"],
+          answer: 2,
+          explain: "Fisher: Real ≈ Nominal − Inflation. So Nominal ≈ Real + Inflation = 4 + 6 = 10%.",
+        },
+        // Unit 5 (5)
+        {
+          type: "mcq",
+          prompt: "On the LONG-RUN Phillips Curve, the unemployment rate equals",
+          choices: ["Zero", "Cyclical only", "NRU (frictional + structural)", "Variable with inflation"],
+          answer: 2,
+          explain: "LRPC is vertical at NRU. No long-run trade-off — expectations adjust and U returns to NRU regardless of inflation.",
+        },
+        {
+          type: "mcq",
+          prompt: "Higher EXPECTED inflation will most likely",
+          choices: ["Shift SRPC left", "Shift SRPC right", "Make LRPC vertical", "Lower NRU"],
+          answer: 1,
+          explain: "Higher expected inflation → workers demand higher wages → SRPC SHIFTS RIGHT (worse trade-off at every U level).",
+        },
+        {
+          type: "mcq",
+          prompt: "An economy at full employment passes a large expansionary fiscal package. In the LONG run,",
+          choices: [
+            "RGDP rises permanently",
+            "PL rises, RGDP returns to potential",
+            "U falls permanently",
+            "Both PL and RGDP fall",
+          ],
+          answer: 1,
+          explain: "Long-run self-correction: tight labor → wages up → SRAS LEFT → return to LRAS at HIGHER PL with RGDP back at potential. Demand-side shocks have no long-run real effect.",
+        },
+        {
+          type: "mcq",
+          prompt: "Long-run economic growth requires",
+          choices: [
+            "Lower interest rates only",
+            "Capital formation, technology, or labor force expansion",
+            "Higher consumer spending",
+            "Lower government deficits",
+          ],
+          answer: 1,
+          explain: "Growth = LRAS shifts right = more resources, better tech, more capital, better human capital. Demand-side stimulus doesn't grow potential output.",
+        },
+        {
+          type: "mcq",
+          prompt: "If M grows 7%, V is constant, Q grows 2%, inflation is approximately",
+          choices: ["2%", "5%", "7%", "9%"],
+          answer: 1,
+          explain: "Quantity theory: %ΔP ≈ %ΔM − %ΔQ = 7 − 2 = 5%.",
+        },
+        // Unit 6 (3)
+        {
+          type: "mcq",
+          prompt: "A US current account deficit of $250B implies the financial account is",
+          choices: ["Deficit of $250B", "Surplus of $250B", "Balanced", "Cannot determine"],
+          answer: 1,
+          explain: "CA + FA = 0. CA = −$250B → FA = +$250B (surplus, capital inflow). Trade deficit and capital inflow are mirror images.",
+        },
+        {
+          type: "mcq",
+          prompt: "An increase in foreign income most likely causes",
+          choices: [
+            "US exports to fall, dollar depreciates",
+            "US exports to rise, dollar appreciates",
+            "No effect on US trade",
+            "US imports to rise dramatically",
+          ],
+          answer: 1,
+          explain: "Richer foreigners buy more US goods → X ↑ → D_USD right → USD APPRECIATES. AD in US shifts right too.",
+        },
+        {
+          type: "mcq",
+          prompt: "If the dollar APPRECIATES, the most likely effect on net exports?",
+          choices: ["NX rises", "NX falls", "NX unchanged", "X and M both rise equally"],
+          answer: 1,
+          explain: "Stronger USD → US goods expensive abroad (X ↓), foreign goods cheaper at home (M ↑) → NX = X − M FALLS.",
+        },
+      ],
+    },
+    {
+      id: "final-debrief",
+      title: "Score interpretation",
+      estimateMin: 0,
+      steps: [
+        {
+          type: "read",
+          title: "What your score means",
+          body: [
+            "24+ / 30 (80%+): you're at a 5. Sleep, light formula scan in the morning, walk in confident.",
+            "21–23 / 30 (70–79%): likely a 4. Do a final scan of the cheat sheet (Module 14) and the 12 chains. Then sleep.",
+            "18–20 / 30 (60–69%): borderline 3/4. Re-read the cheat sheet effect table and the 12 chains carefully. Identify which units you missed and re-read those Deep modules.",
+            "<18 / 30: identify which units the misses cluster in. Re-read those sections. Sleep no later than 1 AM. The exam is more about pattern recognition than memorization at this point — sleep matters more than another hour of study.",
+            "Either way: trust the prep. The course covered everything tested.",
+          ],
+          callouts: [
+            {
+              kind: "strategy",
+              title: "Don't re-take the test",
+              body: "Once you've seen the answers, retaking it inflates your score artificially. Trust the result and move forward. Wrong answers tell you exactly which sections to refresh.",
+            },
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+// ─────────────────────────────────────────────────────────────────────
 // COURSE EXPORT
 // ─────────────────────────────────────────────────────────────────────
 
@@ -2017,18 +3348,22 @@ export const AP_MACRO_COURSE: Course = {
   id: "ap-macro",
   examLabel: "AP Macroeconomics",
   examDate: "2026-05-08",
-  totalEstimateMin: 285,    // ~4h 45m
+  totalEstimateMin: 375,    // ~6h 15m total. Skip-able sections noted by priority.
   modules: [
-    MOD_HUB,
-    MOD_CALC,
-    MOD_INDET,
-    MOD_U3,
-    MOD_U4,
-    MOD_U5,
-    MOD_PATTERNS,
-    MOD_CHAINS,
-    MOD_FRQ,
-    MOD_SCENARIOS,
-    MOD_CHEATSHEET,
+    MOD_HUB,         // 1 — 25m  (must)
+    MOD_U1,          // 2 — 15m  (medium)  NEW
+    MOD_U2,          // 3 — 20m  (high)    NEW
+    MOD_CALC,        // 4 — 35m  (must)
+    MOD_INDET,       // 5 — 15m  (must)
+    MOD_U3,          // 6 — 30m  (must)
+    MOD_U4,          // 7 — 30m  (must)
+    MOD_U5,          // 8 — 30m  (must)
+    MOD_U6,          // 9 — 20m  (high)    NEW
+    MOD_PATTERNS,    // 10 — 30m (must)    trimmed from 40
+    MOD_CHAINS,      // 11 — 25m (must)
+    MOD_FRQ,         // 12 — 30m (must)
+    MOD_SCENARIOS,   // 13 — 15m (high)    trimmed from 25
+    MOD_CHEATSHEET,  // 14 — 20m (high)    trimmed from 30
+    MOD_FINAL,       // 15 — 35m (must)    NEW
   ],
 };

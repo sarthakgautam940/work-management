@@ -308,8 +308,12 @@ function ExampleStep({ step }: { step: Extract<Step, { type: "example" }> }) {
 function MCQStep({ step, stepKey }: { step: Extract<Step, { type: "mcq" }>; stepKey: string }) {
   const answers = useStore((s) => s.lessonAnswers);
   const record = useStore((s) => s.recordLessonAnswer);
+  const wrong = useStore((s) => s.apCrashWrongAnswers);
+  const setWrong = useStore((s) => s.setApCrashWrongAnswer);
   const chosen = answers[stepKey];
   const revealed = chosen !== undefined;
+  const wasWrong = revealed && chosen !== step.answer;
+  const flagged = !!wrong[stepKey];
 
   return (
     <Card className="p-6 lg:p-7">
@@ -355,6 +359,21 @@ function MCQStep({ step, stepKey }: { step: Extract<Step, { type: "mcq" }>; step
             <div className="mt-3">
               <Meta className="text-accent-red">Trap</Meta>
               <p className="mt-1 text-ink-dim">{step.trap}</p>
+            </div>
+          )}
+          {(wasWrong || flagged) && (
+            <div className="mt-4">
+              <button
+                onClick={() => setWrong(stepKey, !flagged)}
+                className={cn(
+                  "px-3 py-1.5 rounded-md text-2xs font-mono uppercase tracking-[0.18em] border transition-colors",
+                  flagged
+                    ? "border-accent-amber/50 bg-accent-amber/[0.08] text-accent-amber"
+                    : "border-line text-ink-mute hover:text-ink hover:border-line-strong"
+                )}
+              >
+                {flagged ? "✓ Marked for review" : "Mark for review"}
+              </button>
             </div>
           )}
         </motion.div>
