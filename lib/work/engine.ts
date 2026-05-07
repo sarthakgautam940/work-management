@@ -152,6 +152,8 @@ function score(item: Omit<WorkItem, "score">, today: Date, phase: Phase, skipCou
   return cat * u * grade * skipPenalty;
 }
 
+import type { CustomTask, TaskEdit } from "@/lib/store";
+
 type State = {
   schoolTasks: Record<string, boolean>;
   lessonDone: Record<string, boolean>;
@@ -164,7 +166,26 @@ type State = {
   satModules: Record<string, boolean>;
   workDeferred: Record<string, number>;
   workSkipped: Record<string, number>;
+  manualOrder: string[];
+  pendingSkipCount: Record<string, number>;
+  customTasks: CustomTask[];
+  customTaskEdits: Record<string, TaskEdit>;
+  deletedTasks: Record<string, boolean>;
 };
+
+function applyEdit<T extends { title: string; details?: string; due?: string; estimate?: number }>(
+  task: T,
+  edit?: TaskEdit,
+): T {
+  if (!edit) return task;
+  return {
+    ...task,
+    title: edit.title ?? task.title,
+    details: edit.details ?? task.details,
+    due: edit.due ?? task.due,
+    estimate: edit.estimateMin ?? task.estimate,
+  };
+}
 
 export function buildQueue(today: Date, state: State): WorkItem[] {
   const phase = getPhase(today);
@@ -172,7 +193,9 @@ export function buildQueue(today: Date, state: State): WorkItem[] {
 
   // ── School tasks ────────────────────────────────────────────────
   CLASSES.forEach((cls) => {
-    cls.tasks.forEach((t: SchoolTask) => {
+    cls.tasks.forEach((rawTask: SchoolTask) => {
+      if (state.deletedTasks[rawTask.id]) return;
+      const t = applyEdit(rawTask, state.customTaskEdits[rawTask.id]);
       const done = state.schoolTasks[t.id] ?? t.defaultDone ?? false;
       if (done) return;
       items.push({
@@ -189,6 +212,36 @@ export function buildQueue(today: Date, state: State): WorkItem[] {
         link: TASK_LINKS[t.id] ?? CLASS_LINKS[cls.id] ?? LINKS.schoology,
         internalRoute: "/school",
       });
+    });
+  });
+
+  // ── Custom user-created tasks ───────────────────────────────────
+  state.customTasks.forEach((rawCt) => {
+    if (state.deletedTasks[rawCt.id]) return;
+    const ct = { ...rawCt, ...state.customTaskEdits[rawCt.id] };
+    const done = state.schoolTasks[ct.id] ?? false;
+    if (done) return;
+    const [parentKind, parentId] = ct.parent.split(":");
+    const className = parentKind === "school"
+      ? (CLASSES.find((c) => c.id === parentId)?.short ?? parentId)
+      : undefined;
+    const route =
+      parentKind === "school" ? "/school" :
+      parentKind === "sat" ? "/sat" :
+      parentKind === "ibo" ? "/ibo" :
+      parentKind === "business" ? "/business" :
+      "/";
+    items.push({
+      id: ct.id,
+      type: "school-task",
+      category: parentKind === "business" ? "business" : parentKind === "sat" ? "sat" : parentKind === "ibo" ? "olympiad" : "school",
+      title: ct.title,
+      detail: ct.details,
+      className,
+      due: ct.due,
+      estimateMin: ct.estimateMin,
+      gradeType: ct.gradeType,
+      internalRoute: route,
     });
   });
 
@@ -390,6 +443,7 @@ export function buildQueue(today: Date, state: State): WorkItem[] {
   // ── Apply deferred filter + score ────────────────────────────────
   const now = today.getTime();
   const filtered = items.filter((it) => {
+    if (state.deletedTasks[it.id]) return false;
     const until = state.workDeferred[it.id];
     return !until || until < now;
   });
@@ -400,7 +454,41 @@ export function buildQueue(today: Date, state: State): WorkItem[] {
   }));
 
   scored.sort((a, b) => b.score - a.score);
-  return scored;
+
+  // ── Apply skip-1 shifts ──────────────────────────────────────────
+  // Each call to skipOnePosition pushes the item down by 1 slot.
+  // Simple swap-based: walk each skipped id and swap it forward by N.
+  const queue = [...scored];
+  for (const [id, count] of Object.entries(state.pendingSkipCount)) {
+    if (count <= 0) continue;
+    let pos = queue.findIndex((q) => q.id === id);
+    if (pos === -1) continue;
+    const moves = Math.min(count, queue.length - 1 - pos);
+    for (let i = 0; i < moves; i++) {
+      [queue[pos], queue[pos + 1]] = [queue[pos + 1], queue[pos]];
+      pos++;
+    }
+  }
+
+  // ── Apply manual reorder (takes absolute precedence) ─────────────
+  if (state.manualOrder.length > 0) {
+    const byId = new Map(queue.map((it) => [it.id, it]));
+    const ordered: WorkItem[] = [];
+    const placed = new Set<string>();
+    for (const id of state.manualOrder) {
+      const it = byId.get(id);
+      if (it) {
+        ordered.push(it);
+        placed.add(id);
+      }
+    }
+    for (const it of queue) {
+      if (!placed.has(it.id)) ordered.push(it);
+    }
+    return ordered;
+  }
+
+  return queue;
 }
 
 export function summarize(queue: WorkItem[]): { count: number; minutes: number } {
