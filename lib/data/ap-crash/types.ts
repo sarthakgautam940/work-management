@@ -9,13 +9,32 @@ export type Callout = {
   body: string;
 };
 
+// Graph state for interactive-graph steps. Each curve has a position
+// descriptor (left/center/right) we can animate between.
+export type GraphState = {
+  ad?: "left" | "center" | "right";
+  sras?: "left" | "center" | "right";
+  lras?: "left" | "center" | "right";
+  ms?: "left" | "center" | "right";
+  md?: "left" | "center" | "right";
+  dlf?: "left" | "center" | "right";
+  slf?: "left" | "center" | "right";
+  srpc?: "left" | "center" | "right";
+  phillipsMove?: "up-left" | "down-right" | "none";
+  dCurrency?: "left" | "center" | "right";
+  sCurrency?: "left" | "center" | "right";
+  note?: string;
+};
+
 export type Step =
-  // Read a concept. Body is a list of paragraphs. Optional callouts shown after.
+  // Read a concept. Body is a list of paragraphs. Optional callouts and a
+  // comprehension check (no-stakes) shown after.
   | {
       type: "read";
       title: string;
       body: string[];
       callouts?: Callout[];
+      comprehensionCheck?: { question: string; sampleAnswer: string };
     }
   // Memorize a set of formulas, with optional mnemonic / hint.
   | {
@@ -33,7 +52,8 @@ export type Step =
       solution: string[];
       takeaway?: string;
     }
-  // Multiple choice question. User answers; explanation reveals.
+  // Multiple choice question. User answers; explanation reveals. Optional
+  // reteach block fires on wrong answers in critical concepts.
   | {
       type: "mcq";
       prompt: string;
@@ -41,6 +61,11 @@ export type Step =
       answer: number;
       explain: string;
       trap?: string;
+      reteach?: {
+        headline: string;
+        body: string[];
+        followup: { prompt: string; choices: string[]; answer: number; explain: string };
+      };
     }
   // Calculation drill. User attempts; shows answer + worked steps.
   | {
@@ -80,6 +105,28 @@ export type Step =
       technique: string;
       trap?: string;
       example?: { prompt: string; choices: string[]; answer: number; explain: string };
+    }
+  // Interactive graph — Mode A predicts shift, Mode B identifies shock.
+  | {
+      type: "interactive-graph";
+      mode: "predict-shift" | "identify-shock";
+      graphType: "ad-as" | "money-market" | "loanable-funds" | "phillips" | "forex";
+      title: string;
+      prompt: string;
+      // Initial state of the graph (which curves/positions).
+      initial: GraphState;
+      // Resulting state after the shift (for predict-shift mode this is the
+      // correct outcome; for identify-shock it's already drawn at start).
+      shifted: GraphState;
+      // The choices the user picks from.
+      choices: { label: string; correct: boolean }[];
+      explain: string;
+    }
+  // Curated review deck — flashcards from earlier modules surfaced again.
+  | {
+      type: "review-deck";
+      title: string;
+      cards: { front: string; back: string; sourceModule?: string }[];
     };
 
 export type Lesson = {
@@ -96,6 +143,9 @@ export type Module = {
   subtitle: string;
   estimateMin: number;
   priority: "must" | "high" | "medium";
+  // Optional "why does this matter" framing shown above the lesson list.
+  // Format: "{exam weight}. {What FRQ topic it shows up on.}"
+  intro?: string;
   lessons: Lesson[];
 };
 
