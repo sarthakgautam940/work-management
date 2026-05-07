@@ -3,15 +3,16 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Card, Eyebrow, Meta, PageHeader, Section, Tag, Stat } from "@/components/ui";
+import { Eyebrow, Meta, PageHeader, Tag } from "@/components/ui";
 import { useStore } from "@/lib/store";
 import { AP_MACRO_COURSE } from "@/lib/data/ap-crash/macro";
-import type { Module } from "@/lib/data/ap-crash/types";
+import { AP_PRECALC_COURSE } from "@/lib/data/ap-crash/precalc";
+import type { Course, Module } from "@/lib/data/ap-crash/types";
 import { daysUntil } from "@/lib/utils/date";
-import { ChevronRight, ArrowUpRight, GraduationCap, Zap } from "lucide-react";
+import { ArrowUpRight, GraduationCap } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
-export default function ApCrashDashboard() {
+export default function ApCrashChooser() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   if (!mounted) return null;
@@ -20,103 +21,77 @@ export default function ApCrashDashboard() {
 
 function Inner() {
   const stepDone = useStore((s) => s.apCrashStepDone);
-  const lastModule = useStore((s) => s.apCrashLastModule);
-
-  const c = AP_MACRO_COURSE;
-  const totals = c.modules.map((m) => moduleTotals(m, stepDone, c.id));
-  const totalSteps = totals.reduce((sum, t) => sum + t.total, 0);
-  const doneSteps = totals.reduce((sum, t) => sum + t.done, 0);
-  const overallPct = totalSteps > 0 ? Math.round((doneSteps / totalSteps) * 100) : 0;
-  const minutesRemaining = totals.reduce((sum, t, i) => sum + Math.round(c.modules[i].estimateMin * (1 - (t.done / t.total || 0))), 0);
-  const days = daysUntil(c.examDate);
-
-  const continueModule = lastModule[c.id] ?? c.modules[0].id;
 
   return (
     <div className="px-5 lg:px-10 pt-7 lg:pt-12 max-w-3xl pb-16">
       <PageHeader
-        eyebrow={c.examLabel}
-        title="AP Macro crash course"
-        subtitle="One-night mastery path. Modules ordered for max ROI per minute."
-        right={
-          <Link href={`/ap/crash/${continueModule}`}>
-            <button className="px-4 py-2 rounded-lg bg-ink text-bg text-sm font-medium hover:bg-ink/90 transition-colors flex items-center gap-1.5">
-              <Zap size={14} /> {doneSteps > 0 ? "Continue" : "Start"}
-              <ChevronRight size={14} />
-            </button>
-          </Link>
-        }
+        eyebrow="AP crash courses"
+        title="Pick your course"
+        subtitle="Comprehensive single-source study paths for both AP exams. Step-by-step lessons, drills, MCQs, FRQ walkthroughs."
       />
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-9">
-        <Stat label="Days to exam" value={`${days}d`} accent={days <= 1 ? "red" : days <= 3 ? "amber" : "neutral"} hint={c.examDate.slice(5)} />
-        <Stat label="Course progress" value={`${overallPct}%`} hint={`${doneSteps}/${totalSteps} steps`} accent={overallPct >= 80 ? "lime" : overallPct >= 40 ? "amber" : "neutral"} />
-        <Stat label="Time remaining" value={`${Math.round(minutesRemaining / 60 * 10) / 10}h`} hint={`${minutesRemaining}m`} />
-        <Stat label="Modules" value={`${totals.filter((t) => t.done === t.total).length}/${c.modules.length}`} hint="completed" />
-      </div>
-
-      <Section eyebrow="Modules" hint="Tap to start, drag-free path">
-        <div className="space-y-2">
-          {c.modules.map((m, i) => (
-            <ModuleRow
-              key={m.id}
-              m={m}
-              i={i + 1}
-              total={totals[i]}
-            />
-          ))}
-        </div>
-      </Section>
-
-      <div className="mt-12 text-center">
-        <Meta>
-          <GraduationCap size={11} className="inline mr-1.5 -mt-0.5" />
-          Built from the 48-hour Mastery Guide — comprehensive single-source study path.
-        </Meta>
+      <div className="space-y-3">
+        <CourseCard course={AP_MACRO_COURSE} stepDone={stepDone} routeBase="/ap/crash/macro" />
+        <CourseCard course={AP_PRECALC_COURSE} stepDone={stepDone} routeBase="/ap/crash/precalc" />
       </div>
     </div>
   );
 }
 
-function ModuleRow({ m, i, total }: { m: Module; i: number; total: { done: number; total: number } }) {
-  const pct = total.total > 0 ? Math.round((total.done / total.total) * 100) : 0;
-  const isComplete = pct === 100;
-  const priorityTone: "red" | "amber" | "neutral" =
-    m.priority === "must" ? "red" : m.priority === "high" ? "amber" : "neutral";
+function CourseCard({
+  course, stepDone, routeBase,
+}: {
+  course: Course;
+  stepDone: Record<string, boolean>;
+  routeBase: string;
+}) {
+  const totals = course.modules.map((m) => moduleTotals(m, stepDone, course.id));
+  const totalSteps = totals.reduce((sum, t) => sum + t.total, 0);
+  const doneSteps = totals.reduce((sum, t) => sum + t.done, 0);
+  const pct = totalSteps > 0 ? Math.round((doneSteps / totalSteps) * 100) : 0;
+  const days = daysUntil(course.examDate);
+  const hours = Math.round(course.totalEstimateMin / 60 * 10) / 10;
+
   return (
-    <Link href={`/ap/crash/${m.id}`}>
+    <Link href={routeBase} className="block group">
       <motion.div
         whileHover={{ x: 2 }}
         className={cn(
-          "group flex items-center gap-4 px-5 py-4 rounded-xl border transition-colors",
-          isComplete
-            ? "bg-accent-lime/[0.04] border-accent-lime/30"
-            : "bg-bg-surface border-line hover:border-line-strong"
+          "relative overflow-hidden rounded-2xl border px-6 py-6 transition-colors",
+          pct === 100
+            ? "border-accent-lime/40 bg-accent-lime/[0.04]"
+            : "border-line bg-bg-surface hover:border-line-strong"
         )}
       >
-        <span className="font-mono text-2xs tabular-nums text-ink-mute w-7 shrink-0">
-          {String(i).padStart(2, "0")}
-        </span>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-medium text-base text-ink">{m.title}</span>
-            <Tag tone={priorityTone} size="sm">{m.priority}</Tag>
-            {isComplete && <Tag tone="lime" size="sm">✓ done</Tag>}
+        <div className="flex items-start gap-5">
+          <div className="w-12 h-12 rounded-xl bg-bg-elevated border border-line flex items-center justify-center shrink-0">
+            <GraduationCap size={22} className="text-ink" />
           </div>
-          <div className="text-xs text-ink-mute mt-1 leading-relaxed">{m.subtitle}</div>
-          <div className="mt-2.5 flex items-center gap-3">
-            <div className="flex-1 max-w-[180px] h-1 rounded-full bg-line overflow-hidden">
-              <div
-                className={cn("h-full transition-all duration-500", isComplete ? "bg-accent-lime" : "bg-ink/60")}
-                style={{ width: `${pct}%` }}
-              />
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-lg lg:text-xl font-bold tracking-tightest text-ink">{course.examLabel}</span>
+              <Tag tone={days <= 1 ? "red" : days <= 3 ? "amber" : "neutral"} size="sm">
+                {days}d to exam
+              </Tag>
+              {pct === 100 && <Tag tone="lime" size="sm">✓ done</Tag>}
             </div>
-            <Meta>{total.done}/{total.total}</Meta>
-            <Meta>·</Meta>
-            <Meta>{m.estimateMin}m</Meta>
+            <div className="text-sm text-ink-mute mt-1.5">
+              {course.modules.length} modules · ~{hours}h · single-night mastery path
+            </div>
+            <div className="mt-3 flex items-center gap-3">
+              <div className="flex-1 max-w-[220px] h-1 rounded-full bg-line overflow-hidden">
+                <div
+                  className={cn("h-full transition-all duration-500", pct === 100 ? "bg-accent-lime" : "bg-ink/60")}
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+              <Meta>{doneSteps}/{totalSteps}</Meta>
+              <Meta>·</Meta>
+              <Meta>{pct}%</Meta>
+            </div>
           </div>
+          <ArrowUpRight size={18} className="text-ink-mute group-hover:text-ink shrink-0 transition-colors" />
         </div>
-        <ArrowUpRight size={15} className="text-ink-ghost group-hover:text-ink-dim transition-colors shrink-0" />
       </motion.div>
     </Link>
   );

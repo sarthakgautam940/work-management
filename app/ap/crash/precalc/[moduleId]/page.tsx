@@ -6,7 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, Eyebrow, Meta, Tag, Button } from "@/components/ui";
 import { useStore } from "@/lib/store";
-import { AP_MACRO_COURSE } from "@/lib/data/ap-crash/macro";
+import { AP_PRECALC_COURSE } from "@/lib/data/ap-crash/precalc";
 import type { Module, Lesson, Step, Callout } from "@/lib/data/ap-crash/types";
 import { ArrowLeft, ArrowRight, Check, X, ChevronRight, RotateCw, Lightbulb, AlertTriangle, BookOpen, Zap, Target, Brain } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -22,7 +22,7 @@ function Inner() {
   const params = useParams();
   const router = useRouter();
   const moduleId = params?.moduleId as string;
-  const course = AP_MACRO_COURSE;
+  const course = AP_PRECALC_COURSE;
   const module = course.modules.find((m) => m.id === moduleId);
 
   const stepDone = useStore((s) => s.apCrashStepDone);
@@ -57,7 +57,7 @@ function Inner() {
     return (
       <div className="px-5 lg:px-10 pt-12 max-w-2xl mx-auto text-center">
         <h1 className="text-2xl font-bold mb-3">Module not found</h1>
-        <Link href="/ap/crash" className="text-accent-lime underline">Back to course</Link>
+        <Link href="/ap/crash/precalc" className="text-accent-lime underline">Back to course</Link>
       </div>
     );
   }
@@ -76,7 +76,7 @@ function Inner() {
       // Final step done — navigate to next module or back to dashboard
       const idx = course.modules.findIndex((m) => m.id === module.id);
       const next = course.modules[idx + 1];
-      setTimeout(() => router.push(next ? `/ap/crash/${next.id}` : "/ap/crash"), 240);
+      setTimeout(() => router.push(next ? `/ap/crash/precalc/${next.id}` : "/ap/crash/precalc"), 240);
     }
   };
 
@@ -134,16 +134,16 @@ function Inner() {
           )}
           <div className="flex items-center gap-3">
             {prevModule && (
-              <Link href={`/ap/crash/${prevModule.id}`} className="font-mono text-2xs uppercase tracking-[0.18em] text-ink-mute hover:text-ink transition-colors">
+              <Link href={`/ap/crash/precalc/${prevModule.id}`} className="font-mono text-2xs uppercase tracking-[0.18em] text-ink-mute hover:text-ink transition-colors">
                 ← prev module
               </Link>
             )}
             {nextModule && (
-              <Link href={`/ap/crash/${nextModule.id}`} className="font-mono text-2xs uppercase tracking-[0.18em] text-ink-mute hover:text-ink transition-colors">
+              <Link href={`/ap/crash/precalc/${nextModule.id}`} className="font-mono text-2xs uppercase tracking-[0.18em] text-ink-mute hover:text-ink transition-colors">
                 next module →
               </Link>
             )}
-            <Link href="/ap/crash" className="font-mono text-2xs uppercase tracking-[0.18em] text-ink-mute hover:text-ink transition-colors">
+            <Link href="/ap/crash/precalc" className="font-mono text-2xs uppercase tracking-[0.18em] text-ink-mute hover:text-ink transition-colors">
               All modules
             </Link>
           </div>
@@ -169,7 +169,7 @@ function TopBar({
   return (
     <div className="sticky top-0 z-20 px-5 lg:px-10 py-4 border-b border-line bg-bg/90 backdrop-blur-md">
       <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">
-        <Link href="/ap/crash" className="text-ink-mute hover:text-ink transition-colors -ml-1 p-1">
+        <Link href="/ap/crash/precalc" className="text-ink-mute hover:text-ink transition-colors -ml-1 p-1">
           <X size={16} />
         </Link>
         <div className="flex-1 min-w-0 text-center">
