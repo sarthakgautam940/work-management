@@ -3,7 +3,7 @@
 
 import { CLASSES, Task as SchoolTask } from "@/lib/data/school";
 import { STUDY_LESSONS, EXAMS, Lesson } from "@/lib/data/study-modules";
-import { SEMINAR_PREP, SOURCE_SLOTS } from "@/lib/data/big-idea";
+import { SEMINAR_PREP, SOURCE_SLOTS, SEMINAR_DONE, HEX_SHEET_PREP, HEX_SHEET_DUE } from "@/lib/data/big-idea";
 import { PHASE_1_PRIORITIES } from "@/lib/data/business";
 import { IBO_CHAPTERS, IBO_BOOKS, IBO_CASES } from "@/lib/data/ibo";
 import { SAT_MATH, SAT_RW } from "@/lib/data/sat";
@@ -161,30 +161,61 @@ export function buildQueue(today: Date, state: State): WorkItem[] {
     });
   });
 
-  // ── Big Idea seminar prep — single parent task, 8 subtasks ─────
-  const seminarSubtasks: Subtask[] = SEMINAR_PREP.map((p) => ({
+  // ── Big Idea seminar prep — only emitted before the seminar happens ─
+  if (!SEMINAR_DONE) {
+    const seminarSubtasks: Subtask[] = SEMINAR_PREP.map((p) => ({
+      id: p.id,
+      type: "checklist",
+      label: p.label,
+      detail: p.detail,
+      estimateMin: p.estimateMin,
+    }));
+    const seminarRemaining = seminarSubtasks.filter((st) => !state.bigIdeaTasks[st.id]);
+    if (seminarRemaining.length > 0) {
+      items.push({
+        id: "big-idea-seminar",
+        type: "big-idea-prep",
+        category: "school",
+        title: "Big Idea Socratic seminar — prep",
+        detail: "8 prep steps for the English seminar. Walk through each in order.",
+        className: "English",
+        due: "2026-05-05",
+        estimateMin: seminarRemaining.reduce((s, st) => s + (st.estimateMin || 0), 0),
+        gradeType: "quiz",
+        internalRoute: "/school",
+        subtasks: seminarSubtasks,
+      });
+    }
+  }
+
+  // ── Big Idea hex sheet — active deliverable (front + back of printed sheet) ─
+  const hexSubtasks: Subtask[] = HEX_SHEET_PREP.map((p) => ({
     id: p.id,
     type: "checklist",
     label: p.label,
     detail: p.detail,
     estimateMin: p.estimateMin,
   }));
-  const seminarRemaining = seminarSubtasks.filter((st) => !state.bigIdeaTasks[st.id]);
-  if (seminarRemaining.length > 0) {
+  const hexRemaining = hexSubtasks.filter((st) => !state.bigIdeaTasks[st.id]);
+  if (hexRemaining.length > 0) {
     items.push({
-      id: "big-idea-seminar",
+      id: "big-idea-hex-sheet",
       type: "big-idea-prep",
       category: "school",
-      title: "Big Idea Socratic seminar — prep",
-      detail: "8 prep steps for the English seminar. Walk through each in order.",
+      title: "Hexagonal Thinking sheet (front + back)",
+      detail: "8 steps. Center claim → 6 evidence quotes from Algorithms to Live By → connection lines → 3 Required Connections.",
       className: "English",
-      due: "2026-05-05",
-      estimateMin: seminarRemaining.reduce((s, st) => s + (st.estimateMin || 0), 0),
-      gradeType: "quiz",
+      due: HEX_SHEET_DUE,
+      estimateMin: hexRemaining.reduce((s, st) => s + (st.estimateMin || 0), 0),
+      gradeType: "project",
       internalRoute: "/school",
-      subtasks: seminarSubtasks,
+      subtasks: hexSubtasks,
     });
   }
+  // TODO(post-exams): consider an "in-class hard deadline" boost — items
+  // with grade=quiz/classwork due tomorrow that map to a fixed-time event
+  // should clamp urgency to ~4.0 so they outrank long-horizon study lessons
+  // by default (currently relies on the user manually deferring AP study).
 
   // ── Big Idea sources (only surface the next-due un-annotated one) ─
   SOURCE_SLOTS.forEach((s) => {
