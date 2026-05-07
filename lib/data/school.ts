@@ -403,50 +403,15 @@ export type APBlock = {
 
 export const AP_MACRO_PLAN: APBlock[] = [
   {
-    date: "2026-05-04",
-    label: "Day 1 — Mon",
-    hours: 2.5,
-    topics: [
-      "Unit 1: Comparative advantage, supply/demand, market equilibrium",
-      "Unit 2: GDP definition, components (C+I+G+NX), real vs nominal, CPI/inflation",
-      "Unit 2: Unemployment types, business cycles",
-      "Practice: 10 MCQ from Units 1–2",
-    ],
-  },
-  {
-    date: "2026-05-05",
-    label: "Day 2 — Tue",
-    hours: 2.5,
-    topics: [
-      "Unit 3: Aggregate demand + 4 shifters",
-      "Unit 3: SRAS, LRAS, AD-AS equilibrium",
-      "Unit 3: Recessionary vs inflationary gaps, demand-pull vs cost-push",
-      "Unit 3: Fiscal policy + multipliers (spending, tax, balanced budget)",
-      "Practice: 10 MCQ + 1 FRQ on AD-AS",
-    ],
-  },
-  {
-    date: "2026-05-06",
-    label: "Day 3 — Wed",
-    hours: 2.5,
-    topics: [
-      "Unit 4: Money — definitions (M1/M2), functions, fractional reserve",
-      "Unit 4: Money market, loanable funds market",
-      "Unit 4: Fed tools, monetary policy, interest rates",
-      "Unit 5: Phillips curve (SR + LR), MV=PQ",
-      "Practice: 10 MCQ on Units 4–5",
-    ],
-  },
-  {
     date: "2026-05-07",
-    label: "Day 4 — Thu (chem heat-transfer quiz too — keep balanced)",
-    hours: 3,
+    label: "Day 1 — Thu (full crash course in one night)",
+    hours: 5,
     topics: [
-      "Unit 5: Deficits, debt, crowding out, growth + productivity",
-      "Unit 6: Balance of payments, exchange rates, FX market",
-      "Unit 6: Net exports, capital flows, real interest differentials",
-      "Full practice exam — 30 MCQ + 2 FRQ, timed",
-      "Error review — flag every miss",
+      "Open /ap/crash/macro and run all 11 modules straight through.",
+      "M1–6 (foundations + Units 3, 4, 5 deep) — ~3h.",
+      "M7–9 (question patterns, master chains, FRQ Fehran + Zeetoland) — ~1.5h.",
+      "M10–11 (scenario drills + cheat sheet + 10 final MCQs) — ~1h.",
+      "Bed by midnight. Trust the prep.",
     ],
   },
   {
@@ -454,92 +419,47 @@ export const AP_MACRO_PLAN: APBlock[] = [
     label: "Exam Day — Fri",
     hours: 0.5,
     topics: [
-      "Light formula scan — no new content",
-      "Eat carbs, hydrate",
-      "Trust the prep",
+      "Light formula scan — no new content.",
+      "Eat carbs, hydrate.",
+      "Trust the prep.",
     ],
   },
 ];
 
-// COMPRESSED AP PRECALC PLAN — 8 days, exam May 12
+// AP PRECALC PLAN — 3 sprint days (Sat-Mon), exam Tue 5/12
 export const AP_PRECALC_PLAN: APBlock[] = [
   {
-    date: "2026-05-04",
-    label: "Day 1 — Mon",
-    hours: 1.5,
-    topics: [
-      "1.1–1.4: Rates of change, polynomial functions",
-      "1.5–1.6: Polynomial zeros, multiplicity, end behavior",
-      "Practice: 8 problems from progress check",
-    ],
-  },
-  {
-    date: "2026-05-05",
-    label: "Day 2 — Tue",
-    hours: 1.5,
-    topics: [
-      "1.7–1.10: Rational functions, asymptotes, holes",
-      "1.11–1.12: Equivalent representations, transformations",
-      "Practice: 10 mixed problems",
-    ],
-  },
-  {
-    date: "2026-05-06",
-    label: "Day 3 — Wed (Calmedic 1–6 due)",
-    hours: 1.5,
-    topics: [
-      "1.13–1.14: Model selection, application, inverse proportionality",
-      "2.1–2.3: Sequences (arithmetic + geometric), exponential basics",
-      "Practice: 8 problems",
-    ],
-  },
-  {
-    date: "2026-05-07",
-    label: "Day 4 — Thu",
-    hours: 1.5,
-    topics: [
-      "2.4–2.7: Exponential properties, modeling, composition",
-      "2.8–2.10: Inverses, logarithms, exponential-log relationship",
-      "Practice: 8 problems",
-    ],
-  },
-  {
-    date: "2026-05-08",
-    label: "Day 5 — Fri (Macro exam — light Precalc)",
-    hours: 1,
-    topics: [
-      "2.11–2.13: Log functions, properties, equations",
-      "2.14–2.15: Log modeling, semi-log plots",
-      "Light review only — protect Macro exam energy",
-    ],
-  },
-  {
     date: "2026-05-09",
-    label: "Day 6 — Sat",
+    label: "Day 1 — Sat (Unit 1)",
     hours: 2,
     topics: [
-      "3.1–3.6: Periodic functions, unit circle, sin/cos graphs + transformations",
-      "Practice: 12 trig problems",
+      "Open /ap/crash/precalc — Module 1: Polynomial & Rational Functions.",
+      "Average rate of change, polynomial zeros, multiplicity, end behavior.",
+      "Rational functions: asymptotes, holes, modeling.",
+      "MCQs + drills until each technique is automatic.",
     ],
   },
   {
     date: "2026-05-10",
-    label: "Day 7 — Sun",
+    label: "Day 2 — Sun (Unit 2)",
     hours: 2,
     topics: [
-      "3.7–3.12: Sinusoidal modeling, tangent, inverse trig, identities",
-      "3.13–3.15: Polar coordinates, polar graphs, polar rates of change",
-      "Practice: 12 mixed problems",
+      "Module 2: Exponentials & Logarithms.",
+      "Exp functions, compound interest, doubling time.",
+      "Log properties, equations, change of base.",
+      "Inverses + composition. Semi-log plots.",
     ],
   },
   {
     date: "2026-05-11",
-    label: "Day 8 — Mon (final prep)",
-    hours: 2.5,
+    label: "Day 3 — Mon (Unit 3 + final prep)",
+    hours: 2,
     topics: [
-      "Full timed practice exam (MCQ + FRQ)",
-      "Error review — every miss documented",
-      "Formula sheet brain-dump from memory",
+      "Module 3: Trig & Polar.",
+      "Unit circle, six trig functions, identities (Pythagorean, sum/diff, double angle).",
+      "Sinusoidal modeling, inverse trig, polar coordinates and graphs.",
+      "Final cheat sheet review + 10 mixed MCQs.",
+      "Bed by midnight.",
     ],
   },
   {

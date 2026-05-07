@@ -956,9 +956,16 @@ function CompletionGate({
         {(item.link || item.internalRoute) && (
           <div className="mt-5 flex items-center gap-2 flex-wrap">
             {item.type === "ap-lesson" && item.payload?.lesson?.examId === "ap-macro" && (
-              <Link href="/ap/crash">
+              <Link href="/ap/crash/macro">
                 <Button variant="primary">
                   <span className="flex items-center gap-1.5">Open Macro course →</span>
+                </Button>
+              </Link>
+            )}
+            {item.type === "ap-lesson" && item.payload?.lesson?.examId === "ap-precalc" && (
+              <Link href="/ap/crash/precalc">
+                <Button variant="primary">
+                  <span className="flex items-center gap-1.5">Open Precalc course →</span>
                 </Button>
               </Link>
             )}

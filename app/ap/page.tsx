@@ -32,24 +32,39 @@ function APInner() {
         subtitle="Compressed schedules. Macro May 8, Precalc May 12. Today's block is non-negotiable."
       />
 
-      {/* Crash Course CTA — the new comprehensive study path */}
-      <Link href="/ap/crash" className="block mb-7 group">
-        <div className="rounded-2xl border border-accent-amber/30 bg-accent-amber/[0.04] hover:border-accent-amber/50 transition-colors px-5 py-4 lg:py-5 flex items-center gap-4">
-          <div className="w-11 h-11 rounded-xl bg-accent-amber/[0.08] border border-accent-amber/30 flex items-center justify-center shrink-0">
-            <GraduationCap size={20} className="text-accent-amber" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-base lg:text-lg font-bold tracking-tightest text-ink">AP Macro crash course</span>
-              <Tag tone="amber" size="sm">{macroDays}d to exam</Tag>
+      {/* Crash Course CTAs — Macro + Precalc */}
+      <div className="grid sm:grid-cols-2 gap-3 mb-7">
+        <Link href="/ap/crash/macro" className="block group">
+          <div className="h-full rounded-2xl border border-accent-red/30 bg-accent-red/[0.04] hover:border-accent-red/50 transition-colors px-5 py-4 flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-accent-red/[0.08] border border-accent-red/30 flex items-center justify-center shrink-0">
+              <GraduationCap size={18} className="text-accent-red" />
             </div>
-            <div className="text-xs lg:text-sm text-ink-mute mt-0.5">
-              11 modules, ~5h. Single-source mastery path. Step-by-step lessons, drills, MCQs, FRQ walkthroughs.
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-sm lg:text-base font-bold tracking-tightest text-ink">AP Macro course</span>
+                <Tag tone="red" size="sm">{macroDays}d</Tag>
+              </div>
+              <div className="text-xs text-ink-mute mt-0.5">11 modules · ~5h</div>
             </div>
+            <ArrowUpRight size={16} className="text-accent-red/70 group-hover:text-accent-red shrink-0 transition-colors" />
           </div>
-          <ArrowUpRight size={18} className="text-accent-amber/70 group-hover:text-accent-amber shrink-0 transition-colors" />
-        </div>
-      </Link>
+        </Link>
+        <Link href="/ap/crash/precalc" className="block group">
+          <div className="h-full rounded-2xl border border-accent-amber/30 bg-accent-amber/[0.04] hover:border-accent-amber/50 transition-colors px-5 py-4 flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-accent-amber/[0.08] border border-accent-amber/30 flex items-center justify-center shrink-0">
+              <GraduationCap size={18} className="text-accent-amber" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-sm lg:text-base font-bold tracking-tightest text-ink">AP Precalc course</span>
+                <Tag tone="amber" size="sm">{precalcDays}d</Tag>
+              </div>
+              <div className="text-xs text-ink-mute mt-0.5">4 modules · ~5h 40m</div>
+            </div>
+            <ArrowUpRight size={16} className="text-accent-amber/70 group-hover:text-accent-amber shrink-0 transition-colors" />
+          </div>
+        </Link>
+      </div>
 
       <div className="grid grid-cols-2 gap-3 mb-9">
         <button
