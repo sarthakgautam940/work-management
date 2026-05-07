@@ -8,7 +8,7 @@ import { useStore } from "@/lib/store";
 import { AP_MACRO_COURSE } from "@/lib/data/ap-crash/macro";
 import type { Module } from "@/lib/data/ap-crash/types";
 import { daysUntil } from "@/lib/utils/date";
-import { ChevronRight, ArrowUpRight, GraduationCap, Zap } from "lucide-react";
+import { ChevronRight, ArrowUpRight, GraduationCap, Zap, Target } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 export default function ApCrashDashboard() {
@@ -22,9 +22,22 @@ function Inner() {
   const stepDone = useStore((s) => s.apCrashStepDone);
   const lastModule = useStore((s) => s.apCrashLastModule);
   const wrong = useStore((s) => s.apCrashWrongAnswers);
+  const diagnostic = useStore((s) => s.apCrashDiagnostic);
 
   const c = AP_MACRO_COURSE;
   const flaggedCount = Object.values(wrong).filter(Boolean).length;
+
+  // Build diagnostic summary (red/amber/green counts) when taken.
+  let diagSummary: { red: number; amber: number; green: number } | null = null;
+  if (diagnostic.taken) {
+    diagSummary = { red: 0, amber: 0, green: 0 };
+    Object.values(diagnostic.results).forEach(({ correct, total }) => {
+      const pct = total > 0 ? correct / total : 0;
+      if (pct <= 0.5) diagSummary!.red++;
+      else if (pct < 0.75) diagSummary!.amber++;
+      else diagSummary!.green++;
+    });
+  }
   const totals = c.modules.map((m) => moduleTotals(m, stepDone, c.id));
   const totalSteps = totals.reduce((sum, t) => sum + t.total, 0);
   const doneSteps = totals.reduce((sum, t) => sum + t.done, 0);
@@ -63,6 +76,50 @@ function Inner() {
         <Stat label="Time remaining" value={`${Math.round(minutesRemaining / 60 * 10) / 10}h`} hint={`${minutesRemaining}m`} />
         <Stat label="Modules" value={`${totals.filter((t) => t.done === t.total).length}/${c.modules.length}`} hint="completed" />
       </div>
+
+      {/* Diagnostic surface — Phase 1 entry */}
+      <Link href="/ap/crash/macro/diagnostic" className="block mb-3 group">
+        <div className={cn(
+          "rounded-xl border px-4 py-3.5 flex items-center gap-3 transition-colors",
+          diagnostic.taken
+            ? "border-accent-lime/30 bg-accent-lime/[0.04] hover:border-accent-lime/50"
+            : "border-accent-amber/30 bg-accent-amber/[0.04] hover:border-accent-amber/50"
+        )}>
+          <Target size={16} className={diagnostic.taken ? "text-accent-lime" : "text-accent-amber"} />
+          <div className="flex-1 min-w-0">
+            {diagnostic.taken && diagSummary ? (
+              <>
+                <div className="text-sm text-ink">
+                  Diagnostic complete —{" "}
+                  <span className="text-accent-red">{diagSummary.red} red</span>
+                  {" · "}
+                  <span className="text-accent-amber">{diagSummary.amber} amber</span>
+                  {" · "}
+                  <span className="text-accent-lime">{diagSummary.green} green</span>
+                </div>
+                <div className="text-2xs text-ink-mute mt-0.5 font-mono uppercase tracking-[0.18em]">
+                  Tap to retake or review path
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="text-sm text-ink font-medium">5 minutes. 12 questions. Adjusts the rest.</div>
+                <div className="text-2xs text-ink-mute mt-0.5">
+                  Take the diagnostic before you start — the results paint each unit red / amber / green.
+                </div>
+              </>
+            )}
+          </div>
+          <span className={cn(
+            "font-mono text-2xs uppercase tracking-[0.18em] transition-colors",
+            diagnostic.taken
+              ? "text-accent-lime/70 group-hover:text-accent-lime"
+              : "text-accent-amber/70 group-hover:text-accent-amber"
+          )}>
+            {diagnostic.taken ? "Open →" : "Take diagnostic →"}
+          </span>
+        </div>
+      </Link>
 
       {flaggedCount > 0 && (
         <Link href="/ap/crash/macro/review" className="block mb-7 group">
