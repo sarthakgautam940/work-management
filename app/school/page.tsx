@@ -313,39 +313,10 @@ function BigIdeaPanel() {
             </div>
           </div>
 
-          {/* Book pick */}
-          <div className="px-5 py-5 border-t border-line">
-            <Eyebrow className="mb-3">Book — pick & lock</Eyebrow>
-            <div className="space-y-2">
-              {BOOK_PICKS.map((b, i) => {
-                const selected = bookId === b.id;
-                return (
-                  <Row
-                    key={b.id}
-                    onClick={() => setBook(selected ? null : b.id)}
-                    className={cn(
-                      "p-3 rounded-lg border transition-colors",
-                      selected ? "border-accent-rose/50 bg-accent-rose/[0.06]" : "border-line hover:border-line-strong"
-                    )}
-                  >
-                    <div className="flex items-start gap-3">
-                      <span className="font-mono text-2xs text-ink-mute pt-px w-6 shrink-0">
-                        {i === 0 ? "PICK" : `#${i + 1}`}
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <div className="text-sm font-medium text-ink">{b.title}</div>
-                        <div className="text-xs text-ink-mute mt-0.5">
-                          {b.author} · {b.pages}p · {b.available}
-                        </div>
-                        <div className="text-xs text-ink-dim mt-2 leading-relaxed">{b.why}</div>
-                      </div>
-                      {selected && <Tag tone="lime" size="sm">Locked</Tag>}
-                    </div>
-                  </Row>
-                );
-              })}
-            </div>
-          </div>
+          {/* Book — compact since the picked one is set in data. Backups
+              only render behind a toggle once the user has chosen. */}
+          <BookSection bookId={bookId} setBook={setBook} />
+
 
           {/* Four sources */}
           <div className="px-5 py-5 border-t border-line">
@@ -430,5 +401,63 @@ function BigIdeaPanel() {
         </div>
       )}
     </Card>
+  );
+}
+
+function BookSection({
+  bookId,
+  setBook,
+}: {
+  bookId: string | null;
+  setBook: (id: string | null) => void;
+}) {
+  const [showBackups, setShowBackups] = useState(false);
+  const picked = BOOK_PICKS[0];
+  const backups = BOOK_PICKS.slice(1);
+  const isLocked = bookId === picked.id;
+  return (
+    <div className="px-5 py-5 border-t border-line">
+      <Eyebrow className="mb-3">Book</Eyebrow>
+      <Row
+        onClick={() => setBook(isLocked ? null : picked.id)}
+        className={cn(
+          "p-3 rounded-lg border transition-colors flex items-start gap-3",
+          isLocked
+            ? "border-accent-lime/40 bg-accent-lime/[0.04]"
+            : "border-line hover:border-line-strong"
+        )}
+      >
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-sm font-medium text-ink">{picked.title}</span>
+            {isLocked ? <Tag tone="lime" size="sm">Locked</Tag> : <Meta>tap to lock</Meta>}
+          </div>
+          <div className="text-xs text-ink-mute mt-0.5">
+            {picked.author} · {picked.pages}p
+          </div>
+        </div>
+      </Row>
+      <button
+        onClick={() => setShowBackups((v) => !v)}
+        className="mt-3 font-mono text-2xs uppercase tracking-[0.18em] text-ink-mute hover:text-ink transition-colors"
+      >
+        {showBackups ? "Hide backups" : `Show backups (${backups.length})`}
+      </button>
+      {showBackups && (
+        <div className="mt-3 space-y-2">
+          {backups.map((b, i) => (
+            <div key={b.id} className="p-3 rounded-lg border border-line bg-bg-elevated/30">
+              <div className="flex items-center gap-2">
+                <Meta>#{i + 2}</Meta>
+                <span className="text-sm text-ink-dim">{b.title}</span>
+              </div>
+              <div className="text-2xs text-ink-mute mt-0.5">
+                {b.author} · {b.pages}p · {b.available}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

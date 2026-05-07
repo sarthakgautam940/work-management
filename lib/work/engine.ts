@@ -87,25 +87,56 @@ function daysUntil(date: string, today: Date): number {
   return Math.ceil((target - t.getTime()) / DAY_MS);
 }
 
-function urgency(item: { due?: string; overdue?: boolean }, today: Date): number {
-  if (item.overdue) return 4.0;
-  if (!item.due) return 1.0;
+// Hard-deadline grade types: missing the date = full point loss because
+// the work happens at a fixed time (in-class quiz, classwork due in
+// person). Soft types (project, homework) can be submitted late with
+// a percentage penalty, so they don't need the same urgency spike.
+const HARD_DEADLINE_GRADES = new Set(["test", "quiz", "classwork"]);
+
+function urgency(
+  item: { due?: string; overdue?: boolean; gradeType?: string },
+  today: Date,
+): number {
+  // No date → use the manual `overdue` flag as a fallback signal, else low.
+  if (!item.due) return item.overdue ? 3.0 : 1.0;
+
   const d = daysUntil(item.due, today);
-  if (d < 0) return 4.0;
-  if (d === 0) return 3.0;
-  if (d === 1) return 2.5;
-  if (d === 2) return 2.0;
-  if (d <= 5) return 1.5;
-  if (d <= 14) return 1.1;
-  return 1.0;
+  const isHard = item.gradeType ? HARD_DEADLINE_GRADES.has(item.gradeType) : false;
+
+  // Future:
+  if (d > 14) return 1.0;
+  if (d > 7) return 1.1;
+  if (d > 5) return 1.3;
+  if (d > 2) return 1.7;
+  if (d === 2) return 2.5;
+
+  // Last 48 hours: hard deadlines spike (test/quiz tomorrow morning,
+  // classwork in class tomorrow). Soft deadlines stay at the older
+  // moderate boost so projects don't trample fixed-time events.
+  if (d === 1) return isHard ? 5.0 : 3.0;
+  if (d === 0) return isHard ? 5.5 : 4.0;
+
+  // Overdue: decays with days late. Loss is already locked in for old
+  // items, so they shouldn't outrank tomorrow's hard deadlines.
+  const late = -d;
+  if (late <= 1) return 4.0;   // just slipped
+  if (late <= 3) return 3.5;
+  if (late <= 7) return 3.0;
+  if (late <= 14) return 2.5;
+  if (late <= 30) return 2.0;
+  return 1.5;
 }
 
 function studyUrgency(examDate: string, today: Date): number {
   const d = daysUntil(examDate, today);
-  if (d <= 0) return 5.0;
-  if (d === 1) return 4.0;
-  if (d === 2) return 3.0;
-  if (d <= 5) return 2.0;
+  // Peak urgency is the night BEFORE the exam (d=1). Day-of (d=0) drops
+  // because the exam is already happening — engine shouldn't insist on
+  // a study session during the test.
+  if (d <= 0) return 4.0;
+  if (d === 1) return 5.5;
+  if (d === 2) return 5.0;
+  if (d === 3) return 3.5;
+  if (d <= 5) return 2.5;
   if (d <= 7) return 1.5;
   if (d <= 14) return 1.2;
   return 0.9;
