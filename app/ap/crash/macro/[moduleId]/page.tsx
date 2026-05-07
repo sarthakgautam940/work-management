@@ -8,7 +8,8 @@ import { Card, Eyebrow, Meta, Tag, Button } from "@/components/ui";
 import { useStore } from "@/lib/store";
 import { AP_MACRO_COURSE } from "@/lib/data/ap-crash/macro";
 import type { Module, Lesson, Step, Callout } from "@/lib/data/ap-crash/types";
-import { ArrowLeft, ArrowRight, Check, X, ChevronRight, RotateCw, Lightbulb, AlertTriangle, BookOpen, Zap, Target, Brain } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, X, ChevronRight, RotateCw, Lightbulb, AlertTriangle, BookOpen, Zap, Target, Brain, RefreshCw } from "lucide-react";
+import { MacroGraph } from "@/components/ui/macro-graph";
 import { cn } from "@/lib/utils/cn";
 
 export default function ModulePage() {
@@ -215,7 +216,144 @@ function StepRenderer({ step, stepKey }: { step: Step; stepKey: string }) {
   if (step.type === "chain") return <ChainStep step={step} />;
   if (step.type === "frq-part") return <FRQStep step={step} />;
   if (step.type === "pattern") return <PatternStep step={step} stepKey={stepKey} />;
+  if (step.type === "interactive-graph") return <InteractiveGraphStep step={step} stepKey={stepKey} />;
+  if (step.type === "review-deck") return <ReviewDeckStep step={step} stepKey={stepKey} />;
   return null;
+}
+
+// ──────────────────────────────────────────────────────────────────────
+// Phase 2 — Interactive graph step
+// ──────────────────────────────────────────────────────────────────────
+
+function InteractiveGraphStep({ step, stepKey }: { step: Extract<Step, { type: "interactive-graph" }>; stepKey: string }) {
+  const answers = useStore((s) => s.lessonAnswers);
+  const record = useStore((s) => s.recordLessonAnswer);
+  const chosen = answers[stepKey];
+  const revealed = chosen !== undefined;
+  const correct = revealed && step.choices[chosen!]?.correct;
+
+  // For predict-shift: graph shows initial state until answered, then animates to shifted.
+  // For identify-shock: graph shows shifted state from the start (the shock is visible).
+  const graphState =
+    step.mode === "identify-shock"
+      ? step.shifted
+      : revealed
+        ? step.shifted
+        : step.initial;
+
+  return (
+    <Card className="p-6 lg:p-7">
+      <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+        <Eyebrow accent="amber">Interactive · {step.mode === "predict-shift" ? "Predict the shift" : "Identify the shock"}</Eyebrow>
+        {revealed && (
+          <Meta>{correct ? <span className="text-accent-lime">Correct</span> : <span className="text-accent-red">Incorrect</span>}</Meta>
+        )}
+      </div>
+      <h2 className="text-lg lg:text-xl font-medium leading-snug text-ink mb-4">{step.title}</h2>
+      <MacroGraph type={step.graphType} state={graphState} />
+      <p className="mt-4 text-sm lg:text-base text-ink-dim leading-relaxed">{step.prompt}</p>
+      <div className="mt-4 space-y-2">
+        {step.choices.map((c, i) => {
+          const isChosen = chosen === i;
+          let style = "border-line text-ink-dim hover:border-line-strong hover:text-ink";
+          if (revealed) {
+            if (c.correct) style = "border-accent-lime/50 bg-accent-lime/[0.06] text-ink";
+            else if (isChosen) style = "border-accent-red/50 bg-accent-red/[0.06] text-ink";
+            else style = "border-line text-ink-mute opacity-60";
+          }
+          return (
+            <button
+              key={i}
+              onClick={() => !revealed && record(stepKey, i)}
+              disabled={revealed}
+              className={cn("w-full text-left px-4 py-3 rounded-lg border text-sm transition-colors", style)}
+            >
+              <span className="font-mono text-2xs text-ink-mute mr-3">{String.fromCharCode(65 + i)}</span>
+              {c.label}
+            </button>
+          );
+        })}
+      </div>
+      {revealed && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          className="mt-5 pt-4 border-t border-line text-sm text-ink-dim leading-relaxed overflow-hidden"
+        >
+          <Meta>Why</Meta>
+          <p className="mt-1.5">{step.explain}</p>
+        </motion.div>
+      )}
+    </Card>
+  );
+}
+
+// ──────────────────────────────────────────────────────────────────────
+// Phase 4 — Review deck (spaced repetition)
+// ──────────────────────────────────────────────────────────────────────
+
+function ReviewDeckStep({ step, stepKey }: { step: Extract<Step, { type: "review-deck" }>; stepKey: string }) {
+  const [idx, setIdx] = useState(0);
+  const [flipped, setFlipped] = useState(false);
+  const total = step.cards.length;
+  const card = step.cards[Math.min(idx, total - 1)];
+
+  const advance = () => {
+    setFlipped(false);
+    setIdx((i) => Math.min(total - 1, i + 1));
+  };
+
+  return (
+    <Card className="p-6 lg:p-7">
+      <div className="flex items-center justify-between mb-4">
+        <Eyebrow accent="violet"><RefreshCw size={11} className="inline mr-1.5 -mt-0.5" /> Warm-up · {step.title}</Eyebrow>
+        <Meta>Card {idx + 1} of {total}</Meta>
+      </div>
+      <p className="text-sm text-ink-dim leading-relaxed mb-4">
+        Spaced review of cards from earlier modules. Tap to flip; tap continue when done.
+      </p>
+      <button
+        onClick={() => setFlipped((f) => !f)}
+        className="w-full min-h-[160px] p-5 rounded-xl border border-line bg-bg-elevated/40 text-center flex flex-col items-center justify-center hover:bg-bg-elevated/60 transition-colors"
+      >
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={`${idx}-${flipped}`}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.18 }}
+            className="w-full"
+          >
+            {!flipped ? (
+              <>
+                <Meta>Front</Meta>
+                <div className="mt-3 text-base lg:text-lg text-ink font-medium leading-snug">{card.front}</div>
+                <div className="mt-3 text-2xs font-mono tracking-[0.18em] text-ink-ghost">TAP TO FLIP</div>
+              </>
+            ) : (
+              <>
+                <Meta className="text-accent-lime">Back</Meta>
+                <div className="mt-3 text-sm lg:text-base text-ink-dim leading-relaxed">{card.back}</div>
+              </>
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </button>
+      <button
+        onClick={advance}
+        disabled={idx >= total - 1 && !flipped}
+        className={cn(
+          "mt-4 w-full py-2.5 rounded-lg border text-sm transition-colors",
+          idx < total - 1 || flipped
+            ? "border-line text-ink-dim hover:text-ink hover:border-line-strong"
+            : "border-line text-ink-ghost opacity-50"
+        )}
+      >
+        {idx < total - 1 ? "Next card" : flipped ? "Done with warm-up" : "Flip first"}
+      </button>
+    </Card>
+  );
 }
 
 function CalloutBlock({ c }: { c: Callout }) {
@@ -242,6 +380,7 @@ function CalloutBlock({ c }: { c: Callout }) {
 }
 
 function ReadStep({ step }: { step: Extract<Step, { type: "read" }> }) {
+  const [showAnswer, setShowAnswer] = useState(false);
   return (
     <Card className="p-6 lg:p-7">
       <Eyebrow>Concept</Eyebrow>
@@ -250,6 +389,32 @@ function ReadStep({ step }: { step: Extract<Step, { type: "read" }> }) {
         {step.body.map((p, i) => <p key={i}>{p}</p>)}
       </div>
       {step.callouts && step.callouts.map((c, i) => <CalloutBlock key={i} c={c} />)}
+      {step.comprehensionCheck && (
+        <div className="mt-5 px-4 py-4 rounded-lg border border-accent-violet/30 bg-accent-violet/[0.04]">
+          <div className="flex items-center gap-2 mb-2">
+            <Brain size={13} className="text-accent-violet" />
+            <span className="font-mono text-2xs uppercase tracking-[0.18em] text-accent-violet">Quick check (no stakes)</span>
+          </div>
+          <p className="text-sm text-ink leading-relaxed">{step.comprehensionCheck.question}</p>
+          {!showAnswer ? (
+            <button
+              onClick={() => setShowAnswer(true)}
+              className="mt-3 px-3 py-1.5 rounded-md text-2xs font-mono uppercase tracking-[0.18em] border border-line text-ink-dim hover:text-ink hover:border-line-strong transition-colors"
+            >
+              Show sample answer
+            </button>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              className="mt-3 pt-3 border-t border-line text-sm text-ink-dim leading-relaxed overflow-hidden"
+            >
+              <Meta>Sample</Meta>
+              <p className="mt-1.5">{step.comprehensionCheck.sampleAnswer}</p>
+            </motion.div>
+          )}
+        </div>
+      )}
     </Card>
   );
 }
@@ -378,7 +543,81 @@ function MCQStep({ step, stepKey }: { step: Extract<Step, { type: "mcq" }>; step
           )}
         </motion.div>
       )}
+      {wasWrong && step.reteach && <ReteachBlock reteach={step.reteach} stepKey={stepKey} />}
     </Card>
+  );
+}
+
+// ──────────────────────────────────────────────────────────────────────
+// Phase 5 — Reteach block on wrong critical MCQ
+// ──────────────────────────────────────────────────────────────────────
+
+function ReteachBlock({
+  reteach, stepKey,
+}: {
+  reteach: NonNullable<Extract<Step, { type: "mcq" }>["reteach"]>;
+  stepKey: string;
+}) {
+  const followupKey = `${stepKey}.reteach`;
+  const answers = useStore((s) => s.lessonAnswers);
+  const record = useStore((s) => s.recordLessonAnswer);
+  const chosen = answers[followupKey];
+  const revealed = chosen !== undefined;
+  return (
+    <motion.div
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: "auto" }}
+      transition={{ duration: 0.32 }}
+      className="mt-5 pt-5 border-t border-line overflow-hidden"
+    >
+      <div className="px-4 py-4 rounded-lg border border-accent-violet/30 bg-accent-violet/[0.04]">
+        <div className="flex items-center gap-2 mb-2">
+          <Brain size={13} className="text-accent-violet" />
+          <span className="font-mono text-2xs uppercase tracking-[0.18em] text-accent-violet">Reteach</span>
+        </div>
+        <h4 className="text-sm font-medium text-ink leading-snug">{reteach.headline}</h4>
+        <div className="mt-3 space-y-2 text-sm text-ink-dim leading-relaxed">
+          {reteach.body.map((p, i) => <p key={i}>{p}</p>)}
+        </div>
+      </div>
+      <div className="mt-4 px-4 py-4 rounded-lg border border-line bg-bg-elevated/40">
+        <Meta>One more — same idea, different angle</Meta>
+        <p className="mt-2 text-sm font-medium text-ink leading-snug">{reteach.followup.prompt}</p>
+        <div className="mt-3 space-y-1.5">
+          {reteach.followup.choices.map((c, i) => {
+            const isChosen = chosen === i;
+            const isCorrect = i === reteach.followup.answer;
+            let style = "border-line text-ink-dim hover:border-line-strong hover:text-ink";
+            if (revealed) {
+              if (isCorrect) style = "border-accent-lime/50 bg-accent-lime/[0.06] text-ink";
+              else if (isChosen) style = "border-accent-red/50 bg-accent-red/[0.06] text-ink";
+              else style = "border-line text-ink-mute opacity-60";
+            }
+            return (
+              <button
+                key={i}
+                onClick={() => !revealed && record(followupKey, i)}
+                disabled={revealed}
+                className={cn("w-full text-left px-3.5 py-2.5 rounded-lg border text-sm transition-colors", style)}
+              >
+                <span className="font-mono text-2xs text-ink-mute mr-3">{String.fromCharCode(65 + i)}</span>
+                {c}
+              </button>
+            );
+          })}
+        </div>
+        {revealed && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            className="mt-3 pt-3 border-t border-line text-sm text-ink-dim leading-relaxed overflow-hidden"
+          >
+            <Meta>{chosen === reteach.followup.answer ? "Correct ✓" : "Why"}</Meta>
+            <p className="mt-1.5">{reteach.followup.explain}</p>
+          </motion.div>
+        )}
+      </div>
+    </motion.div>
   );
 }
 
@@ -679,6 +918,20 @@ function StepActions({
   if (step.type === "pattern" && step.example && answers[`${stepKey}.example`] === undefined) {
     // Pattern with example: don't lock — example is optional
     lockReason = null;
+  }
+  if (step.type === "interactive-graph" && answers[stepKey] === undefined) {
+    lockReason = "Pick an answer";
+  }
+  // Reteach follow-up gate: if MCQ was answered wrong AND reteach exists,
+  // require the follow-up to be answered before continuing.
+  if (step.type === "mcq" && step.reteach) {
+    const chosen = answers[stepKey];
+    if (chosen !== undefined && chosen !== step.answer) {
+      const followupChosen = answers[`${stepKey}.reteach`];
+      if (followupChosen === undefined) {
+        lockReason = "Answer the reteach question";
+      }
+    }
   }
 
   return (

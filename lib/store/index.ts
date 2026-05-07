@@ -109,6 +109,7 @@ interface AppState {
     takenAt?: number;
     results: Record<string, { correct: number; total: number }>;  // unitId -> stats
   };
+  apCrashFastPath: boolean;                         // Phase 6 — fast path mode
 
   // Timer
   timer: TimerState;
@@ -193,6 +194,7 @@ interface AppState {
   setApCrashWrongAnswer: (key: string, flagged: boolean) => void;
   setApCrashDiagnostic: (results: Record<string, { correct: number; total: number }>) => void;
   resetApCrashDiagnostic: () => void;
+  setApCrashFastPath: (on: boolean) => void;
 
   // Actions — Timer
   setTimerDuration: (seconds: number) => void;
@@ -260,6 +262,7 @@ export const useStore = create<AppState>()(
       apCrashLastModule: {},
       apCrashWrongAnswers: {},
       apCrashDiagnostic: { taken: false, results: {} },
+      apCrashFastPath: false,
 
       timer: { duration: 50 * 60, remaining: 50 * 60, endAt: null, sessionsByDate: {} },
 
@@ -472,6 +475,7 @@ export const useStore = create<AppState>()(
         set({ apCrashDiagnostic: { taken: true, takenAt: Date.now(), results } }),
       resetApCrashDiagnostic: () =>
         set({ apCrashDiagnostic: { taken: false, results: {} } }),
+      setApCrashFastPath: (on) => set({ apCrashFastPath: on }),
       setSubtaskDone: (parentId, subId, done) =>
         set((s) => ({ workSubtaskDone: { ...s.workSubtaskDone, [`${parentId}.${subId}`]: done } })),
       pushRecentCompletion: (rec) =>

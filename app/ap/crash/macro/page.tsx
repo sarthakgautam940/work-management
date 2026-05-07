@@ -18,13 +18,27 @@ export default function ApCrashDashboard() {
   return <Inner />;
 }
 
+// Fast path skips medium/high modules + the pattern library (its content
+// now lives inline in unit modules). Within "must" modules, all steps run.
+function isModuleHiddenInFastPath(modId: string, priority: string): boolean {
+  if (priority !== "must") return true;
+  if (modId === "macro-patterns") return true;
+  return false;
+}
+
 function Inner() {
   const stepDone = useStore((s) => s.apCrashStepDone);
   const lastModule = useStore((s) => s.apCrashLastModule);
   const wrong = useStore((s) => s.apCrashWrongAnswers);
   const diagnostic = useStore((s) => s.apCrashDiagnostic);
+  const fastPath = useStore((s) => s.apCrashFastPath);
+  const setFastPath = useStore((s) => s.setApCrashFastPath);
 
   const c = AP_MACRO_COURSE;
+  const visibleModules = fastPath
+    ? c.modules.filter((m) => !isModuleHiddenInFastPath(m.id, m.priority))
+    : c.modules;
+  const fastPathMin = visibleModules.reduce((s, m) => s + m.estimateMin, 0);
   const flaggedCount = Object.values(wrong).filter(Boolean).length;
 
   // Build diagnostic summary (red/amber/green counts) when taken.
@@ -38,21 +52,23 @@ function Inner() {
       else diagSummary!.green++;
     });
   }
-  const totals = c.modules.map((m) => moduleTotals(m, stepDone, c.id));
+  const totals = visibleModules.map((m) => moduleTotals(m, stepDone, c.id));
   const totalSteps = totals.reduce((sum, t) => sum + t.total, 0);
   const doneSteps = totals.reduce((sum, t) => sum + t.done, 0);
   const overallPct = totalSteps > 0 ? Math.round((doneSteps / totalSteps) * 100) : 0;
-  const minutesRemaining = totals.reduce((sum, t, i) => sum + Math.round(c.modules[i].estimateMin * (1 - (t.done / t.total || 0))), 0);
+  const minutesRemaining = totals.reduce((sum, t, i) => sum + Math.round(visibleModules[i].estimateMin * (1 - (t.done / t.total || 0))), 0);
   const days = daysUntil(c.examDate);
 
-  const continueModule = lastModule[c.id] ?? c.modules[0].id;
+  const continueModule = lastModule[c.id] ?? visibleModules[0]?.id ?? c.modules[0].id;
 
   return (
     <div className="px-5 lg:px-10 pt-7 lg:pt-12 max-w-3xl pb-16">
       <PageHeader
         eyebrow={c.examLabel}
         title="AP Macro crash course"
-        subtitle="One-night mastery path. Modules ordered for max ROI per minute."
+        subtitle={fastPath
+          ? `Fast path · ${visibleModules.length} modules · ~${Math.round(fastPathMin / 60 * 10) / 10}h. Focused on must-haves.`
+          : "One-night mastery path. Modules ordered for max ROI per minute."}
         right={
           <div className="flex items-center gap-2">
             <Link href="/ap/crash">
@@ -70,11 +86,33 @@ function Inner() {
         }
       />
 
+      {/* Fast-path toggle */}
+      <div className="mb-5 flex items-center justify-between gap-3 px-4 py-2.5 rounded-lg border border-line bg-bg-elevated/40">
+        <div className="text-xs text-ink-dim leading-relaxed">
+          {fastPath ? (
+            <>Fast path on. Skipping {c.modules.length - visibleModules.length} medium/high modules. Total ~{Math.round(fastPathMin / 60 * 10) / 10}h.</>
+          ) : (
+            <>Full course mode. {c.modules.length} modules, ~{Math.round(c.totalEstimateMin / 60 * 10) / 10}h. Tight on time?</>
+          )}
+        </div>
+        <button
+          onClick={() => setFastPath(!fastPath)}
+          className={cn(
+            "shrink-0 px-3 py-1.5 rounded-md text-2xs font-mono uppercase tracking-[0.18em] border transition-colors",
+            fastPath
+              ? "border-accent-amber/50 bg-accent-amber/[0.08] text-accent-amber hover:bg-accent-amber/[0.16]"
+              : "border-line text-ink-mute hover:text-ink hover:border-line-strong"
+          )}
+        >
+          {fastPath ? "✓ Fast path" : "Switch to fast path"}
+        </button>
+      </div>
+
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-9">
         <Stat label="Days to exam" value={`${days}d`} accent={days <= 1 ? "red" : days <= 3 ? "amber" : "neutral"} hint={c.examDate.slice(5)} />
         <Stat label="Course progress" value={`${overallPct}%`} hint={`${doneSteps}/${totalSteps} steps`} accent={overallPct >= 80 ? "lime" : overallPct >= 40 ? "amber" : "neutral"} />
         <Stat label="Time remaining" value={`${Math.round(minutesRemaining / 60 * 10) / 10}h`} hint={`${minutesRemaining}m`} />
-        <Stat label="Modules" value={`${totals.filter((t) => t.done === t.total).length}/${c.modules.length}`} hint="completed" />
+        <Stat label="Modules" value={`${totals.filter((t) => t.done === t.total).length}/${visibleModules.length}`} hint="completed" />
       </div>
 
       {/* Diagnostic surface — Phase 1 entry */}
@@ -137,12 +175,13 @@ function Inner() {
 
       <Section eyebrow="Modules" hint="Tap to start, drag-free path">
         <div className="space-y-2">
-          {c.modules.map((m, i) => (
+          {visibleModules.map((m, i) => (
             <ModuleRow
               key={m.id}
               m={m}
               i={i + 1}
               total={totals[i]}
+              routeBase="/ap/crash/macro"
             />
           ))}
         </div>
@@ -158,13 +197,13 @@ function Inner() {
   );
 }
 
-function ModuleRow({ m, i, total }: { m: Module; i: number; total: { done: number; total: number } }) {
+function ModuleRow({ m, i, total, routeBase }: { m: Module; i: number; total: { done: number; total: number }; routeBase: string }) {
   const pct = total.total > 0 ? Math.round((total.done / total.total) * 100) : 0;
   const isComplete = pct === 100;
   const priorityTone: "red" | "amber" | "neutral" =
     m.priority === "must" ? "red" : m.priority === "high" ? "amber" : "neutral";
   return (
-    <Link href={`/ap/crash/macro/${m.id}`}>
+    <Link href={`${routeBase}/${m.id}`}>
       <motion.div
         whileHover={{ x: 2 }}
         className={cn(
@@ -184,6 +223,11 @@ function ModuleRow({ m, i, total }: { m: Module; i: number; total: { done: numbe
             {isComplete && <Tag tone="lime" size="sm">✓ done</Tag>}
           </div>
           <div className="text-xs text-ink-mute mt-1 leading-relaxed">{m.subtitle}</div>
+          {m.intro && (
+            <div className="text-2xs font-mono uppercase tracking-[0.18em] text-ink-ghost mt-1.5">
+              {m.intro}
+            </div>
+          )}
           <div className="mt-2.5 flex items-center gap-3">
             <div className="flex-1 max-w-[180px] h-1 rounded-full bg-line overflow-hidden">
               <div

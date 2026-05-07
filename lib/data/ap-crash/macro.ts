@@ -11,6 +11,7 @@ const MOD_HUB: Module = {
   partNumber: 1,
   title: "The Connected Macro Model",
   subtitle: "One model, six graphs. The wiring diagram every other section refers back to.",
+  intro: "The wiring diagram. Every chain ends here.",
   estimateMin: 25,
   priority: "must",
   lessons: [
@@ -126,6 +127,7 @@ const MOD_CALC: Module = {
   partNumber: 4,
   title: "Calculation Fluency",
   subtitle: "Every formula the AP exam tests. Drill until each is under 30 seconds.",
+  intro: "Every calculation tested. Sub-30s fluency target. FRQ Part A material.",
   estimateMin: 35,
   priority: "must",
   lessons: [
@@ -475,6 +477,7 @@ const MOD_INDET: Module = {
   partNumber: 5,
   title: "Indeterminacy Mastery",
   subtitle: "The 'both curves shift' rule. One rule, six markets, multiple MCQs.",
+  intro: "One rule, six markets. Test favorite.",
   estimateMin: 15,
   priority: "must",
   lessons: [
@@ -487,11 +490,13 @@ const MOD_INDET: Module = {
           type: "read",
           title: "Same direction → Q determined. Opposite → P determined.",
           body: [
-            "When BOTH curves shift in the SAME DIRECTION: Quantity is DETERMINED. Price is INDETERMINATE.",
-            "When BOTH curves shift in OPPOSITE DIRECTIONS: Price is DETERMINED. Quantity is INDETERMINATE.",
-            "Same → Q. Opposite → P. Memorize.",
-            "This rule applies to EVERY market on the AP exam: goods, money, loanable funds, forex, reserves. One rule, six applications.",
+            "Picture a gas station. A tanker truck arrives — supply just rose. At the same time, a bus full of customers pulls in — demand just rose. What happens to the QUANTITY of gas sold and the PRICE per gallon?",
+            "Quantity: definitely up. Both shifts increase quantity (S right increases Q, D right increases Q). They're pulling in the same direction on Q.",
+            "Price: ambiguous. The tanker arriving pulls price DOWN (more supply). The bus arriving pulls price UP (more demand). Which wins depends on which shift is bigger — INDETERMINATE.",
+            "That's the rule, in scenario form. Now generalize: when BOTH curves shift in the SAME DIRECTION, quantity is determined and price is indeterminate. When they shift in OPPOSITE DIRECTIONS, price is determined and quantity is indeterminate.",
+            "Same → Q. Opposite → P. Memorize. This rule applies to EVERY market on the AP exam: goods, money, loanable funds, forex, reserves. One rule, six applications.",
           ],
+          comprehensionCheck: { question: "Government runs a deficit (DLF right) and foreign capital flows in (SLF right). What's determined and what's indeterminate?", sampleAnswer: "Same direction → quantity of loanable funds is definitely UP. Real rate is indeterminate (DLF pushes rate up, SLF pushes rate down)." },
           callouts: [
             {
               kind: "memory",
@@ -611,6 +616,7 @@ const MOD_U3: Module = {
   partNumber: 6,
   title: "Unit 3 Deep — AD/AS Hub",
   subtitle: "17–27% of the exam. The most-graphed model. Every chain ends here.",
+  intro: "17–27% of exam. Hub model. Every long FRQ ends here. Highest single-FRQ-leverage unit.",
   estimateMin: 30,
   priority: "must",
   lessons: [
@@ -623,10 +629,12 @@ const MOD_U3: Module = {
           type: "read",
           title: "Three effects = SHAPE of AD, not shifters",
           body: [
-            "1. WEALTH effect: higher PL erodes the real value of nominal assets (cash, bonds). People feel poorer → spend less.",
-            "2. INTEREST RATE effect: higher PL → people need more money for transactions → MD ↑ → nominal rate ↑ → I and durables-C ↓.",
-            "3. EXCHANGE RATE effect: higher US PL → US goods more expensive than foreign → X ↓, M ↑ → (X−M) ↓.",
+            "Imagine prices double overnight. Your $10,000 in savings just got cut in half in real terms — your money buys half as much. What do you do? Cut back on spending. Multiply that across the economy and AD drops. That's the WEALTH effect.",
+            "Now imagine you need cash for groceries — and groceries cost twice as much. You need more money. Where does that money come from? Either selling assets or BORROWING. Demand for money rises → nominal interest rates rise → businesses delay investment, households delay big purchases. That's the INTEREST RATE effect.",
+            "Finally: prices doubled in the US, but Mexico's prices are flat. Now Mexican goods are half the price of US goods. Americans buy more imports, foreigners buy fewer US goods. (X−M) drops. That's the EXCHANGE RATE effect.",
+            "All three explain WHY a higher price level reduces the quantity of real GDP demanded. They explain the SHAPE of AD — they describe movement ALONG the curve.",
           ],
+          comprehensionCheck: { question: "If the price level fell, which direction does the wealth effect push spending?", sampleAnswer: "Up. Lower PL means your savings buy more in real terms — you feel richer and spend more." },
           callouts: [
             {
               kind: "trap",
@@ -847,6 +855,52 @@ const MOD_U3: Module = {
         },
       ],
     },
+      {
+      id: "u3-graph-fiscal",
+      title: 'Interactive — Fiscal expansion on AD/AS',
+      estimateMin: 3,
+      steps: [
+        {
+          type: "interactive-graph",
+          mode: "predict-shift",
+          graphType: "ad-as",
+          title: "Predict the AD shift from a fiscal expansion",
+          prompt: "The government cuts income taxes by $200B. Which way does AD shift?",
+          initial: { ad: "center", sras: "center", lras: "center" },
+          shifted: { ad: "right", sras: "center", lras: "center" },
+          choices: [
+            { label: "AD shifts RIGHT", correct: true },
+            { label: "AD shifts LEFT", correct: false },
+            { label: "SRAS shifts (not AD)", correct: false },
+            { label: "No change — taxes don't affect AD", correct: false },
+          ],
+          explain: "Tax cuts → households have more disposable income → C rises → AD shifts RIGHT. PL up, RGDP up, U down.",
+        },
+      ],
+    },
+    {
+      id: "u3-graph-supply-shock",
+      title: 'Interactive — Identify the negative supply shock',
+      estimateMin: 3,
+      steps: [
+        {
+          type: "interactive-graph",
+          mode: "identify-shock",
+          graphType: "ad-as",
+          title: "Identify the shock that produced this shift",
+          prompt: "The graph shows SRAS shifted LEFT. Which of the following caused it?",
+          initial: { ad: "center", sras: "center", lras: "center" },
+          shifted: { ad: "center", sras: "left", lras: "center" },
+          choices: [
+            { label: "Productivity gain", correct: false },
+            { label: "Oil price spike (input prices up)", correct: true },
+            { label: "Government cuts taxes", correct: false },
+            { label: "Fed buys bonds", correct: false },
+          ],
+          explain: "SRAS shifts LEFT when input costs rise — oil spike is the classic case. Negative supply shock → stagflation: PL ↑, RGDP ↓, U ↑.",
+        },
+      ],
+    },
   ],
 };
 
@@ -858,9 +912,27 @@ const MOD_U4: Module = {
   partNumber: 7,
   title: "Unit 4 Deep — Money + Two Rates",
   subtitle: "18–23% of the exam. The single most-confused area: money market vs loanable funds.",
+  intro: "18–23% of exam. Money market vs loanable funds is THE most-confused area. Long FRQ regular.",
   estimateMin: 30,
   priority: "must",
   lessons: [
+    {
+      id: "warm-up-recall-before-money-and-rates-warmup",
+      title: "Warm-up",
+      estimateMin: 3,
+      steps: [
+        {
+          type: "review-deck",
+          title: 'Warm-up — recall before money + rates',
+          cards: [
+            { front: 'AD shifters (one acronym)', back: 'CIGXM — any change in C, I, G, or X−M for non-PL reasons shifts AD.' },
+            { front: 'Long-run self-correction (recession)', back: 'High U → wages fall → SRAS RIGHT → return to LRAS at LOWER PL.' },
+            { front: 'Spending multiplier formula', back: '1 / MPS = 1 / (1 − MPC).' },
+            { front: 'Stagflation signature', back: 'PL ↑ AND RGDP ↓. Caused by SRAS LEFT (cost-push).' }
+          ],
+        },
+      ],
+    },
     {
       id: "u4-two-rates",
       title: "The two interest rates — never confuse them",
@@ -870,10 +942,12 @@ const MOD_U4: Module = {
           type: "read",
           title: "Money Market vs Loanable Funds — the line that solves Unit 4",
           body: [
-            "MONEY MARKET: Y-axis = NOMINAL interest rate. X-axis = Quantity of money. Curves: MD (downward), MS (vertical). Driven by: Federal Reserve. MS shifts when Fed acts. MD shifts when GDP or PL changes. Question keywords: 'Fed,' 'open-market operations,' 'M1, M2,' 'discount rate,' 'reserve requirement,' 'liquidity.'",
-            "LOANABLE FUNDS: Y-axis = REAL interest rate. X-axis = Quantity of loanable funds. Curves: DLF (downward), SLF (upward). Driven by: borrowers and savers. SLF shifts when saving changes. DLF shifts when government borrows or business confidence changes. Question keywords: 'savings,' 'investment,' 'government deficit,' 'crowding out,' 'capital inflow.'",
-            "Identify which market a question is about within 5 seconds. Most of Unit 4 becomes solvable from there.",
+            "Two questions get conflated constantly. Run them through your head before the next MCQ.",
+            "Question A: You walk into a bank to apply for a CAR LOAN. What determines the rate the bank offers you? Answer: the supply of money savers have put into the bank, the demand for loans from other borrowers, and the riskiness of the loan. That's the LOANABLE FUNDS market — Y-axis is the REAL interest rate, driven by savers and borrowers, with shifters like government deficits, business confidence, and capital inflows.",
+            "Question B: The Fed announces a rate decision. What rate is that? Answer: the federal funds rate (or its proxies — IORB, discount rate). Driven entirely by the Fed adjusting the supply of bank reserves. That's the MONEY MARKET — Y-axis is the NOMINAL interest rate, MS is vertical (Fed sets it), MD shifts with GDP and PL.",
+            "If a question mentions 'Fed,' 'open-market,' 'M1/M2,' 'reserve requirement' — money market. If it mentions 'savings,' 'deficit,' 'crowding out,' 'capital inflow' — loanable funds. Identify in 5 seconds. Then everything else falls out.",
           ],
+          comprehensionCheck: { question: "If the question is 'what happens to real rates when the government runs a deficit,' which market are you in?", sampleAnswer: "Loanable funds. Government deficit shifts DLF right, real rate up — that's the crowding-out story." },
           callouts: [
             {
               kind: "trap",
@@ -1024,6 +1098,20 @@ const MOD_U4: Module = {
           answer: 1,
           explain: "Loanable funds Y-axis = REAL rate; driven by borrowers/savers. Money market = NOMINAL rate, Fed-driven. Government deficits, savings, capital inflow → loanable funds territory.",
           trap: "Crowding out always lives in loanable funds, not money market. Misidentify the market and you'll grab the wrong shifter.",
+          reteach: {
+            headline: "Money market vs Loanable funds — the 5-second test",
+            body: [
+              "Whenever you read 'real interest rate,' 'savings,' 'investment,' 'crowding out,' 'government deficit,' 'capital inflow' — you're in LOANABLE FUNDS. The Y-axis is the REAL rate. Borrowers and savers drive it.",
+              "Whenever you read 'Fed,' 'open-market operations,' 'M1, M2,' 'discount rate,' 'reserve requirement,' 'IORB,' 'liquidity' — you're in MONEY MARKET. The Y-axis is the NOMINAL rate. The Fed drives it.",
+              "Identify the market in 5 seconds. The right shifters fall out automatically.",
+            ],
+            followup: {
+              prompt: "An economy's central bank lowers the IORB (interest on reserve balances). Which market is the question about?",
+              choices: ["Money market", "Loanable funds", "AD/AS", "Phillips curve"],
+              answer: 0,
+              explain: "IORB is a Fed tool — money market. Lowering IORB makes banks lend more rather than hold reserves → MS effectively rises → nominal rate falls.",
+            },
+          },
         },
         {
           type: "mcq",
@@ -1036,6 +1124,20 @@ const MOD_U4: Module = {
           ],
           answer: 1,
           explain: "Bond prices and interest rates move INVERSELY. If prices fell, rates rose. The Fed lowering rates would RAISE bond prices.",
+          reteach: {
+            headline: "Bond prices and rates — always inverse",
+            body: [
+              "A bond pays FIXED future payments. If you bought a bond paying $50/year for $1,000, the yield is 5%.",
+              "Now the market rate rises to 10%. New bonds pay 10%. Why would anyone pay $1,000 for your old bond paying only 5%? They wouldn't. Your bond's PRICE falls until the effective yield catches up — at $500, the same $50/year is now a 10% return.",
+              "Bottom line: when rates rise, existing bond prices fall. Always inverse. Fed BUYS bonds → prices ↑ → rates ↓ (expansionary). Fed SELLS bonds → prices ↓ → rates ↑ (contractionary).",
+            ],
+            followup: {
+              prompt: "The Fed raises the policy rate. The most likely effect on outstanding government bond prices?",
+              choices: ["Rise", "Fall", "Unchanged", "Cannot determine"],
+              answer: 1,
+              explain: "Higher rates → existing bonds with lower coupons become less attractive → their prices fall to match the new yield environment. Always inverse.",
+            },
+          },
         },
         {
           type: "mcq",
@@ -1101,6 +1203,52 @@ const MOD_U4: Module = {
         },
       ],
     },
+      {
+      id: "u4-graph-fed-sells",
+      title: 'Interactive — Fed sells bonds in money market',
+      estimateMin: 3,
+      steps: [
+        {
+          type: "interactive-graph",
+          mode: "predict-shift",
+          graphType: "money-market",
+          title: "Predict the money market response",
+          prompt: "The Fed SELLS $50B in government bonds. What happens to MS?",
+          initial: { ms: "center", md: "center" },
+          shifted: { ms: "left", md: "center" },
+          choices: [
+            { label: "MS shifts LEFT (rates rise)", correct: true },
+            { label: "MS shifts RIGHT (rates fall)", correct: false },
+            { label: "MD shifts RIGHT", correct: false },
+            { label: "No change — selling bonds doesn't affect MS", correct: false },
+          ],
+          explain: "Fed sells bonds → drains reserves from the banking system → MS shifts LEFT → nominal rate UP. Contractionary monetary policy.",
+        },
+      ],
+    },
+    {
+      id: "u4-graph-deficit",
+      title: 'Interactive — Government deficit in loanable funds',
+      estimateMin: 3,
+      steps: [
+        {
+          type: "interactive-graph",
+          mode: "predict-shift",
+          graphType: "loanable-funds",
+          title: "Predict crowding out",
+          prompt: "Government runs a $500B deficit and finances it with new bond issuance. What happens in the loanable funds market?",
+          initial: { dlf: "center", slf: "center" },
+          shifted: { dlf: "right", slf: "center" },
+          choices: [
+            { label: "DLF shifts RIGHT (real rate up)", correct: true },
+            { label: "SLF shifts RIGHT (real rate down)", correct: false },
+            { label: "DLF shifts LEFT (less government borrowing)", correct: false },
+            { label: "No effect on loanable funds market", correct: false },
+          ],
+          explain: "Government bond issuance is added borrowing demand → DLF shifts RIGHT → real rate UP → private investment falls (crowding out).",
+        },
+      ],
+    },
   ],
 };
 
@@ -1112,9 +1260,28 @@ const MOD_U5: Module = {
   partNumber: 8,
   title: "Unit 5 Deep — Long-run + Phillips",
   subtitle: "20–30% — HIGHEST-WEIGHTED unit. Where Units 3 and 4 stop being separate.",
+  intro: "20–30% of exam — HIGHEST weighted. If you only have an hour, spend it here. Phillips + crowding-out FRQ topics.",
   estimateMin: 30,
   priority: "must",
   lessons: [
+    {
+      id: "warm-up-recall-before-long-run-and-phillips-warmup",
+      title: "Warm-up",
+      estimateMin: 3,
+      steps: [
+        {
+          type: "review-deck",
+          title: 'Warm-up — recall before long-run + Phillips',
+          cards: [
+            { front: 'Money market Y-axis', back: 'NOMINAL interest rate. (Loanable funds = REAL rate.)' },
+            { front: 'Bond prices and rates', back: 'INVERSE. Always. Fed buys → prices ↑ → rates ↓ (expansionary).' },
+            { front: 'Money multiplier formula', back: '1 / RRR. With RRR = 10%, mult = 10.' },
+            { front: 'Crowding out cause', back: 'Gov deficit → DLF right → real rate ↑ → private I ↓. Lives in LF market only.' },
+            { front: 'Expansionary monetary chain', back: 'Buy bonds → MS right → nominal i ↓ → real i ↓ → I ↑ → AD right → PL ↑, RGDP ↑, U ↓.' }
+          ],
+        },
+      ],
+    },
     {
       id: "u5-phillips",
       title: "Phillips curve — SR, LR, and when each shifts",
@@ -1291,6 +1458,25 @@ const MOD_U5: Module = {
           answer: 1,
           explain: "Higher expected inflation → workers demand higher wages → SRAS LEFT → SRPC SHIFTS RIGHT (worse trade-off at every U level). AD shifts cause MOVEMENT along SRPC, not shifts of it.",
           trap: "Demand-side shocks move you ALONG the SRPC. Supply-side shocks (or expectations changes) SHIFT the SRPC.",
+          reteach: {
+            headline: "SRPC: move along it, or shift it?",
+            body: [
+              "Demand-side shocks (AD shifts) MOVE you along the SRPC. AD right → up-and-left along SRPC (lower U, higher inflation). AD left → down-and-right (higher U, lower inflation).",
+              "Supply-side shocks (SRAS shifts) SHIFT the SRPC. Negative supply shock (oil spike, productivity fall, expected inflation rise) → SRPC shifts RIGHT (worse trade-off at every U level). Positive supply shock → SRPC shifts LEFT.",
+              "LRPC is vertical at NRU. It only shifts if NRU changes (long-run labor market structure changes).",
+            ],
+            followup: {
+              prompt: "An oil price spike hits the economy. What happens to the SRPC?",
+              choices: [
+                "Movement up-left along SRPC",
+                "Movement down-right along SRPC",
+                "SRPC shifts RIGHT",
+                "SRPC shifts LEFT",
+              ],
+              answer: 2,
+              explain: "Oil spike = negative supply shock = SRAS LEFT = worse inflation-U trade-off at every level → SRPC SHIFTS RIGHT.",
+            },
+          },
         },
         {
           type: "mcq",
@@ -1303,6 +1489,20 @@ const MOD_U5: Module = {
           ],
           answer: 1,
           explain: "Crowding out is the loanable funds story: gov deficit → DLF right → real rate ↑ → private I falls. Reduces long-run capital formation and growth.",
+          reteach: {
+            headline: "Crowding out — direction is up, not down",
+            body: [
+              "When the government runs a deficit, it has to BORROW to cover the gap. New government bonds enter the loanable funds market — that's an INCREASE in DEMAND for loanable funds. DLF shifts RIGHT.",
+              "More demand for the same pool of savings → real interest rate UP, not down. Higher rates → fewer investment projects look profitable → private I falls.",
+              "The 'crowding' is the government's borrowing crowding OUT private borrowers from the same pool of savings. Direction: deficit ↑ → real rate ↑ → private I ↓.",
+            ],
+            followup: {
+              prompt: "Congress passes a $500B unfunded spending bill. The most likely effect on the real interest rate?",
+              choices: ["Falls", "Rises", "Unchanged", "Indeterminate"],
+              answer: 1,
+              explain: "Treasury issues bonds to finance the spending → DLF right → real rate UP. Crowding out pressure on private investment.",
+            },
+          },
         },
         {
           type: "mcq",
@@ -1354,6 +1554,52 @@ const MOD_U5: Module = {
         },
       ],
     },
+      {
+      id: "u5-graph-phillips-ad",
+      title: 'Interactive — AD shift on Phillips Curve',
+      estimateMin: 3,
+      steps: [
+        {
+          type: "interactive-graph",
+          mode: "predict-shift",
+          graphType: "phillips",
+          title: "What does AD right do on the Phillips Curve?",
+          prompt: "AD shifts RIGHT (demand-pull boom). What happens on the Phillips Curve?",
+          initial: { srpc: "center", phillipsMove: "none" },
+          shifted: { srpc: "center", phillipsMove: "up-left" },
+          choices: [
+            { label: "MOVEMENT up-left along SRPC (no shift)", correct: true },
+            { label: "SRPC shifts RIGHT", correct: false },
+            { label: "SRPC shifts LEFT", correct: false },
+            { label: "LRPC shifts", correct: false },
+          ],
+          explain: "AD shifts cause MOVEMENT along SRPC, not shifts of it. AD right → lower U, higher inflation → up-and-left along SRPC. Supply shocks shift SRPC.",
+        },
+      ],
+    },
+    {
+      id: "u5-graph-phillips-supply",
+      title: 'Interactive — Supply shock on Phillips Curve',
+      estimateMin: 3,
+      steps: [
+        {
+          type: "interactive-graph",
+          mode: "identify-shock",
+          graphType: "phillips",
+          title: "What caused this Phillips shift?",
+          prompt: "The graph shows SRPC shifted RIGHT (worse trade-off). What likely caused it?",
+          initial: { srpc: "center", phillipsMove: "none" },
+          shifted: { srpc: "right", phillipsMove: "none" },
+          choices: [
+            { label: "Demand-pull boom", correct: false },
+            { label: "Negative supply shock (oil spike) or higher expected inflation", correct: true },
+            { label: "Long-run growth (LRAS right)", correct: false },
+            { label: "Fed buys bonds", correct: false },
+          ],
+          explain: "SRPC shifts RIGHT when supply conditions worsen (negative supply shock) or when expected inflation rises. Both make the inflation-U trade-off worse at every U level.",
+        },
+      ],
+    },
   ],
 };
 
@@ -1365,6 +1611,7 @@ const MOD_PATTERNS: Module = {
   partNumber: 10,
   title: "Question Pattern Library",
   subtitle: "Every MCQ archetype with the trap named. Once you can name the pattern, half the work is done.",
+  intro: "Every MCQ archetype. Once you can name the pattern in 5 sec, half the work is done.",
   estimateMin: 30,
   priority: "must",
   lessons: [
@@ -1609,6 +1856,7 @@ const MOD_CHAINS: Module = {
   partNumber: 11,
   title: "Master Chain Library",
   subtitle: "Every 'trace through all markets' FRQ reduces to one of these 12.",
+  intro: "12 cascades. Long FRQs ARE these — memorize and you have the structure.",
   estimateMin: 25,
   priority: "must",
   lessons: [
@@ -1831,9 +2079,28 @@ const MOD_FRQ: Module = {
   partNumber: 12,
   title: "FRQ Mastery + Worked Solutions",
   subtitle: "Both real practice FRQs walked through. The rubric mindset.",
+  intro: "Both real practice FRQs walked through. Rubric-language internalization.",
   estimateMin: 30,
   priority: "must",
   lessons: [
+    {
+      id: "warm-up-recall-before-frqs-warmup",
+      title: "Warm-up",
+      estimateMin: 3,
+      steps: [
+        {
+          type: "review-deck",
+          title: 'Warm-up — recall before FRQs',
+          cards: [
+            { front: 'Forex Y-axis vs X-axis', back: 'Y = exchange rate. X = quantity of currency.' },
+            { front: 'Higher US rates → forex effect', back: 'Capital INFLOW → D_USD right → USD APPRECIATES.' },
+            { front: 'BOP identity', back: 'Current Account + Financial Account = 0.' },
+            { front: 'Stronger currency → exports', back: 'Exports DECREASE (US goods more expensive abroad). NX falls.' },
+            { front: 'Crowding out (chain)', back: 'Gov deficit → DLF right → real rate ↑ → private I ↓.' }
+          ],
+        },
+      ],
+    },
     {
       id: "frq-rules",
       title: "FRQ rules and graph drawing",
@@ -2081,6 +2348,7 @@ const MOD_SCENARIOS: Module = {
   partNumber: 13,
   title: "Scenario Drills",
   subtitle: "10 high-value scenarios. Cover the answer first; reason chain; then check.",
+  intro: "Build chain-reasoning muscle memory under time pressure.",
   estimateMin: 15,
   priority: "high",
   lessons: [
@@ -2215,6 +2483,7 @@ const MOD_CHEATSHEET: Module = {
   partNumber: 14,
   title: "Cheat Sheet + Strategy",
   subtitle: "All formulas in one place + 10 final MCQs + exam-day mantra.",
+  intro: "Last pass before sleep. All formulas in one place.",
   estimateMin: 20,
   priority: "high",
   lessons: [
@@ -2444,6 +2713,7 @@ const MOD_U1: Module = {
   partNumber: 2,
   title: "Unit 1 — Basic Concepts",
   subtitle: "Scarcity, PPC, comparative advantage, supply/demand. AP weight: 5–10%.",
+  intro: "5–10% of exam. Foundations only — light coverage.",
   estimateMin: 15,
   priority: "medium",
   lessons: [
@@ -2613,6 +2883,7 @@ const MOD_U2: Module = {
   partNumber: 3,
   title: "Unit 2 — Indicators & Business Cycle",
   subtitle: "GDP, unemployment, inflation, business cycle. AP weight: 12–17%. Calc fluency lives in MOD_CALC.",
+  intro: "12–17% of exam. GDP, U-rate, CPI — mostly definitional. Shows up on every FRQ as setup.",
   estimateMin: 20,
   priority: "high",
   lessons: [
@@ -2822,9 +3093,27 @@ const MOD_U6: Module = {
   partNumber: 9,
   title: "Unit 6 — Open Economy",
   subtitle: "Forex, balance of payments, capital flows. AP weight: 10–13%.",
+  intro: "10–13% of exam. Forex chain shows up on every long FRQ that has 6+ parts.",
   estimateMin: 20,
   priority: "high",
   lessons: [
+    {
+      id: "warm-up-recall-before-open-economy-warmup",
+      title: "Warm-up",
+      estimateMin: 3,
+      steps: [
+        {
+          type: "review-deck",
+          title: 'Warm-up — recall before open economy',
+          cards: [
+            { front: 'SRPC slope', back: 'Downward. Trade-off between inflation and U in the short run.' },
+            { front: 'LRPC shape', back: 'VERTICAL at NRU. No long-run trade-off.' },
+            { front: 'Long-run neutrality of money', back: 'Monetary policy affects PL but not real GDP in the long run.' },
+            { front: 'Sources of LR growth', back: 'More capital, technology, labor, human capital, productivity.' }
+          ],
+        },
+      ],
+    },
     {
       id: "u6-forex",
       title: "Forex market mechanics",
@@ -3020,6 +3309,29 @@ const MOD_U6: Module = {
         },
       ],
     },
+      {
+      id: "u6-graph-rates-up",
+      title: 'Interactive — US rates rise on forex',
+      estimateMin: 3,
+      steps: [
+        {
+          type: "interactive-graph",
+          mode: "predict-shift",
+          graphType: "forex",
+          title: "Predict the dollar's response",
+          prompt: "US real interest rates rise sharply. What happens in the forex market for USD?",
+          initial: { dCurrency: "center", sCurrency: "center" },
+          shifted: { dCurrency: "right", sCurrency: "center" },
+          choices: [
+            { label: "Demand for USD shifts RIGHT (USD appreciates)", correct: true },
+            { label: "Supply of USD shifts RIGHT (USD depreciates)", correct: false },
+            { label: "Demand for USD shifts LEFT (USD depreciates)", correct: false },
+            { label: "No effect on forex", correct: false },
+          ],
+          explain: "Higher US rates attract foreign capital → foreigners buy USD to invest → demand for USD rises → USD APPRECIATES. The capital-inflow leg of the contractionary monetary chain.",
+        },
+      ],
+    },
   ],
 };
 
@@ -3031,9 +3343,28 @@ const MOD_FINAL: Module = {
   partNumber: 15,
   title: "Final Timed Block",
   subtitle: "30 MCQs, 35 minutes. Last thing before sleep. Simulates exam pacing (~70 sec per question).",
+  intro: "30 MCQs, 35 min. Score interpretation tells you whether to sleep or do one more pass.",
   estimateMin: 35,
   priority: "must",
   lessons: [
+    {
+      id: "warm-up-final-pass-before-timed-test-warmup",
+      title: "Warm-up",
+      estimateMin: 3,
+      steps: [
+        {
+          type: "review-deck",
+          title: 'Warm-up — final pass before timed test',
+          cards: [
+            { front: 'AD slopes down because of', back: 'Wealth effect, interest rate effect, exchange rate effect.' },
+            { front: 'Spending multiplier formula', back: '1 / MPS.' },
+            { front: 'Tax multiplier formula', back: '−MPC / MPS. Magnitude is Spending mult − 1.' },
+            { front: 'Balanced budget multiplier', back: '1. Always.' },
+            { front: 'Real interest rate (Fisher)', back: 'Real ≈ Nominal − Inflation.' }
+          ],
+        },
+      ],
+    },
     {
       id: "final-brief",
       title: "Pre-test brief",
