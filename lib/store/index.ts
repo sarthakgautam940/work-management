@@ -18,6 +18,24 @@ type TimerState = {
   sessionsByDate: Record<string, number>;
 };
 
+export type CustomTask = {
+  id: string;
+  parent: string;        // e.g. "school:chemistry", "sat:math", "ibo:cases", "free"
+  title: string;
+  details?: string;
+  due?: string;          // YYYY-MM-DD
+  estimateMin?: number;
+  gradeType?: "test" | "quiz" | "classwork" | "homework" | "project" | "study";
+  createdAt: number;
+};
+
+export type TaskEdit = {
+  title?: string;
+  details?: string;
+  due?: string;
+  estimateMin?: number;
+};
+
 interface AppState {
   // Identity
   name: string;
@@ -70,6 +88,16 @@ interface AppState {
   workSubtaskDone: Record<string, boolean>;      // ${parentId}.${subId} -> done
   recentCompletions: { itemId: string; type: string; subId?: string; at: number; label: string }[];
   workTimers: Record<string, { startedAt: number | null; accumulated: number }>;  // per-task stopwatch
+
+  // Work Mode v3 — manual control
+  manualOrder: string[];                          // user-pinned order; engine respects this first
+  pendingSkipCount: Record<string, number>;       // skip-1 stack (1 press = push down 1 slot)
+  timerTargets: Record<string, number>;           // per-task target override (in seconds)
+
+  // Custom tasks + edits to built-in tasks
+  customTasks: CustomTask[];
+  customTaskEdits: Record<string, TaskEdit>;
+  deletedTasks: Record<string, boolean>;          // soft-deleted built-in or custom tasks
 
   // Timer
   timer: TimerState;
@@ -127,13 +155,25 @@ interface AppState {
   markLessonDone: (id: string, done: boolean) => void;
   recordLessonAnswer: (key: string, idx: number) => void;
   deferWorkItem: (id: string, untilMs: number) => void;
+  clearDefer: (id: string) => void;
   skipWorkItem: (id: string) => void;
+  skipOnePosition: (id: string) => void;
+  decrementAllSkips: () => void;
   setSubtaskDone: (parentId: string, subId: string, done: boolean) => void;
   pushRecentCompletion: (rec: { itemId: string; type: string; subId?: string; label: string }) => void;
   clearRecentCompletion: (itemId: string) => void;
   startWorkTimer: (id: string) => void;
   pauseWorkTimer: (id: string) => void;
   resetWorkTimer: (id: string) => void;
+  setManualOrder: (ids: string[]) => void;
+  clearManualOrder: () => void;
+  setTimerTarget: (id: string, seconds: number) => void;
+
+  // Actions — Custom tasks + edits
+  addCustomTask: (task: Omit<CustomTask, "id" | "createdAt">) => string;
+  updateCustomTask: (id: string, patch: Partial<Omit<CustomTask, "id" | "createdAt">>) => void;
+  setTaskEdit: (id: string, edit: TaskEdit | null) => void;
+  deleteTask: (id: string, deleted?: boolean) => void;
 
   // Actions — Timer
   setTimerDuration: (seconds: number) => void;
@@ -190,6 +230,12 @@ export const useStore = create<AppState>()(
       workSubtaskDone: {},
       recentCompletions: [],
       workTimers: {},
+      manualOrder: [],
+      pendingSkipCount: {},
+      timerTargets: {},
+      customTasks: [],
+      customTaskEdits: {},
+      deletedTasks: {},
 
       timer: { duration: 50 * 60, remaining: 50 * 60, endAt: null, sessionsByDate: {} },
 
@@ -333,8 +379,56 @@ export const useStore = create<AppState>()(
         set((s) => ({ lessonAnswers: { ...s.lessonAnswers, [key]: idx } })),
       deferWorkItem: (id, untilMs) =>
         set((s) => ({ workDeferred: { ...s.workDeferred, [id]: untilMs } })),
+      clearDefer: (id) =>
+        set((s) => {
+          const next = { ...s.workDeferred };
+          delete next[id];
+          return { workDeferred: next };
+        }),
       skipWorkItem: (id) =>
         set((s) => ({ workSkipped: { ...s.workSkipped, [id]: (s.workSkipped[id] || 0) + 1 } })),
+      skipOnePosition: (id) =>
+        set((s) => ({ pendingSkipCount: { ...s.pendingSkipCount, [id]: (s.pendingSkipCount[id] || 0) + 1 } })),
+      decrementAllSkips: () =>
+        set((s) => {
+          const next: Record<string, number> = {};
+          for (const [k, v] of Object.entries(s.pendingSkipCount)) {
+            const n = v - 1;
+            if (n > 0) next[k] = n;
+          }
+          return { pendingSkipCount: next };
+        }),
+      setManualOrder: (ids) => set({ manualOrder: ids }),
+      clearManualOrder: () => set({ manualOrder: [] }),
+      setTimerTarget: (id, seconds) =>
+        set((s) => ({ timerTargets: { ...s.timerTargets, [id]: seconds } })),
+
+      // Custom tasks + edits
+      addCustomTask: (task) => {
+        const id = `custom-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+        set((s) => ({
+          customTasks: [...s.customTasks, { ...task, id, createdAt: Date.now() }],
+        }));
+        return id;
+      },
+      updateCustomTask: (id, patch) =>
+        set((s) => ({
+          customTasks: s.customTasks.map((t) => (t.id === id ? { ...t, ...patch } : t)),
+        })),
+      setTaskEdit: (id, edit) =>
+        set((s) => {
+          const next = { ...s.customTaskEdits };
+          if (edit === null) delete next[id];
+          else next[id] = edit;
+          return { customTaskEdits: next };
+        }),
+      deleteTask: (id, deleted = true) =>
+        set((s) => {
+          const next = { ...s.deletedTasks };
+          if (deleted) next[id] = true;
+          else delete next[id];
+          return { deletedTasks: next };
+        }),
       setSubtaskDone: (parentId, subId, done) =>
         set((s) => ({ workSubtaskDone: { ...s.workSubtaskDone, [`${parentId}.${subId}`]: done } })),
       pushRecentCompletion: (rec) =>
