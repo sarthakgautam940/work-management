@@ -80,7 +80,16 @@ function Inner() {
     }
   };
 
-  const back = () => setCursor(Math.max(0, cursor - 1));
+  // Back: move cursor to previous step AND uncomplete the destination step
+  // so the user can re-do it. Other completed steps remain done — only the
+  // single destination step is reset. Persisted via Zustand persist; safe.
+  const back = () => {
+    if (cursor === 0) return;
+    const targetIdx = cursor - 1;
+    const targetKey = allSteps[targetIdx]?.key;
+    if (targetKey) setStepDone(targetKey, false);
+    setCursor(targetIdx);
+  };
 
   const moduleIdx = course.modules.findIndex((m) => m.id === module.id);
   const prevModule = course.modules[moduleIdx - 1];
