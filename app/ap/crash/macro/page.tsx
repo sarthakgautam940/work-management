@@ -21,8 +21,10 @@ export default function ApCrashDashboard() {
 function Inner() {
   const stepDone = useStore((s) => s.apCrashStepDone);
   const lastModule = useStore((s) => s.apCrashLastModule);
+  const wrong = useStore((s) => s.apCrashWrongAnswers);
 
   const c = AP_MACRO_COURSE;
+  const flaggedCount = Object.values(wrong).filter(Boolean).length;
   const totals = c.modules.map((m) => moduleTotals(m, stepDone, c.id));
   const totalSteps = totals.reduce((sum, t) => sum + t.total, 0);
   const doneSteps = totals.reduce((sum, t) => sum + t.done, 0);
@@ -61,6 +63,20 @@ function Inner() {
         <Stat label="Time remaining" value={`${Math.round(minutesRemaining / 60 * 10) / 10}h`} hint={`${minutesRemaining}m`} />
         <Stat label="Modules" value={`${totals.filter((t) => t.done === t.total).length}/${c.modules.length}`} hint="completed" />
       </div>
+
+      {flaggedCount > 0 && (
+        <Link href="/ap/crash/macro/review" className="block mb-7 group">
+          <div className="rounded-xl border border-accent-amber/30 bg-accent-amber/[0.04] hover:border-accent-amber/50 transition-colors px-4 py-3.5 flex items-center gap-3">
+            <span className="font-mono text-sm tabular-nums text-accent-amber">{flaggedCount}</span>
+            <span className="text-sm text-ink-dim flex-1">
+              question{flaggedCount === 1 ? "" : "s"} marked for review
+            </span>
+            <span className="font-mono text-2xs uppercase tracking-[0.18em] text-accent-amber/70 group-hover:text-accent-amber transition-colors">
+              Open review →
+            </span>
+          </div>
+        </Link>
+      )}
 
       <Section eyebrow="Modules" hint="Tap to start, drag-free path">
         <div className="space-y-2">

@@ -103,6 +103,7 @@ interface AppState {
   apCrashStepDone: Record<string, boolean>;       // ${courseId}.${moduleId}.${lessonId}.${stepIdx} -> done
   apCrashCardEase: Record<string, "again" | "hard" | "good" | "easy">;
   apCrashLastModule: Record<string, string>;       // courseId -> last visited moduleId
+  apCrashWrongAnswers: Record<string, boolean>;   // stepKey -> marked-for-review
 
   // Timer
   timer: TimerState;
@@ -184,6 +185,7 @@ interface AppState {
   setApCrashStepDone: (key: string, done: boolean) => void;
   setApCrashCardEase: (key: string, ease: "again" | "hard" | "good" | "easy") => void;
   setApCrashLastModule: (courseId: string, moduleId: string) => void;
+  setApCrashWrongAnswer: (key: string, flagged: boolean) => void;
 
   // Actions — Timer
   setTimerDuration: (seconds: number) => void;
@@ -249,6 +251,7 @@ export const useStore = create<AppState>()(
       apCrashStepDone: {},
       apCrashCardEase: {},
       apCrashLastModule: {},
+      apCrashWrongAnswers: {},
 
       timer: { duration: 50 * 60, remaining: 50 * 60, endAt: null, sessionsByDate: {} },
 
@@ -450,6 +453,13 @@ export const useStore = create<AppState>()(
         set((s) => ({ apCrashCardEase: { ...s.apCrashCardEase, [key]: ease } })),
       setApCrashLastModule: (courseId, moduleId) =>
         set((s) => ({ apCrashLastModule: { ...s.apCrashLastModule, [courseId]: moduleId } })),
+      setApCrashWrongAnswer: (key, flagged) =>
+        set((s) => {
+          const next = { ...s.apCrashWrongAnswers };
+          if (flagged) next[key] = true;
+          else delete next[key];
+          return { apCrashWrongAnswers: next };
+        }),
       setSubtaskDone: (parentId, subId, done) =>
         set((s) => ({ workSubtaskDone: { ...s.workSubtaskDone, [`${parentId}.${subId}`]: done } })),
       pushRecentCompletion: (rec) =>
@@ -530,6 +540,6 @@ export const useStore = create<AppState>()(
         return Math.round((count / totalItems) * 100);
       },
     }),
-    { name: "praxis-store-v1", version: 2 }
+    { name: "praxis-store-v1", version: 3 }
   )
 );
