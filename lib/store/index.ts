@@ -104,6 +104,11 @@ interface AppState {
   apCrashCardEase: Record<string, "again" | "hard" | "good" | "easy">;
   apCrashLastModule: Record<string, string>;       // courseId -> last visited moduleId
   apCrashWrongAnswers: Record<string, boolean>;   // stepKey -> marked-for-review
+  apCrashDiagnostic: {                              // Phase 1 — diagnostic entry
+    taken: boolean;
+    takenAt?: number;
+    results: Record<string, { correct: number; total: number }>;  // unitId -> stats
+  };
 
   // Timer
   timer: TimerState;
@@ -186,6 +191,8 @@ interface AppState {
   setApCrashCardEase: (key: string, ease: "again" | "hard" | "good" | "easy") => void;
   setApCrashLastModule: (courseId: string, moduleId: string) => void;
   setApCrashWrongAnswer: (key: string, flagged: boolean) => void;
+  setApCrashDiagnostic: (results: Record<string, { correct: number; total: number }>) => void;
+  resetApCrashDiagnostic: () => void;
 
   // Actions — Timer
   setTimerDuration: (seconds: number) => void;
@@ -252,6 +259,7 @@ export const useStore = create<AppState>()(
       apCrashCardEase: {},
       apCrashLastModule: {},
       apCrashWrongAnswers: {},
+      apCrashDiagnostic: { taken: false, results: {} },
 
       timer: { duration: 50 * 60, remaining: 50 * 60, endAt: null, sessionsByDate: {} },
 
@@ -460,6 +468,10 @@ export const useStore = create<AppState>()(
           else delete next[key];
           return { apCrashWrongAnswers: next };
         }),
+      setApCrashDiagnostic: (results) =>
+        set({ apCrashDiagnostic: { taken: true, takenAt: Date.now(), results } }),
+      resetApCrashDiagnostic: () =>
+        set({ apCrashDiagnostic: { taken: false, results: {} } }),
       setSubtaskDone: (parentId, subId, done) =>
         set((s) => ({ workSubtaskDone: { ...s.workSubtaskDone, [`${parentId}.${subId}`]: done } })),
       pushRecentCompletion: (rec) =>
@@ -540,6 +552,6 @@ export const useStore = create<AppState>()(
         return Math.round((count / totalItems) * 100);
       },
     }),
-    { name: "praxis-store-v1", version: 3 }
+    { name: "praxis-store-v1", version: 4 }
   )
 );
