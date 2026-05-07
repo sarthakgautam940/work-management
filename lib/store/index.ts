@@ -99,6 +99,11 @@ interface AppState {
   customTaskEdits: Record<string, TaskEdit>;
   deletedTasks: Record<string, boolean>;          // soft-deleted built-in or custom tasks
 
+  // AP Crash course progress
+  apCrashStepDone: Record<string, boolean>;       // ${courseId}.${moduleId}.${lessonId}.${stepIdx} -> done
+  apCrashCardEase: Record<string, "again" | "hard" | "good" | "easy">;
+  apCrashLastModule: Record<string, string>;       // courseId -> last visited moduleId
+
   // Timer
   timer: TimerState;
 
@@ -175,6 +180,11 @@ interface AppState {
   setTaskEdit: (id: string, edit: TaskEdit | null) => void;
   deleteTask: (id: string, deleted?: boolean) => void;
 
+  // Actions — AP Crash
+  setApCrashStepDone: (key: string, done: boolean) => void;
+  setApCrashCardEase: (key: string, ease: "again" | "hard" | "good" | "easy") => void;
+  setApCrashLastModule: (courseId: string, moduleId: string) => void;
+
   // Actions — Timer
   setTimerDuration: (seconds: number) => void;
   startTimer: () => void;
@@ -236,6 +246,9 @@ export const useStore = create<AppState>()(
       customTasks: [],
       customTaskEdits: {},
       deletedTasks: {},
+      apCrashStepDone: {},
+      apCrashCardEase: {},
+      apCrashLastModule: {},
 
       timer: { duration: 50 * 60, remaining: 50 * 60, endAt: null, sessionsByDate: {} },
 
@@ -429,6 +442,14 @@ export const useStore = create<AppState>()(
           else delete next[id];
           return { deletedTasks: next };
         }),
+
+      // AP Crash
+      setApCrashStepDone: (key, done) =>
+        set((s) => ({ apCrashStepDone: { ...s.apCrashStepDone, [key]: done } })),
+      setApCrashCardEase: (key, ease) =>
+        set((s) => ({ apCrashCardEase: { ...s.apCrashCardEase, [key]: ease } })),
+      setApCrashLastModule: (courseId, moduleId) =>
+        set((s) => ({ apCrashLastModule: { ...s.apCrashLastModule, [courseId]: moduleId } })),
       setSubtaskDone: (parentId, subId, done) =>
         set((s) => ({ workSubtaskDone: { ...s.workSubtaskDone, [`${parentId}.${subId}`]: done } })),
       pushRecentCompletion: (rec) =>
