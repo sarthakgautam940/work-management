@@ -1,7 +1,16 @@
 import type { Config } from "tailwindcss";
+import plugin from "tailwindcss/plugin";
 
 const config: Config = {
   content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
+  safelist: [
+    // Light-mode classes for the /learn lesson player. Generated dynamically
+    // through the `learn-light:` variant so explicit class names don't reach
+    // the JIT — listing them here keeps them in the bundle.
+    "bg-emerald-50", "bg-amber-50", "bg-red-50",
+    "text-emerald-700", "text-amber-700", "text-red-700",
+    "border-emerald-200", "border-amber-200", "border-red-200",
+  ],
   theme: {
     extend: {
       colors: {
@@ -37,6 +46,12 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    plugin(({ addVariant }) => {
+      // `learn-light:` targets descendants of an element with `.learn-light`.
+      // Used by the /learn lesson player to switch into light mode in-place.
+      addVariant("learn-light", ".learn-light &");
+    }),
+  ],
 };
 export default config;
