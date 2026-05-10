@@ -26,15 +26,34 @@ const UNIT_1: Unit = {
       // so the player has something real to render before PR F. Replaced
       // with the full hand-authored Unit 1 lesson in PR F.
       { id: "l1-1-1", title: "Average Rate of Change", estimateMin: 6, artifact: "coordinate-plane",
-        artifactInitial: { fn: "x^2", interval: [1, 4] },
+        artifactInitial: {
+          xRange: [-1, 6],
+          yRange: [-2, 18],
+          curves: [{ id: "fx", fn: (x: number) => x * x, color: "var(--learn-accent)", label: "f(x) = x²" }],
+        },
         beats: [
           { type: "intro", title: "Average Rate of Change", stake: "By the end of this you'll compute ARC for any function and know what it means geometrically." },
-          { type: "narrate", text: "The average rate of change of $f$ from $a$ to $b$ is the slope of the secant line connecting $(a, f(a))$ and $(b, f(b))$." },
+          { type: "narrate", text: "The average rate of change of $f$ from $a$ to $b$ is the slope of the secant line connecting $(a, f(a))$ and $(b, f(b))$.",
+            artifact: { features: [
+              { kind: "point", id: "a", x: 1, y: 1, label: "(1, 1)" },
+              { kind: "point", id: "b", x: 4, y: 16, label: "(4, 16)" },
+            ] } },
           { type: "formula-card", title: "ARC formula", formula: "\\text{ARC}_{[a,b]}(f) = \\dfrac{f(b) - f(a)}{b - a}",
             derivation: ["\\text{Slope of secant} = \\dfrac{\\Delta y}{\\Delta x}", "= \\dfrac{f(b) - f(a)}{b - a}"] },
-          { type: "highlight", text: "Geometrically, ARC is the slope of the secant line. Visually, draw a line from where the curve starts on the interval to where it ends — that line's slope is your ARC.", focus: "secant" },
+          { type: "highlight", text: "Geometrically, ARC is the slope of the secant line. Draw a line from where the curve starts to where it ends — that line's slope is your ARC.",
+            focus: "secant",
+            artifact: { features: [
+              { kind: "point", id: "a", x: 1, y: 1, label: "(1, 1)" },
+              { kind: "point", id: "b", x: 4, y: 16, label: "(4, 16)" },
+              { kind: "secant", id: "secant", from: [1, 1], to: [4, 16], label: "slope = 5" },
+            ] } },
           { type: "derive", text: "Take $f(x) = x^2$ on $[1, 4]$. Plug in:", line: "\\text{ARC} = \\dfrac{f(4) - f(1)}{4 - 1} = \\dfrac{16 - 1}{3} = 5", because: "Square both endpoints, subtract, divide by the run." },
           { type: "predict", prompt: "What's the ARC of $f(x) = x^2$ on $[2, 5]$?",
+            artifact: { features: [
+              { kind: "point", id: "a", x: 2, y: 4, label: "(2, 4)" },
+              { kind: "point", id: "b", x: 5, y: 25, label: "(5, 25)" },
+              { kind: "secant", id: "secant", from: [2, 4], to: [5, 25] },
+            ], yRange: [-2, 30] },
             choices: [
               { label: "$5$", correct: false, consequence: "That's the ARC on $[1, 4]$ — the inputs shifted, so the rate did too." },
               { label: "$7$", correct: true, consequence: "Yes — $\\dfrac{25 - 4}{5 - 2} = \\dfrac{21}{3} = 7$." },
