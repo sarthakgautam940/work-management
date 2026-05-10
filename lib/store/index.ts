@@ -109,6 +109,13 @@ interface AppState {
   learnDiagnostic: { taken: boolean; takenAt?: number; results: Record<string, { correct: number; total: number }> };
   learnFlagged: Record<string, boolean>;           // arbitrary item id (formula, problem, beat) -> flagged
 
+  // Spaced repetition — SM-2-lite per card. Each card carries
+  //   ease   : difficulty multiplier (default 2.5)
+  //   reps   : count of successful reviews
+  //   intervalDays : current interval length in days
+  //   dueAt  : ISO timestamp when next due
+  learnSrs: Record<string, { ease: number; reps: number; intervalDays: number; dueAt: string }>;
+
   // Timer
   timer: TimerState;
 
@@ -195,6 +202,7 @@ interface AppState {
   setLearnDiagnostic: (results: Record<string, { correct: number; total: number }>) => void;
   resetLearnDiagnostic: () => void;
   setLearnFlag: (id: string, flagged: boolean) => void;
+  reviewLearnCard: (id: string, rating: "again" | "hard" | "good" | "easy") => void;
 
   // Actions — Timer
   setTimerDuration: (seconds: number) => void;
@@ -263,6 +271,7 @@ export const useStore = create<AppState>()(
       learnLastLesson: {},
       learnDiagnostic: { taken: false, results: {} },
       learnFlagged: {},
+      learnSrs: {},
 
       timer: { duration: 50 * 60, remaining: 50 * 60, endAt: null, sessionsByDate: {} },
 
@@ -483,6 +492,30 @@ export const useStore = create<AppState>()(
           else delete next[id];
           return { learnFlagged: next };
         }),
+      reviewLearnCard: (id, rating) =>
+        set((s) => {
+          // SM-2-lite: derive ease delta from rating, compute next interval.
+          const cur = s.learnSrs[id] ?? { ease: 2.5, reps: 0, intervalDays: 0, dueAt: new Date().toISOString() };
+          let { ease, reps, intervalDays } = cur;
+          if (rating === "again") {
+            reps = 0;
+            intervalDays = 0; // due again today
+            ease = Math.max(1.3, ease - 0.2);
+          } else if (rating === "hard") {
+            reps = reps + 1;
+            intervalDays = Math.max(1, Math.round(intervalDays * 1.2));
+            ease = Math.max(1.3, ease - 0.15);
+          } else if (rating === "good") {
+            reps = reps + 1;
+            intervalDays = reps === 1 ? 1 : reps === 2 ? 3 : Math.round(intervalDays * ease);
+          } else { // easy
+            reps = reps + 1;
+            intervalDays = reps === 1 ? 2 : reps === 2 ? 5 : Math.round(intervalDays * ease * 1.3);
+            ease = ease + 0.1;
+          }
+          const dueAt = new Date(Date.now() + intervalDays * 86400000).toISOString();
+          return { learnSrs: { ...s.learnSrs, [id]: { ease, reps, intervalDays, dueAt } } };
+        }),
       setSubtaskDone: (parentId, subId, done) =>
         set((s) => ({ workSubtaskDone: { ...s.workSubtaskDone, [`${parentId}.${subId}`]: done } })),
       pushRecentCompletion: (rec) =>
@@ -565,9 +598,8 @@ export const useStore = create<AppState>()(
     }),
     {
       name: "praxis-store-v1",
-      version: 6,
-      // v5: drops macro keys. v6: introduces learn-engine keys.
-      // Old persisted state is rehydrated through the migrate.
+      version: 7,
+      // v5: drops macro. v6: adds learn-engine keys. v7: adds learnSrs.
       migrate: (state: any, version: number) => {
         if (!state) return state;
         let s = state;
@@ -591,6 +623,9 @@ export const useStore = create<AppState>()(
             learnDiagnostic: s.learnDiagnostic ?? { taken: false, results: {} },
             learnFlagged: s.learnFlagged ?? {},
           };
+        }
+        if (version < 7) {
+          s = { ...s, learnSrs: s.learnSrs ?? {} };
         }
         return s;
       },
