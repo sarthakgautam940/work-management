@@ -58,7 +58,6 @@ interface AppState {
   schoolTasks: Record<string, boolean>;
 
   // AP
-  apMacroDays: Record<string, boolean>;
   apPrecalcDays: Record<string, boolean>;
 
   // IBO
@@ -99,17 +98,9 @@ interface AppState {
   customTaskEdits: Record<string, TaskEdit>;
   deletedTasks: Record<string, boolean>;          // soft-deleted built-in or custom tasks
 
-  // AP Crash course progress
+  // AP Crash course progress (placeholder course only — full rebuild at /learn)
   apCrashStepDone: Record<string, boolean>;       // ${courseId}.${moduleId}.${lessonId}.${stepIdx} -> done
-  apCrashCardEase: Record<string, "again" | "hard" | "good" | "easy">;
   apCrashLastModule: Record<string, string>;       // courseId -> last visited moduleId
-  apCrashWrongAnswers: Record<string, boolean>;   // stepKey -> marked-for-review
-  apCrashDiagnostic: {                              // Phase 1 — diagnostic entry
-    taken: boolean;
-    takenAt?: number;
-    results: Record<string, { correct: number; total: number }>;  // unitId -> stats
-  };
-  apCrashFastPath: boolean;                         // Phase 6 — fast path mode
 
   // Timer
   timer: TimerState;
@@ -140,7 +131,6 @@ interface AppState {
   toggleSchoolTask: (id: string) => void;
 
   // Actions — AP
-  toggleAPMacro: (date: string) => void;
   toggleAPPrecalc: (date: string) => void;
 
   // Actions — IBO
@@ -187,14 +177,9 @@ interface AppState {
   setTaskEdit: (id: string, edit: TaskEdit | null) => void;
   deleteTask: (id: string, deleted?: boolean) => void;
 
-  // Actions — AP Crash
+  // Actions — AP Crash (placeholder)
   setApCrashStepDone: (key: string, done: boolean) => void;
-  setApCrashCardEase: (key: string, ease: "again" | "hard" | "good" | "easy") => void;
   setApCrashLastModule: (courseId: string, moduleId: string) => void;
-  setApCrashWrongAnswer: (key: string, flagged: boolean) => void;
-  setApCrashDiagnostic: (results: Record<string, { correct: number; total: number }>) => void;
-  resetApCrashDiagnostic: () => void;
-  setApCrashFastPath: (on: boolean) => void;
 
   // Actions — Timer
   setTimerDuration: (seconds: number) => void;
@@ -226,7 +211,6 @@ export const useStore = create<AppState>()(
 
       schoolTasks: {},
 
-      apMacroDays: {},
       apPrecalcDays: {},
 
       iboChapters: {},
@@ -258,11 +242,7 @@ export const useStore = create<AppState>()(
       customTaskEdits: {},
       deletedTasks: {},
       apCrashStepDone: {},
-      apCrashCardEase: {},
       apCrashLastModule: {},
-      apCrashWrongAnswers: {},
-      apCrashDiagnostic: { taken: false, results: {} },
-      apCrashFastPath: false,
 
       timer: { duration: 50 * 60, remaining: 50 * 60, endAt: null, sessionsByDate: {} },
 
@@ -355,8 +335,6 @@ export const useStore = create<AppState>()(
         set((s) => ({ schoolTasks: { ...s.schoolTasks, [id]: !s.schoolTasks[id] } })),
 
       // AP
-      toggleAPMacro: (date) =>
-        set((s) => ({ apMacroDays: { ...s.apMacroDays, [date]: !s.apMacroDays[date] } })),
       toggleAPPrecalc: (date) =>
         set((s) => ({ apPrecalcDays: { ...s.apPrecalcDays, [date]: !s.apPrecalcDays[date] } })),
 
@@ -457,25 +435,11 @@ export const useStore = create<AppState>()(
           return { deletedTasks: next };
         }),
 
-      // AP Crash
+      // AP Crash (placeholder)
       setApCrashStepDone: (key, done) =>
         set((s) => ({ apCrashStepDone: { ...s.apCrashStepDone, [key]: done } })),
-      setApCrashCardEase: (key, ease) =>
-        set((s) => ({ apCrashCardEase: { ...s.apCrashCardEase, [key]: ease } })),
       setApCrashLastModule: (courseId, moduleId) =>
         set((s) => ({ apCrashLastModule: { ...s.apCrashLastModule, [courseId]: moduleId } })),
-      setApCrashWrongAnswer: (key, flagged) =>
-        set((s) => {
-          const next = { ...s.apCrashWrongAnswers };
-          if (flagged) next[key] = true;
-          else delete next[key];
-          return { apCrashWrongAnswers: next };
-        }),
-      setApCrashDiagnostic: (results) =>
-        set({ apCrashDiagnostic: { taken: true, takenAt: Date.now(), results } }),
-      resetApCrashDiagnostic: () =>
-        set({ apCrashDiagnostic: { taken: false, results: {} } }),
-      setApCrashFastPath: (on) => set({ apCrashFastPath: on }),
       setSubtaskDone: (parentId, subId, done) =>
         set((s) => ({ workSubtaskDone: { ...s.workSubtaskDone, [`${parentId}.${subId}`]: done } })),
       pushRecentCompletion: (rec) =>
@@ -556,6 +520,23 @@ export const useStore = create<AppState>()(
         return Math.round((count / totalItems) * 100);
       },
     }),
-    { name: "praxis-store-v1", version: 4 }
+    {
+      name: "praxis-store-v1",
+      version: 5,
+      // v5 drops the macro module — strip the keys that only fed macro UI
+      // so old clients don't carry stale state into the precalc rebuild.
+      migrate: (state: any, version: number) => {
+        if (!state || version >= 5) return state;
+        const {
+          apCrashCardEase: _ce,
+          apCrashWrongAnswers: _wa,
+          apCrashDiagnostic: _d,
+          apCrashFastPath: _fp,
+          apMacroDays: _md,
+          ...rest
+        } = state;
+        return rest;
+      },
+    }
   )
 );

@@ -320,7 +320,7 @@ export function buildQueue(today: Date, state: State): WorkItem[] {
   });
 
   // ── AP study lessons (only surface the next un-done lesson per exam) ─
-  (["ap-macro", "ap-precalc"] as const).forEach((examId) => {
+  (["ap-precalc"] as const).forEach((examId) => {
     const lessons = STUDY_LESSONS.filter((l) => l.examId === examId);
     const nextUndone = lessons.find((l) => !state.lessonDone[l.id]);
     if (!nextUndone) return;

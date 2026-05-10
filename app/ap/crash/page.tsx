@@ -3,9 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Eyebrow, Meta, PageHeader, Tag } from "@/components/ui";
+import { Meta, PageHeader, Tag } from "@/components/ui";
 import { useStore } from "@/lib/store";
-import { AP_MACRO_COURSE } from "@/lib/data/ap-crash/macro";
 import { AP_PRECALC_COURSE } from "@/lib/data/ap-crash/precalc";
 import type { Course, Module } from "@/lib/data/ap-crash/types";
 import { daysUntil } from "@/lib/utils/date";
@@ -25,13 +24,12 @@ function Inner() {
   return (
     <div className="px-5 lg:px-10 pt-7 lg:pt-12 max-w-3xl pb-16">
       <PageHeader
-        eyebrow="AP crash courses"
-        title="Pick your course"
-        subtitle="Comprehensive single-source study paths for both AP exams. Step-by-step lessons, drills, MCQs, FRQ walkthroughs."
+        eyebrow="AP crash course"
+        title="AP Precalculus"
+        subtitle="Single-source study path: lessons, drills, MCQs, FRQ walkthroughs."
       />
 
       <div className="space-y-3">
-        <CourseCard course={AP_MACRO_COURSE} stepDone={stepDone} routeBase="/ap/crash/macro" />
         <CourseCard course={AP_PRECALC_COURSE} stepDone={stepDone} routeBase="/ap/crash/precalc" />
       </div>
     </div>

@@ -29,7 +29,6 @@ export default function TodayPage() {
   const isRoutineDone = useStore((s) => s.isRoutineDone);
   const streak = useStore((s) => s.getStreak());
   const bodyweight = useStore((s) => s.bodyweight);
-  const apMacroDays = useStore((s) => s.apMacroDays);
   const schoolTasks = useStore((s) => s.schoolTasks);
   const bigIdeaTasks = useStore((s) => s.bigIdeaTasks);
 
@@ -54,12 +53,10 @@ export default function TodayPage() {
   const pct = Math.round((routineDone / totalItems) * 100);
   const proteinTarget = Math.round(bodyweight * 0.9);
 
-  const macroDays = daysUntil("2026-05-08");
   const precalcDays = daysUntil("2026-05-12");
-  const macroDayDone = !!apMacroDays["2026-05-04"];
 
   // Build priority list from real school tasks + Big Idea seminar prep
-  const priorities = buildPriorities(schoolTasks, bigIdeaTasks, macroDayDone);
+  const priorities = buildPriorities(schoolTasks, bigIdeaTasks);
 
   return (
     <div className="px-5 lg:px-10 pt-7 lg:pt-12 max-w-5xl pb-16">
@@ -82,7 +79,7 @@ export default function TodayPage() {
           {greeting()}.
         </h1>
         <p className="mt-4 text-ink-dim text-base lg:text-lg max-w-2xl leading-relaxed">
-          {dayCopy(tod, macroDays, priorities.length, pct)}
+          {dayCopy(tod, precalcDays, priorities.length, pct)}
         </p>
       </motion.header>
 
@@ -112,21 +109,19 @@ export default function TodayPage() {
       </motion.div>
 
       {/* Crash bar */}
-      {(macroDays <= 4 && macroDays >= 0) && (
+      {(precalcDays <= 5 && precalcDays >= 0) && (
         <motion.div
           initial={{ opacity: 0, y: -6 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-7 flex items-center gap-3 px-4 py-3 rounded-lg border border-accent-red/30 bg-accent-red/[0.04]"
+          className="mb-7 flex items-center gap-3 px-4 py-3 rounded-lg border border-accent-amber/30 bg-accent-amber/[0.04]"
         >
-          <AlertCircle size={15} className="text-accent-red shrink-0" />
+          <AlertCircle size={15} className="text-accent-amber shrink-0" />
           <div className="flex-1 min-w-0 text-sm">
-            <span className="text-ink font-medium">AP Macro in {macroDays}d.</span>
-            <span className="text-ink-mute ml-1.5">
-              {macroDayDone ? "Today's block is done." : "Today's crash block isn't started."}
-            </span>
+            <span className="text-ink font-medium">AP Precalc in {precalcDays}d.</span>
+            <span className="text-ink-mute ml-1.5">Open the crash plan.</span>
           </div>
           <Link href="/ap" className="shrink-0">
-            <Meta className="text-accent-red hover:text-accent-red/80">Open →</Meta>
+            <Meta className="text-accent-amber hover:text-accent-amber/80">Open →</Meta>
           </Link>
         </motion.div>
       )}
@@ -147,8 +142,7 @@ export default function TodayPage() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <Stat label="Routine" value={`${pct}%`} hint={`${routineDone}/${totalItems} today`} accent={pct >= 80 ? "lime" : pct >= 50 ? "amber" : "neutral"} />
           <Stat label="Workout" value={workout === "rest" ? "Rest" : cap(workout)} hint={workout === "rest" ? "Recovery" : "Today's split"} />
-          <Stat label="AP Macro" value={`${macroDays}d`} hint="May 8 · Friday" accent={macroDays <= 3 ? "red" : "amber"} />
-          <Stat label="AP Precalc" value={`${precalcDays}d`} hint="May 12 · Tuesday" accent={precalcDays <= 5 ? "amber" : "neutral"} />
+          <Stat label="AP Precalc" value={`${precalcDays}d`} hint="May 12 · Tuesday" accent={precalcDays <= 3 ? "red" : precalcDays <= 5 ? "amber" : "neutral"} />
         </div>
       </Section>
 
@@ -156,7 +150,7 @@ export default function TodayPage() {
       <Section eyebrow="Lanes" hint={`${pct}% routine · protein ${proteinTarget}g`}>
         <div className="space-y-px rounded-xl bg-bg-surface border border-line overflow-hidden">
           <Lane href="/school" label="School" hint={`${countOpenTasks(schoolTasks)} open · Big Idea ${bigIdeaActiveLabel()}`} state="urgent" />
-          <Lane href="/ap" label="AP crash plans" hint={`Macro ${macroDays}d · Precalc ${precalcDays}d`} state="urgent" />
+          <Lane href="/ap" label="AP crash plan" hint={`Precalc ${precalcDays}d`} state="urgent" />
           <Lane href="/routine" label="Daily routine" hint={`${routineDone} of ${totalItems} done`} state={pct >= 80 ? "done" : pct >= 50 ? "active" : undefined} />
           <Lane href="/workout" label={workout === "rest" ? "Rest day" : `${cap(workout)} session`} hint={workout === "rest" ? "Active recovery" : "Track every set"} />
           <Lane href="/food" label="Food & shopping" hint={`Protein target ${proteinTarget}g`} />
@@ -176,21 +170,8 @@ export default function TodayPage() {
 function buildPriorities(
   schoolTasks: Record<string, boolean>,
   bigIdeaTasks: Record<string, boolean>,
-  macroDayDone: boolean,
 ): Priority[] {
   const out: Priority[] = [];
-
-  // Urgent: AP Macro today's crash block
-  if (!macroDayDone) {
-    out.push({
-      id: "macro-today",
-      title: "AP Macro — today's crash block",
-      detail: "4 days to exam. Day 1 covers Units 1–2 + practice MCQ.",
-      href: "/ap",
-      estimate: 150,
-      state: "urgent",
-    });
-  }
 
   // Tomorrow: Big Idea seminar (un-prepped subset)
   const seminarRemaining = SEMINAR_PREP.filter((t) => !bigIdeaTasks[t.id]);
@@ -348,11 +329,11 @@ function Lane({
   );
 }
 
-function dayCopy(tod: string, macro: number, urgentCount: number, pct: number): string {
+function dayCopy(tod: string, precalc: number, urgentCount: number, pct: number): string {
   if (urgentCount >= 4) return `${urgentCount} urgent items. Open the priority list and run it top-down.`;
-  if (macro === 0) return "Macro exam day. Trust the prep.";
-  if (macro <= 1) return "Macro tomorrow. Final review only.";
-  if (macro <= 4) return `Macro in ${macro} days. Every block is non-negotiable now.`;
+  if (precalc === 0) return "Precalc exam day. Trust the prep.";
+  if (precalc <= 1) return "Precalc tomorrow. Final review only.";
+  if (precalc <= 4) return `Precalc in ${precalc} days. Every block is non-negotiable now.`;
   if (pct >= 90) return "Today is essentially locked. Hold the line until bed.";
   if (tod === "early") return "Early start. The compounding begins now.";
   if (tod === "morning") return "Mid-morning. Most people are off track today. You don't have to be.";

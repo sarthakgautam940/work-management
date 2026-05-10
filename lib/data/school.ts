@@ -392,7 +392,7 @@ export const CLASSES: ClassRoom[] = [
   },
 ];
 
-// COMPRESSED AP MACRO PLAN — 4 days, exam May 8
+// AP block plan
 export type APBlock = {
   date: string;
   label: string;
@@ -401,32 +401,7 @@ export type APBlock = {
   done?: boolean;
 };
 
-export const AP_MACRO_PLAN: APBlock[] = [
-  {
-    date: "2026-05-07",
-    label: "Day 1 — Thu (full crash course in one night)",
-    hours: 5,
-    topics: [
-      "Open /ap/crash/macro and run all 11 modules straight through.",
-      "M1–6 (foundations + Units 3, 4, 5 deep) — ~3h.",
-      "M7–9 (question patterns, master chains, FRQ Fehran + Zeetoland) — ~1.5h.",
-      "M10–11 (scenario drills + cheat sheet + 10 final MCQs) — ~1h.",
-      "Bed by midnight. Trust the prep.",
-    ],
-  },
-  {
-    date: "2026-05-08",
-    label: "Exam Day — Fri",
-    hours: 0.5,
-    topics: [
-      "Light formula scan — no new content.",
-      "Eat carbs, hydrate.",
-      "Trust the prep.",
-    ],
-  },
-];
-
-// AP PRECALC PLAN — 3 sprint days (Sat-Mon), exam Tue 5/12
+// AP PRECALC PLAN — sprint days, exam Tue 5/12
 export const AP_PRECALC_PLAN: APBlock[] = [
   {
     date: "2026-05-09",
