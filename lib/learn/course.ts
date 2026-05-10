@@ -22,7 +22,58 @@ const UNIT_1: Unit = {
   ],
   topics: [
     { id: "t1-1", title: "Rate of Change", blurb: "Average rate of change. Increasing × concavity. Reading behavior off graphs.", lessons: [
-      { id: "l1-1-1", title: "Average Rate of Change", estimateMin: 6, artifact: "coordinate-plane", beats: [] },
+      // Engine smoke-test lesson — 9 beats exercising every major beat type
+      // so the player has something real to render before PR F. Replaced
+      // with the full hand-authored Unit 1 lesson in PR F.
+      { id: "l1-1-1", title: "Average Rate of Change", estimateMin: 6, artifact: "coordinate-plane",
+        artifactInitial: { fn: "x^2", interval: [1, 4] },
+        beats: [
+          { type: "intro", title: "Average Rate of Change", stake: "By the end of this you'll compute ARC for any function and know what it means geometrically." },
+          { type: "narrate", text: "The average rate of change of $f$ from $a$ to $b$ is the slope of the secant line connecting $(a, f(a))$ and $(b, f(b))$." },
+          { type: "formula-card", title: "ARC formula", formula: "\\text{ARC}_{[a,b]}(f) = \\dfrac{f(b) - f(a)}{b - a}",
+            derivation: ["\\text{Slope of secant} = \\dfrac{\\Delta y}{\\Delta x}", "= \\dfrac{f(b) - f(a)}{b - a}"] },
+          { type: "highlight", text: "Geometrically, ARC is the slope of the secant line. Visually, draw a line from where the curve starts on the interval to where it ends — that line's slope is your ARC.", focus: "secant" },
+          { type: "derive", text: "Take $f(x) = x^2$ on $[1, 4]$. Plug in:", line: "\\text{ARC} = \\dfrac{f(4) - f(1)}{4 - 1} = \\dfrac{16 - 1}{3} = 5", because: "Square both endpoints, subtract, divide by the run." },
+          { type: "predict", prompt: "What's the ARC of $f(x) = x^2$ on $[2, 5]$?",
+            choices: [
+              { label: "$5$", correct: false, consequence: "That's the ARC on $[1, 4]$ — the inputs shifted, so the rate did too." },
+              { label: "$7$", correct: true, consequence: "Yes — $\\dfrac{25 - 4}{5 - 2} = \\dfrac{21}{3} = 7$." },
+              { label: "$9$", correct: false, consequence: "Close, but check: $f(5) - f(2) = 21$, not 27." },
+            ],
+            reveal: "On $[2, 5]$, ARC is 7. Same function, different interval, larger rate — quadratics have rates that grow with the interval." },
+          { type: "narrate", text: "ARC is one number summarizing net change per unit input across the whole interval. It says nothing about what happens between the endpoints." },
+          { type: "checkpoint",
+            prompt: "For a linear function $f(x) = mx + b$, what's the ARC on any interval $[a, b]$?",
+            choices: ["$0$", "$b$", "$m$", "Depends on $a$ and $b$"],
+            answer: 2,
+            explain: "Linear functions have constant slope $m$. The secant line *is* the graph itself, so its slope is $m$ over any interval.",
+            reteach: {
+              headline: "Linear ARC = slope, always.",
+              body: [
+                "The defining feature of a linear function is constant slope.",
+                "Pick any two points on the line — the slope between them is $m$.",
+                "ARC over $[a, b]$ is $\\dfrac{m \\cdot b + c - (m \\cdot a + c)}{b - a} = \\dfrac{m(b - a)}{b - a} = m$.",
+              ],
+              followup: {
+                prompt: "$g(x) = 4x - 7$. What's the ARC on $[10, 100]$?",
+                choices: ["$-7$", "$4$", "$393$", "$397$"],
+                answer: 1,
+                explain: "Slope is 4. Linear ARC is always the slope — the interval doesn't matter.",
+              },
+            },
+          },
+          { type: "summary",
+            bullets: [
+              "Compute ARC of any function over any interval as $\\dfrac{f(b) - f(a)}{b - a}$",
+              "See ARC as the slope of the secant line",
+              "Recognize that linear functions have constant ARC equal to their slope",
+            ],
+            addToDeck: [
+              { id: "arc-formula", front: "Average rate of change of $f$ on $[a, b]$", back: "$\\dfrac{f(b) - f(a)}{b - a}$ — slope of the secant line" },
+            ],
+          },
+        ],
+      },
       { id: "l1-1-2", title: "Increasing × Concavity — the four phrases", estimateMin: 8, artifact: "coordinate-plane", beats: [] },
       { id: "l1-1-3", title: "Reading behavior from a graph", estimateMin: 6, artifact: "coordinate-plane", beats: [] },
     ]},
