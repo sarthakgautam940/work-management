@@ -102,6 +102,13 @@ interface AppState {
   apCrashStepDone: Record<string, boolean>;       // ${courseId}.${moduleId}.${lessonId}.${stepIdx} -> done
   apCrashLastModule: Record<string, string>;       // courseId -> last visited moduleId
 
+  // Learn engine progress (the new course at /learn)
+  learnBeatDone: Record<string, boolean>;          // ${courseId}.${lessonId}.${beatIdx} -> done
+  learnLessonDone: Record<string, string>;         // lessonId -> ISO timestamp completed
+  learnLastLesson: Record<string, string>;         // courseId -> last lessonId opened
+  learnDiagnostic: { taken: boolean; takenAt?: number; results: Record<string, { correct: number; total: number }> };
+  learnFlagged: Record<string, boolean>;           // arbitrary item id (formula, problem, beat) -> flagged
+
   // Timer
   timer: TimerState;
 
@@ -181,6 +188,14 @@ interface AppState {
   setApCrashStepDone: (key: string, done: boolean) => void;
   setApCrashLastModule: (courseId: string, moduleId: string) => void;
 
+  // Actions — Learn engine
+  setLearnBeatDone: (key: string, done: boolean) => void;
+  setLearnLessonDone: (lessonId: string, done: boolean) => void;
+  setLearnLastLesson: (courseId: string, lessonId: string) => void;
+  setLearnDiagnostic: (results: Record<string, { correct: number; total: number }>) => void;
+  resetLearnDiagnostic: () => void;
+  setLearnFlag: (id: string, flagged: boolean) => void;
+
   // Actions — Timer
   setTimerDuration: (seconds: number) => void;
   startTimer: () => void;
@@ -243,6 +258,11 @@ export const useStore = create<AppState>()(
       deletedTasks: {},
       apCrashStepDone: {},
       apCrashLastModule: {},
+      learnBeatDone: {},
+      learnLessonDone: {},
+      learnLastLesson: {},
+      learnDiagnostic: { taken: false, results: {} },
+      learnFlagged: {},
 
       timer: { duration: 50 * 60, remaining: 50 * 60, endAt: null, sessionsByDate: {} },
 
@@ -440,6 +460,29 @@ export const useStore = create<AppState>()(
         set((s) => ({ apCrashStepDone: { ...s.apCrashStepDone, [key]: done } })),
       setApCrashLastModule: (courseId, moduleId) =>
         set((s) => ({ apCrashLastModule: { ...s.apCrashLastModule, [courseId]: moduleId } })),
+
+      // Learn engine
+      setLearnBeatDone: (key, done) =>
+        set((s) => ({ learnBeatDone: { ...s.learnBeatDone, [key]: done } })),
+      setLearnLessonDone: (lessonId, done) =>
+        set((s) => {
+          const next = { ...s.learnLessonDone };
+          if (done) next[lessonId] = new Date().toISOString();
+          else delete next[lessonId];
+          return { learnLessonDone: next };
+        }),
+      setLearnLastLesson: (courseId, lessonId) =>
+        set((s) => ({ learnLastLesson: { ...s.learnLastLesson, [courseId]: lessonId } })),
+      setLearnDiagnostic: (results) =>
+        set({ learnDiagnostic: { taken: true, takenAt: Date.now(), results } }),
+      resetLearnDiagnostic: () => set({ learnDiagnostic: { taken: false, results: {} } }),
+      setLearnFlag: (id, flagged) =>
+        set((s) => {
+          const next = { ...s.learnFlagged };
+          if (flagged) next[id] = true;
+          else delete next[id];
+          return { learnFlagged: next };
+        }),
       setSubtaskDone: (parentId, subId, done) =>
         set((s) => ({ workSubtaskDone: { ...s.workSubtaskDone, [`${parentId}.${subId}`]: done } })),
       pushRecentCompletion: (rec) =>
@@ -522,20 +565,34 @@ export const useStore = create<AppState>()(
     }),
     {
       name: "praxis-store-v1",
-      version: 5,
-      // v5 drops the macro module — strip the keys that only fed macro UI
-      // so old clients don't carry stale state into the precalc rebuild.
+      version: 6,
+      // v5: drops macro keys. v6: introduces learn-engine keys.
+      // Old persisted state is rehydrated through the migrate.
       migrate: (state: any, version: number) => {
-        if (!state || version >= 5) return state;
-        const {
-          apCrashCardEase: _ce,
-          apCrashWrongAnswers: _wa,
-          apCrashDiagnostic: _d,
-          apCrashFastPath: _fp,
-          apMacroDays: _md,
-          ...rest
-        } = state;
-        return rest;
+        if (!state) return state;
+        let s = state;
+        if (version < 5) {
+          const {
+            apCrashCardEase: _ce,
+            apCrashWrongAnswers: _wa,
+            apCrashDiagnostic: _d,
+            apCrashFastPath: _fp,
+            apMacroDays: _md,
+            ...rest
+          } = s;
+          s = rest;
+        }
+        if (version < 6) {
+          s = {
+            ...s,
+            learnBeatDone: s.learnBeatDone ?? {},
+            learnLessonDone: s.learnLessonDone ?? {},
+            learnLastLesson: s.learnLastLesson ?? {},
+            learnDiagnostic: s.learnDiagnostic ?? { taken: false, results: {} },
+            learnFlagged: s.learnFlagged ?? {},
+          };
+        }
+        return s;
       },
     }
   )

@@ -21,6 +21,32 @@
   input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
   input[type="number"] { -moz-appearance: textfield; }
   button, a { -webkit-tap-highlight-color: transparent; }
+
+  /* Light theme scope for the learn lesson player. Use class="learn-light"
+     on the outermost lesson-player wrapper to switch the entire subtree. */
+  .learn-light {
+    color-scheme: light;
+    background: #FAFAF9;
+    color: #0F0F10;
+    --learn-bg: #FAFAF9;
+    --learn-surface: #FFFFFF;
+    --learn-elevated: #F4F4F2;
+    --learn-line: #E7E5E4;
+    --learn-line-strong: #D6D3D1;
+    --learn-ink: #0F0F10;
+    --learn-ink-dim: #44403C;
+    --learn-ink-mute: #78716C;
+    --learn-ink-ghost: #A8A29E;
+    --learn-accent: #4F46E5;
+    --learn-accent-soft: #EEF2FF;
+    --learn-accent-line: #C7D2FE;
+    --learn-success: #15803D;
+    --learn-warning: #B45309;
+    --learn-danger: #B91C1C;
+  }
+  .learn-light ::selection { background: #C7D2FE; color: #0F0F10; }
+  .learn-light ::-webkit-scrollbar-thumb { background: #D6D3D1; }
+  .learn-light ::-webkit-scrollbar-thumb:hover { background: #A8A29E; }
 }
 
 @layer components {

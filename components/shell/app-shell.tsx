@@ -5,18 +5,18 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils/cn";
 import {
   Home, ListChecks, Dumbbell, Apple, GraduationCap,
-  BookOpen, Briefcase, Timer, BarChart3, Menu, X, Target, Zap, PanelLeft,
+  BookOpen, Briefcase, Timer, BarChart3, Menu, X, Sparkles, Zap, PanelLeft,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const NAV = [
   { href: "/", label: "Today", icon: Home },
   { href: "/work", label: "Work mode", icon: Zap },
+  { href: "/learn", label: "Learn", icon: Sparkles },
   { href: "/routine", label: "Routine", icon: ListChecks },
   { href: "/workout", label: "Workout", icon: Dumbbell },
   { href: "/food", label: "Food", icon: Apple },
   { href: "/school", label: "School", icon: GraduationCap },
-  { href: "/ap", label: "AP Crash", icon: Target },
   { href: "/ibo", label: "IBO", icon: BookOpen },
   { href: "/sat", label: "SAT", icon: GraduationCap },
   { href: "/business", label: "UpLevel", icon: Briefcase },
@@ -24,11 +24,11 @@ const NAV = [
   { href: "/stats", label: "Stats", icon: BarChart3 },
 ];
 
-const MOBILE_PRIMARY = ["/", "/work", "/school", "/ap", "/routine"];
+const MOBILE_PRIMARY = ["/", "/work", "/learn", "/school", "/routine"];
 
 // Routes that get a focused, full-bleed layout (sidebar collapses on enter,
 // reopenable via the floating PanelLeft button).
-const FOCUSED_ROUTES = ["/work"];
+const FOCUSED_ROUTES = ["/work", "/learn"];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
