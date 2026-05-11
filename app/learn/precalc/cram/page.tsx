@@ -60,7 +60,7 @@ function Inner() {
       </div>
 
       {next && (
-        <NextUpBanner blockLabel={next.block.label} ref={next.ref} />
+        <NextUpBanner blockLabel={next.block.label} item={next.ref} />
       )}
 
       <LearnSection title="The blocks">
@@ -90,11 +90,11 @@ function Inner() {
   );
 }
 
-function NextUpBanner({ blockLabel, ref }: { blockLabel: string; ref: CramLessonRef }) {
-  const found = findLesson(PRECALC.id, ref.lessonId);
+function NextUpBanner({ blockLabel, item }: { blockLabel: string; item: CramLessonRef }) {
+  const found = findLesson(PRECALC.id, item.lessonId);
   if (!found) return null;
   return (
-    <Link href={`/learn/precalc/lesson/${ref.lessonId}`} className="block mb-9 group">
+    <Link href={`/learn/precalc/lesson/${item.lessonId}`} className="block mb-9 group">
       <div className="rounded-2xl border-2 border-accent-blue/40 bg-accent-blue/[0.04] hover:border-accent-blue/60 transition-colors px-5 py-5">
         <div className="flex items-center gap-4">
           <div className="w-11 h-11 rounded-xl bg-accent-blue/10 flex items-center justify-center shrink-0">
@@ -107,7 +107,7 @@ function NextUpBanner({ blockLabel, ref }: { blockLabel: string; ref: CramLesson
             <div className="font-semibold text-base text-ink truncate">{found.lesson.title}</div>
             <div className="text-sm text-ink-dim mt-0.5">
               {found.unit.title} · {found.lesson.estimateMin} min · {found.lesson.beats.length} beats
-              {ref.note && <span className="ml-2 text-accent-amber">· {ref.note}</span>}
+              {item.note && <span className="ml-2 text-accent-amber">· {item.note}</span>}
             </div>
           </div>
           <ArrowRight size={20} className="text-ink-mute group-hover:text-ink shrink-0 transition-colors" />
@@ -164,8 +164,8 @@ function BlockCard({ block, lessonsDone }: { block: CramBlock; lessonsDone: Reco
           className="border-t border-line"
         >
           <div className="px-5 py-4 space-y-1">
-            {block.lessons.map((ref) => (
-              <LessonRow key={ref.lessonId} ref={ref} done={!!lessonsDone[ref.lessonId]} />
+            {block.lessons.map((item) => (
+              <LessonRow key={item.lessonId} item={item} done={!!lessonsDone[item.lessonId]} />
             ))}
           </div>
         </motion.div>
@@ -174,13 +174,13 @@ function BlockCard({ block, lessonsDone }: { block: CramBlock; lessonsDone: Reco
   );
 }
 
-function LessonRow({ ref, done }: { ref: CramLessonRef; done: boolean }) {
-  const resolved = resolveCramLesson(ref);
+function LessonRow({ item, done }: { item: CramLessonRef; done: boolean }) {
+  const resolved = resolveCramLesson(item);
   if (!resolved) return null;
-  const { lesson, topic, unit } = resolved;
+  const { lesson, unit } = resolved;
 
   return (
-    <Link href={`/learn/precalc/lesson/${ref.lessonId}`}>
+    <Link href={`/learn/precalc/lesson/${item.lessonId}`}>
       <div className={`group rounded-lg px-3 py-2.5 flex items-center gap-3 transition-colors ${
         done ? "hover:bg-accent-lime/[0.06]" : "hover:bg-bg-elevated/40"
       }`}>
@@ -194,8 +194,8 @@ function LessonRow({ ref, done }: { ref: CramLessonRef; done: boolean }) {
             <span className="font-mono text-2xs text-ink-mute mr-2 tabular-nums">U{unit.number}</span>
             {lesson.title}
           </div>
-          {ref.note && (
-            <div className="text-xs text-accent-amber mt-0.5">{ref.note}</div>
+          {item.note && (
+            <div className="text-xs text-accent-amber mt-0.5">{item.note}</div>
           )}
         </div>
         <span className="text-xs text-ink-mute font-mono tabular-nums shrink-0">{lesson.estimateMin}m</span>
