@@ -7,6 +7,7 @@ import {
   LearnPage, LearnCard, LearnPill, LearnButton,
 } from "@/components/learn/primitives";
 import { findLesson, PRECALC } from "@/lib/learn/course";
+import { CRAM_BLOCKS } from "@/lib/learn/cram-plan";
 import { LessonPlayer } from "@/components/learn/lesson-player";
 import { ArrowLeft, Wrench } from "lucide-react";
 
@@ -29,9 +30,15 @@ function Inner({ lessonId }: { lessonId: string }) {
   const found = findLesson(PRECALC.id, lessonId)!;
   const { unit, topic, lesson } = found;
 
-  // Find the next lesson in the unit (next in same topic, else first lesson
-  // of next topic) for end-of-lesson "Next" button.
+  // Find the next lesson. If this lesson is in the cram plan, advance
+  // along the cram plan order — that's what the user is actually following.
+  // Otherwise fall back to next-in-unit.
   const nextLessonId = (() => {
+    const cramOrder = CRAM_BLOCKS.flatMap((b) => b.lessons.map((l) => l.lessonId));
+    const cramIdx = cramOrder.indexOf(lessonId);
+    if (cramIdx >= 0 && cramIdx < cramOrder.length - 1) {
+      return cramOrder[cramIdx + 1];
+    }
     const allLessons = unit.topics.flatMap((tp) => tp.lessons.map((l) => l.id));
     const idx = allLessons.indexOf(lessonId);
     return idx >= 0 && idx < allLessons.length - 1 ? allLessons[idx + 1] : undefined;

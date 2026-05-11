@@ -7,9 +7,10 @@ import {
   LearnPill, LearnProgress, LearnStat, LearnButton,
 } from "@/components/learn/primitives";
 import { PRECALC, courseTotals, unitTotals } from "@/lib/learn/course";
+import { CRAM_BLOCKS, planTotals, nextUp } from "@/lib/learn/cram-plan";
 import { useStore } from "@/lib/store";
 import { daysUntil } from "@/lib/utils/date";
-import { ArrowRight, Target, Library, BookText, ClipboardCheck, Sparkles } from "lucide-react";
+import { ArrowRight, Target, Library, ClipboardCheck, Sparkles, Flame } from "lucide-react";
 
 export default function PrecalcDashboard() {
   const [mounted, setMounted] = useState(false);
@@ -20,28 +21,30 @@ export default function PrecalcDashboard() {
 
 function Inner() {
   const lessonsDone = useStore((s) => s.learnLessonDone);
-  const beatDone = useStore((s) => s.learnBeatDone);
   const diagnostic = useStore((s) => s.learnDiagnostic);
-  const lastLesson = useStore((s) => s.learnLastLesson);
 
   const totals = courseTotals();
-  const completedLessons = Object.keys(lessonsDone).length;
-  const completedBeats = Object.keys(beatDone).filter((k) => k.startsWith(PRECALC.id) && beatDone[k]).length;
+  const cram = planTotals(lessonsDone);
+  const cramNext = nextUp(lessonsDone);
   const days = daysUntil(PRECALC.examDate);
-  const continueLessonId = lastLesson[PRECALC.id];
+  const completedLessons = Object.keys(lessonsDone).length;
 
   return (
     <LearnPage>
       <LearnHeader
         kicker="AP Precalculus"
         title="Your study path"
-        subtitle="Three units. Each lesson is a walkthrough — beats, not slides. Take the diagnostic first to color the path."
+        subtitle={
+          days <= 1
+            ? "Run the cram plan top-to-bottom. Nothing else matters today."
+            : "Sequenced by exam yield. Open the cram plan to start."
+        }
         back={{ href: "/learn", label: "Courses" }}
         right={
-          continueLessonId ? (
-            <Link href={`/learn/precalc/lesson/${continueLessonId}`}>
+          cramNext ? (
+            <Link href={`/learn/precalc/lesson/${cramNext.ref.lessonId}`}>
               <LearnButton size="lg">
-                Continue <ArrowRight size={16} />
+                <Flame size={14} /> Next lesson
               </LearnButton>
             </Link>
           ) : null
@@ -50,17 +53,50 @@ function Inner() {
 
       {/* Quick stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-10">
-        <LearnStat label="Days to exam" value={`${days}`} hint={PRECALC.examDate.slice(5)} emphasis={days <= 3 ? "warning" : "default"} />
-        <LearnStat label="Lessons" value={`${completedLessons}/${totals.lessons}`} hint="completed" />
-        <LearnStat label="Beats" value={`${completedBeats}`} hint={`of ${totals.beats || "—"} planned`} emphasis="accent" />
-        <LearnStat label="Total time" value={`${Math.round(totals.estimateMin / 60 * 10) / 10}h`} hint="full course" />
+        <LearnStat label="Days to exam" value={`${days}`} hint={PRECALC.examDate.slice(5)} emphasis={days <= 1 ? "warning" : "default"} />
+        <LearnStat label="Plan progress" value={`${cram.done}/${cram.lessons}`} hint="cram lessons" emphasis="accent" />
+        <LearnStat label="Full course" value={`${completedLessons}/${totals.lessons}`} hint="lessons total" />
+        <LearnStat label="Plan length" value={`~${Math.round(cram.minutes / 60 * 10) / 10}h`} hint={`${CRAM_BLOCKS.length} blocks`} />
       </div>
+
+      {/* Cram-plan CTA */}
+      <CramCTA done={cram.done} total={cram.lessons} />
 
       {/* Diagnostic CTA */}
       <DiagnosticCTA taken={diagnostic.taken} />
 
-      {/* Units */}
-      <LearnSection title="Units" hint="Tap a unit to see topics and lessons">
+      {/* Beyond the cram plan — practice / review / exam / formulas */}
+      <LearnSection title="Drills & review">
+        <div className="grid sm:grid-cols-2 gap-3">
+          <SideTrackCard
+            href="/learn/precalc/practice"
+            icon={ClipboardCheck}
+            title="Practice bank"
+            description="68 worked exam problems. Filter by source, unit, or type. Try, then reveal."
+          />
+          <SideTrackCard
+            href="/learn/precalc/review"
+            icon={Sparkles}
+            title="Spaced review"
+            description="88 formula cards + flagged practice. SM-2 schedules them — surface only what's due."
+          />
+          <SideTrackCard
+            href="/learn/precalc/exam"
+            icon={Target}
+            title="Mock exam"
+            description="Run any section under official AP timing. Score against the curve."
+          />
+          <SideTrackCard
+            href="/learn/precalc/formulas"
+            icon={Library}
+            title="Formula sheet"
+            description="All 88 reference items. Browse by unit or drill as cards."
+          />
+        </div>
+      </LearnSection>
+
+      {/* Full course access — for after the exam or for spot-checking specific lessons */}
+      <LearnSection title="Full course" hint="all 115 lessons, including those outside the cram plan">
         <div className="space-y-3">
           {PRECALC.units.map((unit) => {
             const t = unitTotals(unit);
@@ -79,88 +115,54 @@ function Inner() {
           })}
         </div>
       </LearnSection>
-
-      {/* Practice + review tracks */}
-      <LearnSection title="Beyond lessons">
-        <div className="grid sm:grid-cols-2 gap-3">
-          <SideTrackCard
-            href="/learn/precalc/practice"
-            icon={ClipboardCheck}
-            title="Practice bank"
-            description="68 worked exam problems. Filter by unit, topic, or section."
-            stub="Coming in PR I"
-          />
-          <SideTrackCard
-            href="/learn/precalc/review"
-            icon={Sparkles}
-            title="Spaced review"
-            description="Formulas + flagged misses surface here on a schedule."
-            stub="Coming in PR J"
-          />
-          <SideTrackCard
-            href="/learn/precalc/exam"
-            icon={Target}
-            title="Mock exam"
-            description="Timed sections. Scored against the AP curve."
-            stub="Coming in PR K"
-          />
-          <SideTrackCard
-            href="/learn/precalc/formulas"
-            icon={Library}
-            title="Formula sheet"
-            description="All 88 reference items. Browse or drill as cards."
-            stub="Coming in PR J"
-          />
-        </div>
-      </LearnSection>
-
-      {/* Fallback to placeholder course while engine fills in */}
-      <LearnSection title="Until the new lessons land">
-        <LearnCard className="p-5">
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-lg bg-bg-elevated flex items-center justify-center shrink-0">
-              <BookText size={18} className="text-ink-dim" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="font-semibold text-base text-ink">Legacy precalc course (placeholder)</div>
-              <p className="mt-1 text-sm text-ink-dim leading-relaxed">
-                The previous step-based course is still here as a fallback while the new walkthrough engine fills in. Use it for what's already covered; switch to a new lesson here when one lights up.
-              </p>
-              <Link href="/ap/crash/precalc" className="inline-flex items-center gap-1.5 mt-3 text-sm text-accent-blue hover:underline">
-                Open legacy course <ArrowRight size={14} />
-              </Link>
-            </div>
-          </div>
-        </LearnCard>
-      </LearnSection>
     </LearnPage>
   );
 }
 
-function DiagnosticCTA({ taken }: { taken: boolean }) {
+function CramCTA({ done, total }: { done: number; total: number }) {
+  const pct = total > 0 ? (done / total) * 100 : 0;
+  const complete = done === total && total > 0;
   return (
-    <Link href="/learn/precalc/diagnostic" className="block mb-10 group">
+    <Link href="/learn/precalc/cram" className="block mb-7 group">
       <div className={`rounded-2xl border-2 px-5 py-5 transition-colors ${
-        taken ? "border-accent-lime/30 bg-accent-lime/[0.04] hover:border-accent-lime/50" : "border-accent-blue/40 bg-accent-blue/[0.04] hover:border-accent-blue/60"
+        complete
+          ? "border-accent-lime/40 bg-accent-lime/[0.04] hover:border-accent-lime/60"
+          : "border-accent-red/40 bg-accent-red/[0.04] hover:border-accent-red/60"
       }`}>
         <div className="flex items-center gap-4">
-          <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${
-            taken ? "bg-accent-lime/10" : "bg-accent-blue/10"
+          <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${
+            complete ? "bg-accent-lime/10" : "bg-accent-red/10"
           }`}>
-            <Target size={20} className={taken ? "text-accent-lime" : "text-accent-blue"} />
+            <Flame size={22} className={complete ? "text-accent-lime" : "text-accent-red"} />
           </div>
           <div className="flex-1 min-w-0">
-            <div className="font-semibold text-base text-ink">
-              {taken ? "Diagnostic complete — review your path" : "Take the diagnostic — 12 questions, 6 minutes"}
+            <div className="font-semibold text-base text-ink mb-0.5">
+              {complete ? "Cram plan complete — run a mock" : "Cram plan — 12 hours to exam"}
             </div>
-            <div className="mt-0.5 text-sm text-ink-dim">
-              {taken ? "Tap to retake or color-code your units again." : "Colors each unit red / amber / green so you start where it matters."}
+            <div className="text-sm text-ink-dim mb-2">
+              {complete
+                ? "Done with the priority list. Open the mock exam to calibrate."
+                : "Hand-picked lessons in priority order. Open this — not the unit grid."}
             </div>
+            <LearnProgress value={pct} />
           </div>
-          <ArrowRight size={18} className="text-ink-mute group-hover:text-ink shrink-0 transition-colors" />
+          <ArrowRight size={20} className="text-ink-mute group-hover:text-ink shrink-0 transition-colors" />
         </div>
       </div>
     </Link>
+  );
+}
+
+function DiagnosticCTA({ taken }: { taken: boolean }) {
+  // Demoted below the cram CTA — most users opening this page already
+  // know where they stand. Single-line summary, no big card.
+  return (
+    <div className="mb-10 flex items-center gap-2 text-sm text-ink-mute">
+      <Target size={14} />
+      <Link href="/learn/precalc/diagnostic" className="hover:text-ink transition-colors">
+        {taken ? "Diagnostic done — retake or review →" : "Take the 6-min diagnostic →"}
+      </Link>
+    </div>
   );
 }
 
