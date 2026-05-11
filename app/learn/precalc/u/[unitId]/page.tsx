@@ -7,6 +7,7 @@ import {
 } from "@/components/learn/primitives";
 import { findUnit, unitTotals } from "@/lib/learn/course";
 import { useStore } from "@/lib/store";
+import { MathText } from "@/components/learn/math";
 import Link from "next/link";
 import { ArrowRight, Lock } from "lucide-react";
 
@@ -73,7 +74,7 @@ function Inner({ unitId }: { unitId: string }) {
                 <div className="flex items-baseline gap-3 mb-3">
                   <h3 className="font-semibold text-base text-ink">
                     <span className="text-ink-mute font-mono text-sm tabular-nums mr-2">{unit.number}.{ti + 1}</span>
-                    {topic.title}
+                    <MathText>{topic.title}</MathText>
                   </h3>
                   <span className="text-xs text-ink-mute tabular-nums">{topicDone}/{topic.lessons.length}</span>
                 </div>
@@ -127,7 +128,9 @@ function LessonRow({
     <div className={`group rounded-lg border px-4 py-3 transition-colors flex items-center gap-4 ${stateStyles}`}>
       <span className="font-mono text-xs tabular-nums text-ink-mute w-12 shrink-0">{index}</span>
       <div className="flex-1 min-w-0">
-        <div className="text-sm text-ink font-medium">{title}</div>
+        <div className="text-sm text-ink font-medium">
+          <MathText>{title}</MathText>
+        </div>
         <div className="text-xs text-ink-mute mt-0.5">
           {estimateMin}m · {beats > 0 ? `${beats} beats` : "content coming soon"}
         </div>

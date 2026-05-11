@@ -9,7 +9,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import type { ArtifactState } from "@/lib/learn/types";
-import { Math } from "../math";
+import { Math, MathText } from "../math";
 
 type Line = {
   tex: string;
@@ -44,7 +44,7 @@ export function AlgebraLadder({ state, focus }: { state: ArtifactState; focus?: 
             >
               {line.label && (
                 <div className="text-xs font-mono text-[var(--learn-ink-mute)] mb-1.5">
-                  {line.label}
+                  <MathText>{line.label}</MathText>
                 </div>
               )}
               <Math tex={line.tex} block className="text-[var(--learn-ink)]" />

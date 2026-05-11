@@ -24,6 +24,7 @@ import type { Beat, ArtifactState, ArtifactKind } from "@/lib/learn/types";
 import { useStore } from "@/lib/store";
 import { ArtifactHost } from "./artifact-host";
 import { BeatRenderer, isInteractive } from "./beats";
+import { MathText } from "./math";
 import { LearnButton } from "./primitives";
 
 const COURSE_ID = "ap-precalc";
@@ -148,9 +149,11 @@ export function LessonPlayer({
           </Link>
           <div className="flex-1 min-w-0">
             <div className="text-xs text-[var(--learn-ink-mute)] truncate">
-              Unit {unitTitle.split(" ")[0]} · {topicTitle}
+              Unit {unitTitle.split(" ")[0]} · <MathText>{topicTitle}</MathText>
             </div>
-            <div className="text-sm font-medium text-[var(--learn-ink)] truncate">{lessonTitle}</div>
+            <div className="text-sm font-medium text-[var(--learn-ink)] truncate">
+              <MathText>{lessonTitle}</MathText>
+            </div>
           </div>
           <button
             onClick={() => setFlag(beatId, !isFlagged)}
@@ -265,7 +268,7 @@ function LessonComplete({
         Lesson complete
       </div>
       <h1 className="text-3xl lg:text-4xl font-bold tracking-tight leading-tight text-[var(--learn-ink)] mb-3">
-        {lessonTitle}
+        <MathText>{lessonTitle}</MathText>
       </h1>
       <p className="text-base text-[var(--learn-ink-dim)] leading-relaxed mb-8">
         Saved. Take a breath, then keep going.
