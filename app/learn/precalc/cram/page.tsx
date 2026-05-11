@@ -7,14 +7,14 @@ import {
   LearnPage, LearnHeader, LearnSection, LearnCard, LearnPill, LearnProgress, LearnButton, LearnStat,
 } from "@/components/learn/primitives";
 import {
-  CRAM_BLOCKS, CRAM_AUX,
+  CRAM_BLOCKS, CRAM_AUX, ALREADY_COVERED, ALREADY_COVERED_SENTINEL,
   blockTotals, blockEstimateMin, planTotals, nextUp, resolveCramLesson,
   type CramBlock, type CramLessonRef,
 } from "@/lib/learn/cram-plan";
 import { findLesson, PRECALC } from "@/lib/learn/course";
 import { MathText } from "@/components/learn/math";
 import { useStore } from "@/lib/store";
-import { ArrowRight, Check, Lock, Flame, Clock, AlertTriangle, ChevronDown } from "lucide-react";
+import { ArrowRight, Check, Lock, Flame, Clock, AlertTriangle, ChevronDown, Sparkles } from "lucide-react";
 import { daysUntil } from "@/lib/utils/date";
 
 export default function CramPlanPage() {
@@ -26,6 +26,20 @@ export default function CramPlanPage() {
 
 function Inner() {
   const lessonsDone = useStore((s) => s.learnLessonDone);
+  const setLessonDone = useStore((s) => s.setLearnLessonDone);
+
+  // One-time auto-mark: lessons the user covered in chat (not in-app)
+  // are flagged here so progress / "next up" reflect reality. Sentinel
+  // prevents re-marking after the user explicitly un-completes anything.
+  useEffect(() => {
+    if (lessonsDone[ALREADY_COVERED_SENTINEL]) return;
+    ALREADY_COVERED.forEach(({ lessonId }) => {
+      if (!lessonsDone[lessonId]) setLessonDone(lessonId, true);
+    });
+    setLessonDone(ALREADY_COVERED_SENTINEL, true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const totals = planTotals(lessonsDone);
   const next = nextUp(lessonsDone);
   const days = daysUntil(PRECALC.examDate);
@@ -35,11 +49,11 @@ function Inner() {
     <LearnPage>
       <LearnHeader
         kicker="Cram plan"
-        title="The 12-hour triage"
+        title="The 9-hour stretch"
         subtitle={
           days <= 1
             ? "Exam day. Trust the plan — first block is non-negotiable."
-            : "Hand-picked sequence by AP exam yield. Run it top-to-bottom — skipping ahead misses prerequisites."
+            : "Trimmed to what's actually left. Run it top-to-bottom, then drill, then sleep."
         }
         back={{ href: "/learn/precalc", label: "Dashboard" }}
         right={
@@ -82,9 +96,13 @@ function Inner() {
         </LearnSection>
       ))}
 
+      <LearnSection title="Already covered" hint={`${ALREADY_COVERED.length} lessons`}>
+        <CoveredList />
+      </LearnSection>
+
       <div className="mt-12 text-center">
         <p className="text-sm text-ink-mute">
-          Sleep at hour 12. Cramming past midnight on exam eve costs more points than it gains.
+          Sleep at hour 9. Cramming past midnight on exam eve costs more points than it gains.
         </p>
       </div>
     </LearnPage>
@@ -256,6 +274,68 @@ function SkipList({ description, lessonIds }: { description: string; lessonIds: 
                     <div className="text-xs font-medium text-ink-mute mb-1.5">{unit}</div>
                     <ul className="space-y-1 text-xs text-ink-dim">
                       {items.map((t, i) => <li key={i}>· <MathText>{t}</MathText></li>)}
+                    </ul>
+                  </div>
+                ),
+              )}
+            </motion.div>
+          )}
+        </div>
+      </div>
+    </LearnCard>
+  );
+}
+
+function CoveredList() {
+  const [open, setOpen] = useState(false);
+  // Resolve each covered lesson, group by unit.
+  const grouped: Record<string, { lessonId: string; title: string; note: string }[]> = { "Unit 1": [], "Unit 2": [], "Unit 3": [] };
+  ALREADY_COVERED.forEach(({ lessonId, note }) => {
+    const found = findLesson(PRECALC.id, lessonId);
+    if (!found) return;
+    grouped[`Unit ${found.unit.number}`].push({ lessonId, title: found.lesson.title, note });
+  });
+
+  return (
+    <LearnCard>
+      <div className="flex items-start gap-3">
+        <Sparkles size={16} className="text-accent-lime shrink-0 mt-0.5" />
+        <div className="flex-1">
+          <p className="text-sm text-ink leading-relaxed">
+            These were covered earlier in chat — auto-marked as done so plan progress reflects reality. Click any to revisit in the app player if you want to re-drill.
+          </p>
+          <button
+            onClick={() => setOpen((o) => !o)}
+            className="mt-3 text-xs font-medium text-accent-blue hover:underline inline-flex items-center gap-1.5"
+          >
+            <ChevronDown size={12} className={`transition-transform ${open ? "rotate-180" : ""}`} />
+            {open ? "Hide" : "Show"} the {ALREADY_COVERED.length} covered lessons
+          </button>
+          {open && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              className="overflow-hidden mt-4 space-y-3"
+            >
+              {Object.entries(grouped).map(([unit, items]) =>
+                items.length === 0 ? null : (
+                  <div key={unit}>
+                    <div className="text-xs font-medium text-ink-mute mb-1.5">{unit}</div>
+                    <ul className="space-y-1.5">
+                      {items.map((it) => (
+                        <li key={it.lessonId}>
+                          <Link
+                            href={`/learn/precalc/lesson/${it.lessonId}`}
+                            className="text-xs text-ink-dim hover:text-ink transition-colors flex items-center gap-2"
+                          >
+                            <Check size={11} className="text-accent-lime shrink-0" />
+                            <span className="flex-1">
+                              <MathText>{it.title}</MathText>
+                              <span className="text-ink-mute ml-1.5">· {it.note}</span>
+                            </span>
+                          </Link>
+                        </li>
+                      ))}
                     </ul>
                   </div>
                 ),
