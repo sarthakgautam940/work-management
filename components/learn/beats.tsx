@@ -52,9 +52,11 @@ function IntroBeat({ beat }: { beat: Extract<Beat, { type: "intro" }> }) {
     <BeatShell>
       <LearnPill tone="accent">Lesson</LearnPill>
       <h1 className="mt-3 text-3xl lg:text-4xl font-bold tracking-tight leading-[1.1] text-[var(--learn-ink)]">
-        {beat.title}
+        <MathText>{beat.title}</MathText>
       </h1>
-      <p className="mt-4 text-base text-[var(--learn-ink-dim)] leading-relaxed">{beat.stake}</p>
+      <p className="mt-4 text-base text-[var(--learn-ink-dim)] leading-relaxed">
+        <MathText>{beat.stake}</MathText>
+      </p>
     </BeatShell>
   );
 }
@@ -209,7 +211,9 @@ function FormulaCardBeat({ beat }: { beat: Extract<Beat, { type: "formula-card" 
       <div className="text-xs font-medium uppercase tracking-wide text-[var(--learn-ink-mute)] mb-3">
         Formula
       </div>
-      <h3 className="text-lg font-semibold text-[var(--learn-ink)] mb-4">{beat.title}</h3>
+      <h3 className="text-lg font-semibold text-[var(--learn-ink)] mb-4">
+        <MathText>{beat.title}</MathText>
+      </h3>
       <div className="rounded-2xl border border-[var(--learn-line-strong)] bg-[var(--learn-surface)] px-6 py-8 text-center">
         <Math tex={beat.formula} block className="text-[var(--learn-ink)]" />
       </div>

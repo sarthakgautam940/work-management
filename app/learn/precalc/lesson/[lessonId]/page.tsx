@@ -9,6 +9,7 @@ import {
 import { findLesson, PRECALC } from "@/lib/learn/course";
 import { CRAM_BLOCKS } from "@/lib/learn/cram-plan";
 import { LessonPlayer } from "@/components/learn/lesson-player";
+import { MathText } from "@/components/learn/math";
 import { ArrowLeft, Wrench } from "lucide-react";
 
 export default function LessonPage() {
@@ -56,10 +57,10 @@ function Inner({ lessonId }: { lessonId: string }) {
             <ArrowLeft size={14} /> Back to {unit.title}
           </Link>
           <div className="mb-2 text-sm font-medium text-[var(--learn-accent)]">
-            Unit {unit.number} · {topic.title}
+            Unit {unit.number} · <MathText>{topic.title}</MathText>
           </div>
           <h1 className="text-3xl lg:text-[2.25rem] font-bold tracking-tight leading-[1.1] text-[var(--learn-ink)] mb-6">
-            {lesson.title}
+            <MathText>{lesson.title}</MathText>
           </h1>
           <LearnCard className="mt-6 border-2 border-dashed bg-transparent">
             <div className="flex items-start gap-4">

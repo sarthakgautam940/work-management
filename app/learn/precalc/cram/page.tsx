@@ -12,6 +12,7 @@ import {
   type CramBlock, type CramLessonRef,
 } from "@/lib/learn/cram-plan";
 import { findLesson, PRECALC } from "@/lib/learn/course";
+import { MathText } from "@/components/learn/math";
 import { useStore } from "@/lib/store";
 import { ArrowRight, Check, Lock, Flame, Clock, AlertTriangle, ChevronDown } from "lucide-react";
 import { daysUntil } from "@/lib/utils/date";
@@ -104,7 +105,9 @@ function NextUpBanner({ blockLabel, item }: { blockLabel: string; item: CramLess
             <div className="text-xs font-medium uppercase tracking-wide text-accent-blue mb-1">
               Next up · {blockLabel}
             </div>
-            <div className="font-semibold text-base text-ink truncate">{found.lesson.title}</div>
+            <div className="font-semibold text-base text-ink truncate">
+              <MathText>{found.lesson.title}</MathText>
+            </div>
             <div className="text-sm text-ink-dim mt-0.5">
               {found.unit.title} · {found.lesson.estimateMin} min · {found.lesson.beats.length} beats
               {item.note && <span className="ml-2 text-accent-amber">· {item.note}</span>}
@@ -192,7 +195,7 @@ function LessonRow({ item, done }: { item: CramLessonRef; done: boolean }) {
         <div className="flex-1 min-w-0">
           <div className="text-sm text-ink leading-tight">
             <span className="font-mono text-2xs text-ink-mute mr-2 tabular-nums">U{unit.number}</span>
-            {lesson.title}
+            <MathText>{lesson.title}</MathText>
           </div>
           {item.note && (
             <div className="text-xs text-accent-amber mt-0.5">{item.note}</div>
@@ -252,7 +255,7 @@ function SkipList({ description, lessonIds }: { description: string; lessonIds: 
                   <div key={unit}>
                     <div className="text-xs font-medium text-ink-mute mb-1.5">{unit}</div>
                     <ul className="space-y-1 text-xs text-ink-dim">
-                      {items.map((t, i) => <li key={i}>· {t}</li>)}
+                      {items.map((t, i) => <li key={i}>· <MathText>{t}</MathText></li>)}
                     </ul>
                   </div>
                 ),
