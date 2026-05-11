@@ -1,26 +1,29 @@
-// 12-hour exam-eve cram plan. Hand-picked sequence of lessons grouped
-// into time blocks, prioritized by AP exam yield.
+// 9-hour exam-eve cram plan (trimmed from original 12-hour version).
 //
-// This is a VIEW over the full course — every lesson here already exists
-// in lib/learn/units/. Nothing duplicated; nothing rewritten. The cram
-// page reads this and surfaces lessons in the order specified.
+// User has already covered:
+//   - Full unit circle (Unit 3 § 3.2) — memorized
+//   - Sin/cos parent + concavity + cofunction shift (3.3 all 3)
+//   - A/B/C/D mapping + reading-off-graph + protocol + tides (3.4 first 4)
+//   - Transformations: vertical, horizontal, order of ops (1.7 — 3 of 5)
+//   - Composition l2-4-1
+//   - Tangent l3-5-1
+//   - Trig equations base technique (+2πk, base angles)
+//
+// Pulled from CRAM_BLOCKS. Recorded in ALREADY_COVERED so the cram page
+// auto-marks them complete in the store (so progress everywhere matches).
 
 import { findLesson, PRECALC } from "./course";
 import type { Lesson, Topic, Unit } from "./types";
 
 export type CramLessonRef = {
   lessonId: string;
-  // Optional note shown on the row: "just learn the protocol",
-  // "Pythagorean only", etc. Used when the full lesson is more than
-  // the cram strategy calls for.
   note?: string;
 };
 
 export type CramBlock = {
   id: string;
-  hours: [number, number]; // hour-from-start range, e.g. [0, 4]
+  hours: [number, number];
   label: string;
-  // Why this block matters. One sentence.
   rationale: string;
   lessons: CramLessonRef[];
 };
@@ -29,138 +32,138 @@ export type CramAux = {
   id: string;
   label: string;
   description: string;
-  // Lesson ids that are explicitly NOT in the plan. Shown as a Skip list
-  // so the user knows what they're consciously choosing to drop.
   skipLessons?: string[];
-  // Optional URL action (used for the practice-drill block).
   ctaHref?: string;
   ctaLabel?: string;
 };
 
+// Lessons already covered earlier in the session (chat-taught, not
+// app-completed). Auto-marked as done on cram-page mount.
+export const ALREADY_COVERED: { lessonId: string; note: string }[] = [
+  // Unit 3 — unit circle (memorized cold)
+  { lessonId: "l3-2-1", note: "Memorized cold" },
+  { lessonId: "l3-2-2", note: "Memorized cold" },
+  { lessonId: "l3-2-3", note: "Memorized cold" },
+  { lessonId: "l3-2-4", note: "Memorized cold" },
+  { lessonId: "l3-2-5", note: "All 16 values memorized" },
+  { lessonId: "l3-2-6", note: "ASTC memorized" },
+  { lessonId: "l3-2-7", note: "Memorized cold" },
+  // Unit 3 — sin/cos graphs + parent
+  { lessonId: "l3-3-1", note: "Parent graphs known" },
+  { lessonId: "l3-3-2", note: "Parent graphs known" },
+  { lessonId: "l3-3-3", note: "Parent graphs known" },
+  // Unit 3 — sinusoidal: ABCD, reading off graph, protocol, tides
+  { lessonId: "l3-4-1", note: "Covered in chat — A/B/C/D decoder" },
+  { lessonId: "l3-4-2", note: "Covered with Q1 + 3sin(2(x-π/4))-1 problem" },
+  { lessonId: "l3-4-3", note: "Protocol drilled with Q1 + Q3" },
+  { lessonId: "l3-4-4", note: "Tides + Ferris-wheel done in chat" },
+  // Unit 1 — transformations (most of it)
+  { lessonId: "l1-7-1", note: "A and D mechanics covered" },
+  { lessonId: "l1-7-2", note: "Horizontal-is-backwards trap locked in" },
+  { lessonId: "l1-7-5", note: "Factor-inside + order of ops covered" },
+  // Unit 2 — composition
+  { lessonId: "l2-4-1", note: "h(0) = f(g(0)) problem solved in chat" },
+  // Unit 3 — tangent definition
+  { lessonId: "l3-5-1", note: "Tangent parent + asymptote rule covered" },
+];
+
+// ──────────────────────────────────────────────────────────────────────
+// Remaining blocks. Hours rescaled to fit the ~9 hours left from 2:46am.
+// ──────────────────────────────────────────────────────────────────────
+
 export const CRAM_BLOCKS: CramBlock[] = [
   {
     id: "b1",
-    hours: [0, 4],
-    label: "Unit 3 core — highest yield",
-    rationale: "Unit circle unlocks everything else in Unit 3. Sinusoidal modeling is the biggest FRQ topic. Lock these first.",
+    hours: [0, 2],
+    label: "Unit 1 — rational + sign + multiplicity",
+    rationale: "Three Unit 1 traps: HA degree cases, multiplicity behavior, sign analysis. Plus two transformation lessons not yet covered.",
     lessons: [
-      // 3.2 Unit circle — all 7
-      { lessonId: "l3-2-1" },
-      { lessonId: "l3-2-2" },
-      { lessonId: "l3-2-3" },
-      { lessonId: "l3-2-4" },
-      { lessonId: "l3-2-5", note: "Memorize all 16 values cold. Non-negotiable." },
-      { lessonId: "l3-2-6" },
-      { lessonId: "l3-2-7" },
-      // 3.3 Sin & cos graphs — all 3 (light)
-      { lessonId: "l3-3-1" },
-      { lessonId: "l3-3-2" },
-      { lessonId: "l3-3-3" },
-      // 3.4 Sinusoidal modeling — 4 of 8
-      { lessonId: "l3-4-1" },
-      { lessonId: "l3-4-2" },
-      { lessonId: "l3-4-3", note: "Just the protocol — memorize the 4 steps." },
-      { lessonId: "l3-4-4", note: "Tides is the most common scenario. Skip the rest." },
-    ],
-  },
-  {
-    id: "b2",
-    hours: [4, 7],
-    label: "Unit 1 heavy hitters",
-    rationale: "Transformations are tested every year. HA cases trap students. Multiplicity is one cheap MCQ point.",
-    lessons: [
-      // 1.7 Transformations — all 5
-      { lessonId: "l1-7-1" },
-      { lessonId: "l1-7-2", note: "The 'horizontal is backwards' trap — own this one." },
+      // 1.7 remaining (reflections + range)
       { lessonId: "l1-7-3" },
       { lessonId: "l1-7-4" },
-      { lessonId: "l1-7-5" },
-      // 1.4 Rational asymptotes — HA + slant
+      // 1.4 rational asymptotes
       { lessonId: "l1-4-1", note: "The 3 degree cases — most common MCQ trap." },
       { lessonId: "l1-4-3" },
-      // 1.3 Multiplicity
+      // 1.3 multiplicity
       { lessonId: "l1-3-4", note: "Cross vs touch vs flat-cross. High-leverage for graph reading." },
-      // 1.5 Sign analysis on number line
+      // 1.5 sign analysis
       { lessonId: "l1-5-3" },
     ],
   },
   {
-    id: "b3",
-    hours: [7, 10],
-    label: "Unit 2 essentials",
-    rationale: "Log-equation domain check is the most-trapped FRQ move. Inverse + composition appear on every exam.",
+    id: "b2",
+    hours: [2, 4],
+    label: "Unit 2 — log equations + inverses",
+    rationale: "Log-domain trap is the most-trapped FRQ move. Inverses appear every year.",
     lessons: [
-      // 2.7 — 2 critical lessons
       { lessonId: "l2-7-5" },
       { lessonId: "l2-7-7", note: "Always domain-check. Extraneous solutions cost real points." },
-      // 2.4 Composition
-      { lessonId: "l2-4-1" },
-      // 2.5 Inverse — HLT + algebraic
       { lessonId: "l2-5-1" },
       { lessonId: "l2-5-2" },
-      // 2.2 Exponent rules
       { lessonId: "l2-2-3" },
     ],
   },
   {
-    id: "b4",
-    hours: [10, 11],
-    label: "Unit 3 extras",
-    rationale: "Pythagorean identities. Tangent basics. Inverse-trig domain/range only.",
+    id: "b3",
+    hours: [4, 5],
+    label: "Unit 3 — Pythagorean + inverse trig",
+    rationale: "Three quick lessons. Pythagorean rearrangements show up in simplification problems. Inverse-trig ranges are 1 cheap MCQ point.",
     lessons: [
-      // 3.8 Pythagorean only
       { lessonId: "l3-8-1", note: "Pythagorean derivation only. Skip cofunction." },
       { lessonId: "l3-8-2", note: "Three rearrangements — memorize." },
-      // 3.5 Tangent
-      { lessonId: "l3-5-1", note: "Period π + asymptote rule. Skip the other two tangent lessons." },
-      // 3.6 Inverse trig — domains/ranges only
-      { lessonId: "l3-6-2", note: "Just the domain/range table. The rest can wait." },
+      { lessonId: "l3-6-2", note: "Just the domain/range table." },
     ],
   },
 ];
 
 export const CRAM_AUX: CramAux[] = [
   {
-    id: "b5",
-    label: "Hour 11–12 — Drill flagged misses",
-    description: "Re-do the 5 hardest practice problems you got wrong earlier today. No new material. Eat. Sleep at hour 12.",
-    ctaHref: "/learn/precalc/practice",
-    ctaLabel: "Open practice bank",
+    id: "drill",
+    label: "Hour 5–7 — Drill",
+    description: "Mock S1A (28 MCQ, 80 min, no calc) → review every miss → flag for spaced rep. Then drill the practice bank with filters on your weakest unit.",
+    ctaHref: "/learn/precalc/exam",
+    ctaLabel: "Open mock exam",
+  },
+  {
+    id: "review",
+    label: "Hour 7–8 — Formula sweep",
+    description: "Run through the spaced-review deck of due formula cards. Re-do the 5 hardest practice misses. No new material.",
+    ctaHref: "/learn/precalc/review",
+    ctaLabel: "Open review",
+  },
+  {
+    id: "sleep",
+    label: "Hour 8–9 — Wind down",
+    description: "Stop touching the app. Eat. Set out pencils, calculator (radians mode!), and your school ID. Sleep at hour 9. Crammers past midnight on AP day score lower.",
   },
   {
     id: "skip",
     label: "Consciously skipped",
-    description: "Low AP yield given your time budget. These exist in the course if you find time after the exam, but don't open them tonight.",
+    description: "Low AP yield given your time budget. Reachable via the full course grid if you find time after the exam.",
     skipLessons: [
-      // 2.1 Sequences (rarely tested)
-      "l2-1-1", "l2-1-2", "l2-1-3", "l2-1-4",
-      // 2.8 Log modeling (rare)
-      "l2-8-1", "l2-8-2", "l2-8-3",
-      // 3.7 Trig equations (some tested, but survivable with unit circle + algebra)
-      "l3-7-1", "l3-7-2", "l3-7-3", "l3-7-4", "l3-7-5", "l3-7-6",
-      // 3.9 Polar (≤1 question per exam)
-      "l3-9-2", "l3-9-4", "l3-9-5", "l3-9-6", "l3-9-7", "l3-9-8", "l3-9-9",
-      // 3.8 (rest of identities — sum/diff/double-angle/cofunction/reflections/drill)
-      "l3-8-3", "l3-8-4", "l3-8-5", "l3-8-6", "l3-8-7", "l3-8-8",
-      // 3.4 (remaining sinusoidal scenarios)
-      "l3-4-5", "l3-4-6", "l3-4-7", "l3-4-8",
-      // Unit 1 extras
+      // Unit 1 — extras outside the plan
       "l1-2-1", "l1-2-2", "l1-2-3",
       "l1-3-3", "l1-3-5",
       "l1-5-2", "l1-5-4",
       "l1-6-1", "l1-6-2", "l1-6-3", "l1-6-4",
       "l1-8-1", "l1-8-2", "l1-8-3", "l1-8-4",
-      // Unit 2 extras
+      // Unit 2 — extras
+      "l2-1-1", "l2-1-2", "l2-1-3", "l2-1-4",
       "l2-2-1", "l2-2-2", "l2-2-4",
       "l2-3-1", "l2-3-2", "l2-3-3", "l2-3-4",
       "l2-4-2", "l2-4-3",
       "l2-5-3", "l2-5-4",
       "l2-6-3", "l2-6-4",
       "l2-7-3", "l2-7-4", "l2-7-6",
-      // Unit 3 extras
+      "l2-8-1", "l2-8-2", "l2-8-3",
+      // Unit 3 — extras
       "l3-1-1", "l3-1-2",
+      "l3-4-5", "l3-4-6", "l3-4-7", "l3-4-8",
       "l3-5-2", "l3-5-3",
       "l3-6-1", "l3-6-3", "l3-6-4", "l3-6-5",
+      "l3-7-1", "l3-7-2", "l3-7-3", "l3-7-4", "l3-7-5", "l3-7-6",
+      "l3-8-3", "l3-8-4", "l3-8-5", "l3-8-6", "l3-8-7", "l3-8-8",
+      "l3-9-2", "l3-9-4", "l3-9-5", "l3-9-6", "l3-9-7", "l3-9-8", "l3-9-9",
     ],
   },
 ];
@@ -206,8 +209,6 @@ export function nextLessonInBlock(block: CramBlock, lessonsDone: Record<string, 
   return block.lessons.find((ref) => !lessonsDone[ref.lessonId]);
 }
 
-// Find the first block that has un-done lessons; its first un-done lesson
-// is the global "next up".
 export function nextUp(lessonsDone: Record<string, string>): { block: CramBlock; ref: CramLessonRef } | undefined {
   for (const block of CRAM_BLOCKS) {
     const ref = nextLessonInBlock(block, lessonsDone);
@@ -215,3 +216,7 @@ export function nextUp(lessonsDone: Record<string, string>): { block: CramBlock;
   }
   return undefined;
 }
+
+// Sentinel value used by the cram page to detect whether the pre-covered
+// auto-mark has already run on this client. Bumped if the list changes.
+export const ALREADY_COVERED_SENTINEL = "__autocovered_v1";
